@@ -1,0 +1,17 @@
+modLoader="javafml"
+loaderVersion="[34,)" 
+license="LGPL 2.1"
+authors="Sirttas"
+
+[[mods]] 
+modId="dpanvil"
+version="${file.jarVersion}"
+displayName="DataPack Anvil"
+description='''A library mod to create datapack driven mods.'''
+
+[[dependencies.dpanvil]]
+    modId="forge"
+    mandatory=true
+    versionRange="[34.1.25,)"
+    ordering="NONE"
+    side="BOTH"

@@ -1,0 +1,15 @@
+/.gradle
+/build
+/bin
+/run
+/.settings
+/.classpath
+/.project
+*.launch
+/src/generated/resources/.cache
+/.idea/
+/run-server/
+/logs/
+/.factorypath
+/Users/
+*.hprof
