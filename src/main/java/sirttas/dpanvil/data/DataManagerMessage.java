@@ -5,6 +5,8 @@ import java.util.Map;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import sirttas.dpanvil.DataPackAnvil;
+import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.DataManager;
 
 public class DataManagerMessage<T> {
@@ -15,16 +17,20 @@ public class DataManagerMessage<T> {
 
 	public DataManagerMessage(ResourceLocation id) {
 		this.id = id;
-		this.manager = DataManagers.getManager(id);
+		this.manager = DataPackAnvil.WRAPPER.getManager(id);
 		this.data = manager.getData();
 	}
 
 	public void decode(PacketBuffer buf) {
-		int mapSize = buf.readInt();
+		try {
+			int mapSize = buf.readInt();
 
-		data = new HashMap<>(mapSize);
-		for (int i = 0; i < mapSize; i++) {
-			data.put(buf.readResourceLocation(), manager.getSerializer().read(buf));
+			data = new HashMap<>(mapSize);
+			for (int i = 0; i < mapSize; i++) {
+				data.put(buf.readResourceLocation(), manager.getSerializer().read(buf));
+			}
+		} catch (Exception e) {
+			DataPackAnvilApi.LOGGER.error(() -> "Error while decoding network packet for datamanger " + manager.getName(), e);
 		}
 	}
 

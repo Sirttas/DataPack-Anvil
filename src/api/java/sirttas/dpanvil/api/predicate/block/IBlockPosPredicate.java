@@ -1,8 +1,9 @@
 package sirttas.dpanvil.api.predicate.block;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiPredicate;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReader;
@@ -19,14 +20,14 @@ public interface IBlockPosPredicate {
 	}
 
 	default IBlockPosPredicate or(IBlockPosPredicate... predicates) {
-		List<IBlockPosPredicate> list = Arrays.asList(predicates);
+		List<IBlockPosPredicate> list = Lists.newArrayList(predicates);
 
 		list.add(this);
 		return new OrBlockPredicate(list);
 	}
 
 	default IBlockPosPredicate and(IBlockPosPredicate... predicates) {
-		List<IBlockPosPredicate> list = Arrays.asList(predicates);
+		List<IBlockPosPredicate> list = Lists.newArrayList(predicates);
 		
 		list.add(this);
 		return new AndBlockPredicate(list);

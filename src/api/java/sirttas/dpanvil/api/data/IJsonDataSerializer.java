@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.network.PacketBuffer;
 
-public interface IDataSerializer<T> extends JsonDeserializer<T> {
+public interface IJsonDataSerializer<T> extends JsonDeserializer<T> {
 
 	T read(JsonObject json);
 	T read(PacketBuffer buf);

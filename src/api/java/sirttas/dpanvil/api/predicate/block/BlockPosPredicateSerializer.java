@@ -16,10 +16,10 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.data.IDataSerializer;
+import sirttas.dpanvil.api.data.IJsonDataSerializer;
 
 @SuppressWarnings("unchecked")
-public abstract class BlockPosPredicateSerializer<T extends IBlockPosPredicate> extends ForgeRegistryEntry<BlockPosPredicateSerializer<?>> implements IDataSerializer<T>, JsonSerializer<T> {
+public abstract class BlockPosPredicateSerializer<T extends IBlockPosPredicate> extends ForgeRegistryEntry<BlockPosPredicateSerializer<?>> implements IJsonDataSerializer<T>, JsonSerializer<T> {
 
 	public static final IForgeRegistry<BlockPosPredicateSerializer<?>> REGISTRY = RegistryManager.ACTIVE.getRegistry(BlockPosPredicateSerializer.class);
 

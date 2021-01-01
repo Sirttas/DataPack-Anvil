@@ -2,17 +2,19 @@ package sirttas.dpanvil.data;
 
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
+import sirttas.dpanvil.annotation.DataHolderProcessor;
 
 public class ReloadDataMessage {
 
 	private final List<DataManagerMessage<?>> messages;
 
 	public ReloadDataMessage() {
-		messages = DataManagers.MANAGERS.keySet().stream().map(DataManagerMessage::new).collect(Collectors.toList());
+		messages = Lists.newArrayList();
 	}
 
 	public static ReloadDataMessage decode(PacketBuffer buf) {
@@ -25,7 +27,7 @@ public class ReloadDataMessage {
 			managerMessage.decode(buf);
 			message.messages.add(managerMessage);
 		}
-		return null;
+		return message;
 	}
 
 	public void encode(PacketBuffer buf) {
@@ -38,6 +40,7 @@ public class ReloadDataMessage {
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> messages.forEach(DataManagerMessage::process));
+		DataHolderProcessor.apply();
 		ctx.get().setPacketHandled(true);
 	}
 }
