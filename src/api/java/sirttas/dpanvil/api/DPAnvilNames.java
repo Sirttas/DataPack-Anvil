@@ -6,5 +6,7 @@ public class DPAnvilNames {
 	public static final String BLOCK = "block";
 	public static final String BLOCKS = "blocks";
 	public static final String TAG = "tag";
+	public static final String VALUE = "value";
+	public static final String VALUES = "values";
 
 }

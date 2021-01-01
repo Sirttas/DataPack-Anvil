@@ -8,7 +8,7 @@ import net.minecraft.world.IWorldReader;
 
 public interface IBlockStatePredicate extends IBlockPosPredicate {
 
-	boolean test(BlockState stata);
+	boolean test(BlockState state);
 
 	default Predicate<BlockState> asBlockStatePredicate() {
 		return this::test;

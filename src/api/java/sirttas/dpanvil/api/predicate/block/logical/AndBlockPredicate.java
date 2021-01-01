@@ -6,13 +6,13 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReader;
 import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicateSerializer;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
-import sirttas.dpanvil.api.predicate.block.ListPredicate;
 
-public class AndBlockPredicate extends ListPredicate {
+public class AndBlockPredicate extends ListBlockPredicate {
 
 	public static final String NAME = "and";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static Serializer<AndBlockPredicate> SERIALIZER;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateSerializer<AndBlockPredicate> SERIALIZER;
 
 	public AndBlockPredicate(IBlockPosPredicate... predicates) {
 		this(Arrays.asList(predicates));
@@ -28,7 +28,7 @@ public class AndBlockPredicate extends ListPredicate {
 	}
 
 	@Override
-	public Serializer<AndBlockPredicate> getSerializer() {
+	public BlockPosPredicateSerializer<AndBlockPredicate> getSerializer() {
 		return SERIALIZER;
 	}
 }
