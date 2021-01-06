@@ -5,6 +5,7 @@ import java.util.Map;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.mojang.serialization.Codec;
 
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.profiler.IProfiler;
@@ -15,6 +16,7 @@ import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.api.codec.CodecJsonDataSerializer;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 
 /**
@@ -44,6 +46,16 @@ public abstract class DataManager<T> extends JsonReloadListener {
 	 * </p>
 	 */
 	protected Map<ResourceLocation, T> data = ImmutableMap.of();
+
+	/**
+	 * @param clazz  the class corresponding to {@link T}
+	 * @param codec  the codec to use
+	 * @param folder the folder where the data is stored its recommended to name it
+	 *               "modeid_dataname"
+	 */
+	public DataManager(Class<T> contentType, Codec<T> codec, String folder) {
+		this(contentType, new CodecJsonDataSerializer<>(codec), folder);
+	}
 
 	/**
 	 * @param clazz      the class corresponding to {@link T}

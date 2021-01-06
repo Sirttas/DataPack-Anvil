@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.RegistryBuilder;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.api.predicate.block.BlockPosPredicateSerializer;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 
 @Mod.EventBusSubscriber(modid = DataPackAnvilApi.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class DPAnvilRegistries {
@@ -16,7 +16,7 @@ public class DPAnvilRegistries {
 
 	@SubscribeEvent
 	public static void createRegistries(RegistryEvent.NewRegistry event) {
-		new RegistryBuilder<>().setName(DataPackAnvil.createRL("block_predicate_serializer")).setIDRange(MIN_ID, MAX_ID).setType(cast(BlockPosPredicateSerializer.class)).create();
+		new RegistryBuilder<>().setName(DataPackAnvil.createRL("block_predicate_type")).setIDRange(MIN_ID, MAX_ID).setType(cast(BlockPosPredicateType.class)).create();
 	}
 
 	@SuppressWarnings("unchecked")

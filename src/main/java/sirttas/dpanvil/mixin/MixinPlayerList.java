@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.server.management.PlayerList;
+import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.data.ReloadDataMessage;
 import sirttas.dpanvil.data.network.message.MessageHelper;
 
@@ -14,7 +15,7 @@ public class MixinPlayerList {
 
 	@Inject(method = "reloadResources", at = @At("RETURN"))
 	public void onReloadResources(CallbackInfo ci) {
-		MessageHelper.sendToAllPlayers(new ReloadDataMessage());
+		MessageHelper.sendToAllPlayers(new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
 	}
 
 }

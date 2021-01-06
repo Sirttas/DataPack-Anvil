@@ -2,17 +2,20 @@ package sirttas.dpanvil.api.predicate.block.logical;
 
 import java.util.Arrays;
 
+import com.mojang.serialization.Codec;
+
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReader;
 import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.api.predicate.block.BlockPosPredicateSerializer;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
 public class AndBlockPredicate extends ListBlockPredicate {
 
 	public static final String NAME = "and";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateSerializer<AndBlockPredicate> SERIALIZER;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<AndBlockPredicate> TYPE;
+	public static final Codec<AndBlockPredicate> CODEC = codec(AndBlockPredicate::new);
 
 	public AndBlockPredicate(IBlockPosPredicate... predicates) {
 		this(Arrays.asList(predicates));
@@ -28,7 +31,8 @@ public class AndBlockPredicate extends ListBlockPredicate {
 	}
 
 	@Override
-	public BlockPosPredicateSerializer<AndBlockPredicate> getSerializer() {
-		return SERIALIZER;
+	public BlockPosPredicateType<AndBlockPredicate> getType() {
+		return TYPE;
 	}
+
 }

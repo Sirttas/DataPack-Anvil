@@ -1,7 +1,10 @@
 package sirttas.dpanvil.api.predicate.block;
 
+import com.mojang.serialization.Codec;
+
 import net.minecraft.block.Block;
 import net.minecraft.tags.ITag.INamedTag;
+import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.NotBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.OrBlockPredicate;
@@ -10,6 +13,8 @@ import sirttas.dpanvil.api.predicate.block.match.MatchBlockTagPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
 
 public class BlockPredicates {
+
+	public static final Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(() -> BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::getCodec);
 
 	public static IBlockPosPredicate or(IBlockPosPredicate... predicates) {
 		return new OrBlockPredicate(predicates);

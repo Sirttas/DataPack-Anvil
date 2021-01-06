@@ -1,11 +1,14 @@
 package sirttas.dpanvil.data;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import sirttas.dpanvil.annotation.DataHolderProcessor;
 
@@ -15,6 +18,10 @@ public class ReloadDataMessage {
 
 	public ReloadDataMessage() {
 		messages = Lists.newArrayList();
+	}
+
+	public ReloadDataMessage(Collection<ResourceLocation> managers) {
+		messages = managers.stream().map(DataManagerMessage::new).collect(Collectors.toList());
 	}
 
 	public static ReloadDataMessage decode(PacketBuffer buf) {

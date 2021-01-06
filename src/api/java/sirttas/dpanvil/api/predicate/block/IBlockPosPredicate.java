@@ -36,7 +36,7 @@ public interface IBlockPosPredicate {
 	default IBlockPosPredicate not() {
 		return new NotBlockPredicate(this);
 	}
+	BlockPosPredicateType<? extends IBlockPosPredicate> getType();
 
-	BlockPosPredicateSerializer<? extends IBlockPosPredicate> getSerializer();
 
 }

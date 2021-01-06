@@ -2,17 +2,20 @@ package sirttas.dpanvil.api.predicate.block.logical;
 
 import java.util.Arrays;
 
+import com.mojang.serialization.Codec;
+
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorldReader;
 import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.api.predicate.block.BlockPosPredicateSerializer;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
 public class OrBlockPredicate extends ListBlockPredicate {
 
 	public static final String NAME = "or";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateSerializer<OrBlockPredicate> SERIALIZER;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<OrBlockPredicate> TYPE;
+	public static final Codec<OrBlockPredicate> CODEC = codec(OrBlockPredicate::new);
 
 	public OrBlockPredicate(IBlockPosPredicate... predicates) {
 		this(Arrays.asList(predicates));
@@ -28,7 +31,7 @@ public class OrBlockPredicate extends ListBlockPredicate {
 	}
 
 	@Override
-	public BlockPosPredicateSerializer<OrBlockPredicate> getSerializer() {
-		return SERIALIZER;
+	public BlockPosPredicateType<OrBlockPredicate> getType() {
+		return TYPE;
 	}
 }

@@ -51,7 +51,7 @@ public class DataPackAnvil {
 		PlayerEntity player = event.getPlayer();
 
 		if (player instanceof ServerPlayerEntity) {
-			MessageHelper.sendToPlayer((ServerPlayerEntity) player, new ReloadDataMessage());
+			MessageHelper.sendToPlayer((ServerPlayerEntity) player, new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
 		}
 	}
 

@@ -1,5 +1,8 @@
 package sirttas.dpanvil.api.predicate.block.match;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.tags.BlockTags;
@@ -8,14 +11,18 @@ import net.minecraft.tags.ITag.INamedTag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ObjectHolder;
+import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.api.predicate.block.BlockPosPredicateSerializer;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
 public class MatchBlockTagPredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "tag";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateSerializer<MatchBlockTagPredicate> SERIALIZER;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<MatchBlockTagPredicate> TYPE;
+	public static final Codec<MatchBlockTagPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+			ResourceLocation.CODEC.fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::getTagName)
+	).apply(builder, MatchBlockTagPredicate::new));
 
 	private final ITag<Block> tag;
 	private final ResourceLocation tagName;
@@ -43,8 +50,8 @@ public class MatchBlockTagPredicate implements IBlockStatePredicate {
 	}
 
 	@Override
-	public BlockPosPredicateSerializer<MatchBlockTagPredicate> getSerializer() {
-		return SERIALIZER;
+	public BlockPosPredicateType<MatchBlockTagPredicate> getType() {
+		return TYPE;
 	}
 
 	private static ITag<Block> getTag(ResourceLocation loc) {
