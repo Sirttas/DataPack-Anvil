@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.server.management.PlayerList;
 import sirttas.dpanvil.DataPackAnvil;
-import sirttas.dpanvil.data.ReloadDataMessage;
 import sirttas.dpanvil.data.network.message.MessageHelper;
+import sirttas.dpanvil.data.network.message.ReloadDataMessage;
 
 @Mixin(PlayerList.class)
 public class MixinPlayerList {

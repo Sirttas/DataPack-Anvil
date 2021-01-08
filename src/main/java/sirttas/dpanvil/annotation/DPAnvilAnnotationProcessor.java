@@ -17,37 +17,37 @@ import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.annotation.DataHolder;
-import sirttas.dpanvil.api.data.DataManager;
+import sirttas.dpanvil.api.data.IDataManager;
 
-public class DataHolderProcessor {
+public class DPAnvilAnnotationProcessor {
 
 	private static final Type DATA_HOLDER = Type.getType(DataHolder.class);
-	private static Map<Field, ResourceLocation> dataHolders;
+	private Map<Field, ResourceLocation> dataHolders;
 
-	public static void setup() {
-		ImmutableMap.Builder<Field, ResourceLocation> builder = ImmutableMap.builder();
+	public void setup() {
+		ImmutableMap.Builder<Field, ResourceLocation> dataHoldersBuilder = ImmutableMap.builder();
 
-		ModList.get().getAllScanData().stream().map(ModFileScanData::getAnnotations).flatMap(Collection::stream).filter(a -> DATA_HOLDER.equals(a.getAnnotationType()))
-				.map(AnnotationData::getClassType).distinct().map(DataHolderProcessor::getClass).filter(Objects::nonNull).map(Class::getDeclaredFields).flatMap(Stream::of)
-				.filter(field -> field.isAnnotationPresent(DataHolder.class)).forEach(field -> {
+		ModList.get().getAllScanData().stream().map(ModFileScanData::getAnnotations).flatMap(Collection::stream)
+				.filter(a -> DATA_HOLDER.equals(a.getAnnotationType())).map(AnnotationData::getClassType).distinct().map(this::getClass).filter(Objects::nonNull).map(Class::getDeclaredFields)
+				.flatMap(Stream::of).filter(field -> field.isAnnotationPresent(DataHolder.class)).forEach(field -> {
 					field.setAccessible(true);
-					builder.put(field, new ResourceLocation(field.getAnnotation(DataHolder.class).value()));
+					dataHoldersBuilder.put(field, new ResourceLocation(field.getAnnotation(DataHolder.class).value()));
 				});
-		dataHolders = builder.build();
+		dataHolders = dataHoldersBuilder.build();
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> Class<T> getClass(Type type) {
+	private <T> Class<T> getClass(Type type) {
 		try {
-			return (Class<T>) Class.forName(type.getClassName(), false, DataHolderProcessor.class.getClassLoader());
+			return (Class<T>) Class.forName(type.getClassName(), false, DPAnvilAnnotationProcessor.class.getClassLoader());
 		} catch (ClassNotFoundException e) {
 			return null;
 		}
 	}
 
-	public static void apply() {
+	public void applyDataHolder() {
 		dataHolders.forEach((field, id) -> {
-			DataManager<?> manager = DataPackAnvil.WRAPPER.getManager(field.getType());
+			IDataManager<?> manager = DataPackAnvil.WRAPPER.getManager(field.getType());
 
 			if (manager != null) {
 				try {

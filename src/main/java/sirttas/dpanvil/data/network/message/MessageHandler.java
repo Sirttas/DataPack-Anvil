@@ -3,7 +3,6 @@ package sirttas.dpanvil.data.network.message;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
 import sirttas.dpanvil.DataPackAnvil;
-import sirttas.dpanvil.data.ReloadDataMessage;
 
 public class MessageHandler {
 

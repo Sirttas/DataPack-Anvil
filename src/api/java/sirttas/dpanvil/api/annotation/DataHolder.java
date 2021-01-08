@@ -5,12 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import sirttas.dpanvil.api.data.DataManager;
+import sirttas.dpanvil.api.data.IDataManager;
 
 /**
  * <p>
  * DataHolder can be used to automatically populate static final fields with
- * entries from the {@link DataManager}. These values can then be referred
+ * entries from the {@link IDataManager}. These values can then be referred
  * within mod code directly similar to
  * {@link net.minecraftforge.registries.ObjectHolder}.
  * </p>
@@ -23,7 +23,7 @@ import sirttas.dpanvil.api.data.DataManager;
 public @interface DataHolder {
 
 	/**
-	 * It represents a name. to be retreived from {@link DataManager}
+	 * It represents a name. to be retreived from {@link IDataManager}
 	 *
 	 * @return A name
 	 */

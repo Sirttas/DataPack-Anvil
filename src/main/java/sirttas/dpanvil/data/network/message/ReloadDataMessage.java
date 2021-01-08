@@ -1,4 +1,4 @@
-package sirttas.dpanvil.data;
+package sirttas.dpanvil.data.network.message;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
-import sirttas.dpanvil.annotation.DataHolderProcessor;
+import sirttas.dpanvil.DataPackAnvil;
 
 public class ReloadDataMessage {
 
@@ -47,7 +47,7 @@ public class ReloadDataMessage {
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> messages.forEach(DataManagerMessage::process));
-		DataHolderProcessor.apply();
+		DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
 		ctx.get().setPacketHandled(true);
 	}
 }

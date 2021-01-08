@@ -1,10 +1,10 @@
-package sirttas.dpanvil.api.codec;
+package sirttas.dpanvil.data.serializer;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.network.PacketBuffer;
-import sirttas.dpanvil.api.data.IJsonDataSerializer;
+import sirttas.dpanvil.api.codec.CodecHelper;
 
 public class CodecJsonDataSerializer<T> implements IJsonDataSerializer<T> {
 
@@ -15,7 +15,7 @@ public class CodecJsonDataSerializer<T> implements IJsonDataSerializer<T> {
 	}
 
 	@Override
-	public T read(JsonObject json) {
+	public T read(JsonElement json) {
 		return CodecHelper.decode(codec, json);
 	}
 
