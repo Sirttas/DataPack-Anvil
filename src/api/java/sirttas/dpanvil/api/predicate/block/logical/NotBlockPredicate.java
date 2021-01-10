@@ -39,4 +39,9 @@ public class NotBlockPredicate implements IBlockPosPredicate {
 	public BlockPosPredicateType<NotBlockPredicate> getType() {
 		return TYPE;
 	}
+
+	@Override
+	public IBlockPosPredicate not() {
+		return predicate;
+	}
 }

@@ -8,7 +8,6 @@ import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
-import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 
 /**
  * <p>
@@ -16,12 +15,11 @@ import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
  * </p>
  * <p>
  * it is a {@link IFutureReloadListener} and will be automatically register
- * during {@link AddReloadListenerEvent}.
+ * during {@link AddReloadListenerEvent}. <b>Don't add it yourself or it will
+ * break!</b>.
  * </p>
  * 
  * @param <T> the type of data the manager contains
- * @see #enqueueIMC(ResourceLocation)
- * @see IJsonDataSerializer
  */
 public interface IDataManager<T> extends IFutureReloadListener {
 

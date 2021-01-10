@@ -10,9 +10,12 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
+import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
+import sirttas.dpanvil.api.predicate.block.logical.NoneBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.NotBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.OrBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
+import sirttas.dpanvil.api.predicate.block.match.MatchBlockStatePredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockTagPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
 import sirttas.dpanvil.registry.RegistryHelper;
@@ -27,12 +30,15 @@ public class BlockPosPredicateTypes {
 	public static void registerBlockPosPredicateSerializers(RegistryEvent.Register<BlockPosPredicateType<?>> event) {
 		IForgeRegistry<BlockPosPredicateType<?>> registry = event.getRegistry();
 
+		register(registry, AnyBlockPredicate.CODEC, AnyBlockPredicate.NAME);
+		register(registry, NoneBlockPredicate.CODEC, NoneBlockPredicate.NAME);
 		register(registry, OrBlockPredicate.CODEC, OrBlockPredicate.NAME);
 		register(registry, AndBlockPredicate.CODEC, AndBlockPredicate.NAME);
 		register(registry, NotBlockPredicate.CODEC, NotBlockPredicate.NAME);
 		register(registry, MatchBlockPredicate.CODEC, MatchBlockPredicate.NAME);
 		register(registry, MatchBlocksPredicate.CODEC, MatchBlocksPredicate.NAME);
 		register(registry, MatchBlockTagPredicate.CODEC, MatchBlockTagPredicate.NAME);
+		register(registry, MatchBlockStatePredicate.CODEC, MatchBlockStatePredicate.NAME);
 	}
 
 	private static <T extends IBlockPosPredicate> void register(IForgeRegistry<BlockPosPredicateType<?>> registry, Codec<T> codec, String name) {

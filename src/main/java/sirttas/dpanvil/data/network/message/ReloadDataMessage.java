@@ -11,6 +11,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import sirttas.dpanvil.DataPackAnvil;
+import sirttas.dpanvil.data.DataHandler;
 
 public class ReloadDataMessage {
 
@@ -48,6 +49,7 @@ public class ReloadDataMessage {
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> messages.forEach(DataManagerMessage::process));
 		DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
+		DataHandler.onDPAnvilUpdate();
 		ctx.get().setPacketHandled(true);
 	}
 }

@@ -1,7 +1,9 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
 import java.util.Arrays;
+import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 
 import net.minecraft.util.math.BlockPos;
@@ -33,6 +35,14 @@ public class AndBlockPredicate extends ListBlockPredicate {
 	@Override
 	public BlockPosPredicateType<AndBlockPredicate> getType() {
 		return TYPE;
+	}
+
+	@Override
+	public IBlockPosPredicate and(IBlockPosPredicate... predicates) {
+		List<IBlockPosPredicate> list = Lists.newArrayList(predicates);
+
+		list.addAll(this.predicates);
+		return new OrBlockPredicate(list);
 	}
 
 }

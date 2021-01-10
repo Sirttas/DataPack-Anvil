@@ -15,7 +15,6 @@ public class DataManagerFactory {
 		return construct(SIMPLE_CONSTRUCTOR, type, folder);
 	}
 
-
 	public static <T, M extends IDataManager<T>> M defaulted(Class<T> type, String folder, T defaultValue) {
 		return construct(DEFAULTED_CONSTRUCTOR, type, folder, defaultValue);
 	}
@@ -38,5 +37,4 @@ public class DataManagerFactory {
 			return null;
 		}
 	}
-
 }

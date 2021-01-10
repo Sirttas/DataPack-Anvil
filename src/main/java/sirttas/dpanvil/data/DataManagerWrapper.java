@@ -15,9 +15,11 @@ import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoader;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.data.IDataManager;
+import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.data.serializer.CodecJsonDataSerializer;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
@@ -89,8 +91,8 @@ public class DataManagerWrapper implements IFutureReloadListener {
 			Executor gameExecutor) {
 		if (ModLoader.isLoadingStateValid()) {
 			return CompletableFuture.allOf(managers.values().stream()
-					.map(manager -> manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor,
-							gameExecutor))
+					.map(manager -> manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
+							.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager))))
 					.toArray(CompletableFuture[]::new)).thenRun(DataPackAnvil.ANNOTATION_PROCESSOR::applyDataHolder);
 		}
 		return CompletableFuture.completedFuture(null);

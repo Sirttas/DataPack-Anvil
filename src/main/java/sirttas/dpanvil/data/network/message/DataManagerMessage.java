@@ -5,9 +5,11 @@ import java.util.Map;
 
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
+import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 
 public class DataManagerMessage<T> {
@@ -47,6 +49,7 @@ public class DataManagerMessage<T> {
 
 	public void process() {
 		manager.setData(data);
+		MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager));
 	}
 
 	public ResourceLocation getId() {

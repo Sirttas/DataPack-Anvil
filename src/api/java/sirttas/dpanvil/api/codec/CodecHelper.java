@@ -21,11 +21,11 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 public class CodecHelper {
 
 	/**
-	 * Get a codec for a forge registry
+	 * Get a codec for a {@link IForgeRegistry}
 	 * 
-	 * @param <T>
-	 * @param suplier
-	 * @return
+	 * @param <T>     the type of data inside the registry
+	 * @param suplier a {@link Supplier} for the {@link IForgeRegistry}
+	 * @return a Codec
 	 */
 	public static <T extends IForgeRegistryEntry<T>> Codec<T> getRegistryCodec(Supplier<IForgeRegistry<T>> suplier) {
 		return ResourceLocation.CODEC.comapFlatMap(id -> {

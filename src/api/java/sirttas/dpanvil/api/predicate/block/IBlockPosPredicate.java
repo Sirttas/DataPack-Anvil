@@ -15,6 +15,8 @@ public interface IBlockPosPredicate {
 
 	boolean test(IWorldReader world, BlockPos pos);
 
+	BlockPosPredicateType<? extends IBlockPosPredicate> getType();
+
 	default BiPredicate<IWorldReader, BlockPos> asBlockPosPredicate() {
 		return this::test;
 	}
@@ -36,7 +38,5 @@ public interface IBlockPosPredicate {
 	default IBlockPosPredicate not() {
 		return new NotBlockPredicate(this);
 	}
-	BlockPosPredicateType<? extends IBlockPosPredicate> getType();
-
 
 }

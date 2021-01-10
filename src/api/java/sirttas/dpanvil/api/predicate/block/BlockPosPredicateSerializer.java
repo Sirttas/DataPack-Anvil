@@ -7,20 +7,20 @@ import sirttas.dpanvil.api.codec.CodecHelper;
 
 public class BlockPosPredicateSerializer {
 
-	public static IBlockPosPredicate readPredicate(JsonElement json) {
-		return CodecHelper.decode(BlockPredicates.CODEC, json);
+	public static IBlockPosPredicate read(JsonElement json) {
+		return CodecHelper.decode(BlockPosPredicates.CODEC, json);
 	}
 
-	public static IBlockPosPredicate readPredicate(PacketBuffer buf) {
-		return CodecHelper.decode(BlockPredicates.CODEC, buf);
+	public static IBlockPosPredicate read(PacketBuffer buf) {
+		return CodecHelper.decode(BlockPosPredicates.CODEC, buf);
 	}
 
-	public static JsonElement writePredicate(IBlockPosPredicate predicate) {
-		return CodecHelper.encode(BlockPredicates.CODEC, predicate);
+	public static JsonElement write(IBlockPosPredicate predicate) {
+		return CodecHelper.encode(BlockPosPredicates.CODEC, predicate);
 	}
 
-	public static void writePredicate(PacketBuffer buf, IBlockPosPredicate predicate) {
-		CodecHelper.encode(BlockPredicates.CODEC, predicate, buf);
+	public static void writee(PacketBuffer buf, IBlockPosPredicate predicate) {
+		CodecHelper.encode(BlockPosPredicates.CODEC, predicate, buf);
 	}
 
 }
