@@ -1,12 +1,26 @@
 package sirttas.dpanvil.api.data;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.Keyable;
 
 import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
 /**
@@ -14,14 +28,25 @@ import sirttas.dpanvil.api.event.DataManagerReloadEvent;
  * A manager used to retrieve data from the datapack.
  * </p>
  * <p>
- * it is a {@link IFutureReloadListener} and will be automatically register
+ * It is a {@link IFutureReloadListener} and will be automatically register
  * during {@link AddReloadListenerEvent}. <b>Don't add it yourself or it will
  * break!</b>.
+ * <p>
+ * It can also be used as a codec but it will only serialize the resource
+ * location. It cannot be used to read datapack or sychronize it's conten, only
+ * help with NBT or network messages.
  * </p>
  * 
  * @param <T> the type of data the manager contains
  */
-public interface IDataManager<T> extends IFutureReloadListener {
+public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyable {
+
+	/**
+	 * The {@link Class} used to define the type of managed data
+	 * 
+	 * @return The {@link Class} used to define the type of managed data
+	 */
+	Class<T> getContentType();
 
 	/**
 	 * Retrieve the {@link Map} of data handled by this manager.
@@ -63,9 +88,58 @@ public interface IDataManager<T> extends IFutureReloadListener {
 	}
 
 	/**
-	 * The {@link Class} used to define the type of managed data
+	 * Get the ID for a value
 	 * 
-	 * @return The {@link Class} used to define the type of managed data
+	 * @param value the value to search
+	 * @return the id used for this value
 	 */
-	Class<T> getContentType();
+	default ResourceLocation getId(final T value) {
+		return getData().entrySet().stream().filter(e -> e.getValue().equals(value)).map(Entry::getKey).findAny().orElse(DataPackAnvilApi.ID_NONE);
+	}
+
+	/**
+	 * get a list of {@link T} corresponding to each of the ids in a collection
+	 * 
+	 * @param ids the ids to use
+	 * @return the list of corresponding data
+	 */
+	default List<T> getAll(Collection<ResourceLocation> ids) {
+		return ids.stream().map(this::get).collect(Collectors.toList());
+	}
+
+	@Override
+	default <U> DataResult<Pair<T, U>> decode(final DynamicOps<U> ops, final U input) {
+		return ResourceLocation.CODEC.decode(ops, input).map(pair -> pair.mapFirst(this::get));
+	}
+
+	@Override
+	default <U> DataResult<U> encode(final T input, final DynamicOps<U> ops, final U prefix) {
+		return ResourceLocation.CODEC.encode(getId(input), ops, prefix);
+    }
+
+	@Override
+	default <U> Stream<U> keys(DynamicOps<U> dynOps) {
+		return getData().keySet().stream().map(id -> dynOps.createString(id.toString()));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Builder<T> builder(Class<T> type, String folder) {
+		try {
+			Constructor<?> constructor = Class.forName("sirttas.dpanvil.data.DataManagerBuilder", true, IDataManager.class.getClassLoader()).getConstructor(Class.class, String.class);
+
+			return (Builder<T>) constructor.newInstance(type, folder);
+		} catch (SecurityException | ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
+			DataPackAnvilApi.LOGGER.error("Couldn't get constructor", e);
+			return null;
+		}
+	}
+
+	public interface Builder<T> {
+
+		Builder<T> withIdSetter(BiConsumer<T, ResourceLocation> idSetter);
+
+		Builder<T> withDefault(T defaultValue);
+
+		IDataManager<T> build();
+	}
 }

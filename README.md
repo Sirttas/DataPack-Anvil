@@ -18,3 +18,5 @@ dependencies {
     runtimeOnly fg.deobf("sirttas.dpanvil:dpanvil:${dpanvil_version}")
 }
 ```
+
+[![discord](https://i.imgur.com/mANW7ms.png "discord")](https://discord.gg/BFfAmJP "")

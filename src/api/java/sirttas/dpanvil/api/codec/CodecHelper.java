@@ -41,7 +41,11 @@ public class CodecHelper {
 	}
 
 	public static <T> T decode(Decoder<T> decoder, PacketBuffer buf) {
-		return decode(decoder, NBTDynamicOps.INSTANCE, buf.readCompoundTag());
+		return decode(decoder, buf.readCompoundTag());
+	}
+
+	public static <T> T decode(Decoder<T> decoder, INBT nbt) {
+		return decode(decoder, NBTDynamicOps.INSTANCE, nbt);
 	}
 
 	public static <T, U> T decode(Decoder<T> decoder, DynamicOps<U> ops, U input) {

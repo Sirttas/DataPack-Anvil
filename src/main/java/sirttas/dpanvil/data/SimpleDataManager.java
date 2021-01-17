@@ -1,8 +1,10 @@
 package sirttas.dpanvil.data;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,7 +26,9 @@ public class SimpleDataManager<T> extends JsonReloadListener implements IDataMan
 
 	private final Class<T> contentType;
 	ResourceLocation id;
-	private Map<ResourceLocation, T> data = ImmutableMap.of();
+	private BiMap<ResourceLocation, T> data = ImmutableBiMap.of();
+	private T defaultValue;
+	private BiConsumer<T, ResourceLocation> idSetter;
 
 	public SimpleDataManager(Class<T> contentType, String folder) {
 		super(GSON, folder);
@@ -36,7 +40,14 @@ public class SimpleDataManager<T> extends JsonReloadListener implements IDataMan
 		Map<ResourceLocation, T> map = Maps.newHashMap();
 		IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(id);
 
-		objects.forEach((loc, jsonObject) -> map.put(loc, serializer.read(jsonObject)));
+		objects.forEach((loc, jsonObject) -> {
+			T value = serializer.read(jsonObject);
+		
+			if (idSetter != null) {
+				idSetter.accept(value, loc);
+			}
+			map.put(loc, value);
+		});
 		setData(map);
 	}
 
@@ -47,7 +58,7 @@ public class SimpleDataManager<T> extends JsonReloadListener implements IDataMan
 
 	@Override
 	public void setData(Map<ResourceLocation, T> map) {
-		data = ImmutableMap.copyOf(map);
+		data = ImmutableBiMap.copyOf(map);
 		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), id);
 	}
 
@@ -56,5 +67,25 @@ public class SimpleDataManager<T> extends JsonReloadListener implements IDataMan
 		return contentType;
 	}
 
+	@Override
+	public ResourceLocation getId(final T value) {
+		return data.inverse().getOrDefault(value, DataPackAnvilApi.ID_NONE);
+	}
+
+	@Override
+	public T get(ResourceLocation id) {
+		if (defaultValue == null) {
+			return data.get(id);
+		}
+		return data.getOrDefault(id, defaultValue);
+	}
+
+	public void setDefaultValue(T defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+
+	public void setIdSetter(BiConsumer<T, ResourceLocation> idSetter) {
+		this.idSetter = idSetter;
+	}
 
 }

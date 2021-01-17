@@ -18,6 +18,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoader;
 import sirttas.dpanvil.DataPackAnvil;
+import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
@@ -93,8 +94,21 @@ public class DataManagerWrapper implements IFutureReloadListener {
 			return CompletableFuture.allOf(managers.values().stream()
 					.map(manager -> manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
 							.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager))))
-					.toArray(CompletableFuture[]::new)).thenRun(DataPackAnvil.ANNOTATION_PROCESSOR::applyDataHolder);
+					.toArray(CompletableFuture[]::new)).thenRun(this::postLoad);
 		}
 		return CompletableFuture.completedFuture(null);
+	}
+
+	private void postLoad() {
+		DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
+		DataPackAnvilApi.LOGGER.debug("DataManagers loading compleat: \r\n{}", () -> {
+			StringBuilder logBuilder = new StringBuilder();
+
+			this.managers.forEach((managerId, manager) -> {
+				logBuilder.append(managerId + " " + manager.getData().size() + "entries:\r\n");
+				manager.getData().forEach((id, data) -> logBuilder.append("\t" + id + ": " + data + "\n"));
+			});
+			return logBuilder.toString();
+		});
 	}
 }
