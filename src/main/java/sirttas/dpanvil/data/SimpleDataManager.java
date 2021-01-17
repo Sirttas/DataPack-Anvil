@@ -58,6 +58,9 @@ public class SimpleDataManager<T> extends JsonReloadListener implements IDataMan
 
 	@Override
 	public void setData(Map<ResourceLocation, T> map) {
+		if (idSetter != null) {
+			map.forEach((loc, value) -> idSetter.accept(value, loc));
+		}
 		data = ImmutableBiMap.copyOf(map);
 		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), id);
 	}

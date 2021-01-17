@@ -1,3 +1,14 @@
+1.16.3-1.0.6:
+
+- fix a crash
+
+
+1.16.3-1.0.5:
+
+- @DataHolder now also works on final fields
+- fix a bug where data id were null client side
+
+
 1.16.3-1.0.4:
 
 - IDataManager now implements Codec
