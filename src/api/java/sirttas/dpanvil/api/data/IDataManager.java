@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +20,7 @@ import com.mojang.serialization.Keyable;
 
 import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
@@ -49,10 +51,11 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	Class<T> getContentType();
 
 	/**
-	 * Retrieve the {@link Map} of data handled by this manager.
+	 * Retrieve the {@link Map} of data handled by this manager. it may be immutable
 	 * 
 	 * @return a map of the data
 	 * @see #setData()
+	 * @see ImmutableMap
 	 */
 	Map<ResourceLocation, T> getData();
 
@@ -61,7 +64,6 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	 * {@link ImmutableMap} and post a {@link DataManagerReloadEvent}
 	 * 
 	 * @param map the new data {@link Map}
-	 * @see #data
 	 * @see #getData()
 	 */
 	void setData(Map<ResourceLocation, T> map);
@@ -74,6 +76,16 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	 */
 	default T get(ResourceLocation id) {
 		return getData().get(id);
+	}
+
+	/**
+	 * Get a {@link Lazy} version of the data mapped by the id
+	 * 
+	 * @param id A {@link ResourceLocation} that map a data
+	 * @return A {@link Lazy} of the corresponding data
+	 */
+	default Lazy<T> getLazy(ResourceLocation id) {
+		return Lazy.of(() -> this.get(id));
 	}
 
 	/**
@@ -107,6 +119,25 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 		return ids.stream().map(this::get).collect(Collectors.toList());
 	}
 
+	/**
+	 * get a{@link Lazy} version of a list of {@link T} corresponding to each of the
+	 * ids in a collection
+	 * 
+	 * @param ids the ids to use
+	 * @return a {@link Lazy} of the list of corresponding data
+	 */
+	default Lazy<List<T>> getAllLazy(Collection<ResourceLocation> ids) {
+		return Lazy.of(() -> this.getAll(ids));
+	}
+
+	default boolean hasId(ResourceLocation id) {
+		return getData().containsKey(id);
+	}
+
+	default boolean has(T value) {
+		return getData().containsValue(value);
+	}
+
 	@Override
 	default <U> DataResult<Pair<T, U>> decode(final DynamicOps<U> ops, final U input) {
 		return ResourceLocation.CODEC.decode(ops, input).map(pair -> pair.mapFirst(this::get));
@@ -138,7 +169,11 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 
 		Builder<T> withIdSetter(BiConsumer<T, ResourceLocation> idSetter);
 
-		Builder<T> withDefault(T defaultValue);
+		default Builder<T> withDefault(T defaultValue) {
+			return withDefault(id -> defaultValue);
+		}
+
+		Builder<T> withDefault(Function<ResourceLocation, T> factory);
 
 		IDataManager<T> build();
 	}

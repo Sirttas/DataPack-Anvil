@@ -8,6 +8,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -21,12 +22,16 @@ import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.network.message.MessageHandler;
 import sirttas.dpanvil.data.network.message.MessageHelper;
 import sirttas.dpanvil.data.network.message.ReloadDataMessage;
+import sirttas.dpanvil.data.network.proxy.ClientProxy;
+import sirttas.dpanvil.data.network.proxy.IProxy;
+import sirttas.dpanvil.data.network.proxy.ServerProxy;
 
 @Mod(DataPackAnvilApi.MODID)
 public class DataPackAnvil {
 
 	public static final DataManagerWrapper WRAPPER = new DataManagerWrapper();
 	public static final DPAnvilAnnotationProcessor ANNOTATION_PROCESSOR = new DPAnvilAnnotationProcessor();
+	public static final IProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 	
 	public DataPackAnvil() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -62,7 +67,7 @@ public class DataPackAnvil {
 		PlayerEntity player = event.getPlayer();
 
 		if (player instanceof ServerPlayerEntity) {
-			MessageHelper.sendToPlayer((ServerPlayerEntity) player, new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
+			MessageHelper.sendToRemotePlayer((ServerPlayerEntity) player, new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
 		}
 	}
 

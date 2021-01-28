@@ -1,14 +1,20 @@
 package sirttas.dpanvil.api.codec;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.gson.JsonElement;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Encoder;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapDecoder;
+import com.mojang.serialization.MapEncoder;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -34,6 +40,49 @@ public class CodecHelper {
 			
 			return value != null ? DataResult.success(value) : DataResult.error(id.toString() + " is not present in registry: " + registry.getRegistryName().toString());
 		}, IForgeRegistryEntry::getRegistryName);
+	}
+
+	public static <T, F> Codec<T> remapField(Codec<T> codec, MapEncoder<F> fieldEncoder, Function<T, F> fieldGetter) {
+		return Codec.of(remapEncoderField(codec, fieldEncoder, fieldGetter), codec);
+	}
+
+	public static <T, F> Codec<T> remapField(Codec<T> codec, MapDecoder<F> fieldDecoder, BiConsumer<T, F> fieldSetter) {
+		return Codec.of(codec, remapDecoderField(codec, fieldDecoder, fieldSetter));
+	}
+
+	public static <T, F> Codec<T> remapField(Codec<T> codec, MapCodec<F> fieldCodec, Function<T, F> fieldGetter, BiConsumer<T, F> fieldSetter) {
+		return Codec.of(remapEncoderField(codec, fieldCodec, fieldGetter), remapDecoderField(codec, fieldCodec, fieldSetter));
+	}
+
+	public static <T, F> Encoder<T> remapEncoderField(Encoder<T> encoder, MapEncoder<F> fieldEncoder, Function<T, F> fieldGetter) {
+		return new Encoder<T>() {
+			@Override
+			public <U> DataResult<U> encode(T input, DynamicOps<U> ops, U prefix) {
+				return encoder.encode(input, ops, prefix).flatMap(d -> fieldEncoder.encoder().encode(fieldGetter.apply(input), ops, d));
+			}
+
+			@Override
+			public String toString() {
+				return encoder.toString() + "FieldEncoderMapped [" + fieldEncoder.toString() + ']';
+			}
+		};
+	}
+
+	public static <T, F> Decoder<T> remapDecoderField(Decoder<T> decoder, MapDecoder<F> fieldDecoder, BiConsumer<T, F> fieldSetter) {
+		return new Decoder<T>() {
+			@Override
+			public <U> DataResult<Pair<T, U>> decode(DynamicOps<U> ops, U input) {
+				return decoder.decode(ops, input).flatMap(pair -> fieldDecoder.decoder().decode(ops, input).map(fieldPair -> {
+					fieldSetter.accept(pair.getFirst(), fieldPair.getFirst());
+					return pair;
+				}));
+			}
+
+			@Override
+			public String toString() {
+				return decoder.toString() + "FieldDecoderMapped [" + fieldDecoder.toString() + ']';
+			}
+		};
 	}
 
 	public static <T> T decode(Decoder<T> decoder, JsonElement json) {

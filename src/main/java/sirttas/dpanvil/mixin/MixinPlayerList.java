@@ -15,7 +15,7 @@ public class MixinPlayerList {
 
 	@Inject(method = "reloadResources", at = @At("RETURN"))
 	public void onReloadResources(CallbackInfo ci) {
-		MessageHelper.sendToAllPlayers(new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
+		MessageHelper.sendToAllRemotePlayers(new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
 	}
 
 }

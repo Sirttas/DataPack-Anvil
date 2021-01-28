@@ -1,3 +1,11 @@
+1.16.3-1.0.7:
+
+- add the possibility to use a function for default value
+- data manager is no longer sync to local client
+- add color codecs
+- add the ability to get a lazy version of data
+
+
 1.16.3-1.0.6:
 
 - fix a crash
