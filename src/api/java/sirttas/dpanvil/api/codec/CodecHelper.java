@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DataResult.PartialResult;
 import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Encoder;
@@ -23,6 +24,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import sirttas.dpanvil.api.DataPackAnvilApi;
 
 public class CodecHelper {
 
@@ -102,10 +104,12 @@ public class CodecHelper {
 	}
 
 	public static <T> void encode(Encoder<T> encoder, T data, PacketBuffer buf) {
-		INBT nbt = encoder.encode(data, NBTDynamicOps.INSTANCE, NBTDynamicOps.INSTANCE.empty()).get().orThrow();
+		INBT nbt = handleResult(encoder.encode(data, NBTDynamicOps.INSTANCE, NBTDynamicOps.INSTANCE.empty()));
 
 		if (nbt instanceof CompoundNBT) {
 			buf.writeCompoundTag((CompoundNBT) nbt);
+		} else {
+			throw new IllegalStateException("Couldn't get a CompoundNBT from the encoder: " + encoder.toString());
 		}
 	}
 
@@ -118,6 +122,7 @@ public class CodecHelper {
 	}
 
 	public static <T> T handleResult(DataResult<T> result) {
-		return result.get().orThrow();
+		return result.resultOrPartial(DataPackAnvilApi.LOGGER::warn)
+				.orElseThrow(() -> new IllegalStateException(result.error().map(PartialResult::message).orElse("Error while decoding data, no error message found...")));
 	}
 }

@@ -1,3 +1,10 @@
+1.16.3-1.0.8:
+
+- better codec result handling
+- add codec capability provider
+- add a finish recipe that can work with codecs
+
+
 1.16.3-1.0.7:
 
 - add the possibility to use a function for default value

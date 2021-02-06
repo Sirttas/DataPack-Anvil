@@ -26,7 +26,9 @@ public class CodecRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEn
 	public T read(ResourceLocation recipeId, JsonObject json) {
 		T recipe = CodecHelper.decode(codec, json);
 		
-		idSetter.accept(recipe, recipeId);
+		if (recipe != null) {
+			idSetter.accept(recipe, recipeId);
+		}
 		return recipe;
 	}
 
@@ -34,7 +36,9 @@ public class CodecRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEn
 	public T read(ResourceLocation recipeId, PacketBuffer buffer) {
 		T recipe = CodecHelper.decode(codec, buffer);
 		
-		idSetter.accept(recipe, recipeId);
+		if (recipe != null) {
+			idSetter.accept(recipe, recipeId);
+		}
 		return recipe;
 	}
 
