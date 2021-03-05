@@ -10,6 +10,10 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
+/**
+ * Don't use this it was a terrible idea of mine
+ */
+@Deprecated
 public class CodecCapabilityProvider<I, T extends I> implements ICapabilitySerializable<INBT> {
 
 	private final Codec<T> codec;

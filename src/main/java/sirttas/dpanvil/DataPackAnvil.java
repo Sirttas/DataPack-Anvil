@@ -72,7 +72,9 @@ public class DataPackAnvil {
 	}
 
 	private void addReloadListeners(AddReloadListenerEvent event) {
-		event.addListener(WRAPPER);
+		if (!WRAPPER.getDataManagers().isEmpty()) {
+			event.addListener(WRAPPER);
+		}
 	}
 
 }

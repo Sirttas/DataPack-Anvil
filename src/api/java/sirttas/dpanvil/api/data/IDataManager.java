@@ -1,7 +1,6 @@
 package sirttas.dpanvil.api.data;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +11,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
 
@@ -23,6 +24,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
 /**
@@ -156,10 +158,10 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	@SuppressWarnings("unchecked")
 	public static <T> Builder<T> builder(Class<T> type, String folder) {
 		try {
-			Constructor<?> constructor = Class.forName("sirttas.dpanvil.data.DataManagerBuilder", true, IDataManager.class.getClassLoader()).getConstructor(Class.class, String.class);
+			Constructor<?> constructor = Class.forName("sirttas.dpanvil.data.manager.SimpleDataManagerBuilder", true, IDataManager.class.getClassLoader()).getConstructor(Class.class, String.class);
 
 			return (Builder<T>) constructor.newInstance(type, folder);
-		} catch (SecurityException | ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) {
+		} catch (Exception e) {
 			DataPackAnvilApi.LOGGER.error("Couldn't get constructor", e);
 			return null;
 		}
@@ -174,7 +176,17 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 		}
 
 		Builder<T> withDefault(Function<ResourceLocation, T> factory);
+		
+		<R> Builder<T> merged(Function<Stream<R>, T> merger, Function<JsonElement, R> rawParser);
+		
+		default <R> Builder<T> merged(Function<Stream<R>, T> merger, Decoder<R> rawDecoder) {
+			return this.merged(merger, json -> CodecHelper.decode(rawDecoder, json));
+		}
 
+		default Builder<T> merged(Function<Stream<T>, T> merger) {
+			return this.merged(merger, (Function<JsonElement, T>) null);
+		}
+		
 		IDataManager<T> build();
 	}
 }

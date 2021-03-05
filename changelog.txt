@@ -1,3 +1,13 @@
+1.16.3-1.0.10:
+
+- add the ability to create merged data managers
+
+
+1.16.3-1.0.9:
+
+- fix a freeze on startup
+
+
 1.16.3-1.0.8:
 
 - better codec result handling

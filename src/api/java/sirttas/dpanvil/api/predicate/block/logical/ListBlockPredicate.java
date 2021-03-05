@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.codec.Codecs;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicates;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
 public abstract class ListBlockPredicate implements IBlockPosPredicate {
@@ -17,7 +17,7 @@ public abstract class ListBlockPredicate implements IBlockPosPredicate {
 
 	protected static <T extends ListBlockPredicate> Codec<T> codec(Function<List<IBlockPosPredicate>, T> builder) {
 		return RecordCodecBuilder.create(codecBuilder -> codecBuilder.group(
-				Codecs.BLOCK_PREDICATE.listOf().fieldOf(DPAnvilNames.VALUES).forGetter(ListBlockPredicate::getPredicates)
+				BlockPosPredicates.CODEC.listOf().fieldOf(DPAnvilNames.VALUES).forGetter(ListBlockPredicate::getPredicates)
 		).apply(codecBuilder, builder));
 	}
 

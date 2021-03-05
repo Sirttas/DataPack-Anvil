@@ -22,6 +22,7 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
+import sirttas.dpanvil.data.manager.AbstractDataManager;
 import sirttas.dpanvil.data.serializer.CodecJsonDataSerializer;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 
@@ -52,8 +53,8 @@ public class DataManagerWrapper implements IFutureReloadListener {
 
 		serializers.put(id, buildSerializer(message));
 		managers.put(id, manager);
-		if (manager instanceof SimpleDataManager) {
-			((SimpleDataManager<T>) manager).id = id;
+		if (manager instanceof AbstractDataManager) {
+			((AbstractDataManager<?, ?>) manager).setId(id);
 		}
 	}
 
@@ -90,13 +91,13 @@ public class DataManagerWrapper implements IFutureReloadListener {
 	@Override
 	public CompletableFuture<Void> reload(IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor,
 			Executor gameExecutor) {
-		if (ModLoader.isLoadingStateValid()) {
+		if (ModLoader.isLoadingStateValid() && !managers.isEmpty()) {
 			return CompletableFuture.allOf(managers.values().stream()
 					.map(manager -> manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
 							.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager))))
 					.toArray(CompletableFuture[]::new)).thenRun(this::postLoad);
 		}
-		return CompletableFuture.completedFuture(null);
+		return CompletableFuture.allOf();
 	}
 
 	private void postLoad() {

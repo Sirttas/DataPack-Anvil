@@ -18,6 +18,10 @@ public class Codecs {
 
 	public static final Codec<Block> BLOCK = Registry.BLOCK;
 	public static final Codec<Item> ITEM = Registry.ITEM;
+	/**
+	 * @deprecated use {@link BlockPosPredicates.CODEC}
+	 */
+	@Deprecated
 	public static final Codec<IBlockPosPredicate> BLOCK_PREDICATE = BlockPosPredicates.CODEC;
 
 	public static final Codec<Integer> HEX_COLOR = Codec.STRING.comapFlatMap(s -> {
