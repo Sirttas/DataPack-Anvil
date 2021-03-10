@@ -150,7 +150,7 @@ public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecPr
 				map.put(id, collection);
 			}
 			this.setData(map);
-		});
+		}, gameExecutor);
 	}
 
 	@SuppressWarnings("unchecked")

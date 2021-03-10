@@ -1,9 +1,16 @@
-1.16.3-1.1.0:
+1.16.4-1.1.1:
+
+- added back deprecated content for retro-compatibility
+- added a timer on the loading
+
+
+1.16.4-1.1.0:
 
 - added tags for data
 - move to forge 1.16.4-35.1.13 (braking changes)
 - removed deprecated apis (braking changes)
 - fix a bug with the 'or' predicate being used instead of the 'and'
+
 
 1.16.3-1.0.10:
 

@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
@@ -32,6 +33,7 @@ public class DataManagerWrapper implements IFutureReloadListener {
 
 	private final Map<ResourceLocation, IDataManager<?>> managers = Maps.newHashMap();
 	private final Map<ResourceLocation, IJsonDataSerializer<?>> serializers = Maps.newHashMap();
+	private final Stopwatch stopwatch = Stopwatch.createUnstarted();
 
 	@SuppressWarnings("unchecked")
 	public <T, M extends IDataManager<T>> M getManager(ResourceLocation id) {
@@ -104,10 +106,11 @@ public class DataManagerWrapper implements IFutureReloadListener {
 	public CompletableFuture<Void> reload(IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor,
 			Executor gameExecutor) {
 		if (ModLoader.isLoadingStateValid() && !managers.isEmpty()) {
-			CompletableFuture<Void> completableFuture = CompletableFuture.allOf(managers.values().stream()
-					.map(manager -> manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
-							.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager))))
-					.toArray(CompletableFuture[]::new));
+			CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(stopwatch::start, backgroundExecutor)
+					.thenCompose(v -> CompletableFuture.allOf(managers.values().stream()
+							.map(manager -> manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
+									.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager))))
+							.toArray(CompletableFuture[]::new)));
 
 			if (DataPackAnvil.DATA_TAG_MANAGER.shouldLoad()) {
 				completableFuture = completableFuture
@@ -129,5 +132,8 @@ public class DataManagerWrapper implements IFutureReloadListener {
 			});
 			return logBuilder.toString();
 		});
+		stopwatch.stop();
+		DataPackAnvilApi.LOGGER.info("DataPack Anvil loaded everithing in {}", stopwatch);
+		stopwatch.reset();
 	}
 }

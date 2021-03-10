@@ -72,6 +72,5 @@ public abstract class AbstractDataManager<T, U> extends ReloadListener<Map<Resou
 	
 	public void setId(ResourceLocation id) {
 		this.id = id;
-		
 	}
 }
