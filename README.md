@@ -3,6 +3,7 @@ DataPack Anvil is a library mod used to facilitate creation of datapack driven m
 * [Data Manager](https://github.com/Sirttas/DataPack-Anvil/wiki/Data-Managers)
 * [@DataHolder](https://github.com/Sirttas/DataPack-Anvil/wiki/Data-Managers#dataholder)
 * [Events](https://github.com/Sirttas/DataPack-Anvil/wiki/Data-Managers#events)
+* [Tags](https://github.com/Sirttas/DataPack-Anvil/wiki/Tags)
 * [Serializable Block Predicates](https://github.com/Sirttas/DataPack-Anvil/wiki/Block-Predicates)
 
 Take a look at [the wiki](https://github.com/Sirttas/DataPack-Anvil/wiki) for more info on how it works.
