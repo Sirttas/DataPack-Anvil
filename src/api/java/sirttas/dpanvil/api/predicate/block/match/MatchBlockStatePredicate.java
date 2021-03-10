@@ -10,7 +10,7 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
-public class MatchBlockStatePredicate implements IBlockStatePredicate {
+public final class MatchBlockStatePredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "blockstate";
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<MatchBlockStatePredicate> TYPE;

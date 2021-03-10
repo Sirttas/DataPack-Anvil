@@ -25,8 +25,9 @@ public abstract class AbstractDataManager<T, U> extends ReloadListener<Map<Resou
 	protected final BiConsumer<T, ResourceLocation> idSetter;
 	protected ResourceLocation id;
 
-	public AbstractDataManager(Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter) {
-		this.contentType = contentType;
+	@SuppressWarnings("unchecked")
+	public AbstractDataManager(Class<? extends T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter) {
+		this.contentType = (Class<T>) contentType;
 		this.defaultValueFactory = defaultValueFactory;
 		this.idSetter = idSetter;
 		this.folder = folder;
@@ -64,6 +65,11 @@ public abstract class AbstractDataManager<T, U> extends ReloadListener<Map<Resou
 		return defaultValueFactory.apply(id);
 	}
 
+	@Override
+	public String getFolder() {
+		return folder;
+	}
+	
 	public void setId(ResourceLocation id) {
 		this.id = id;
 		

@@ -31,20 +31,25 @@ public class DPAnvilAnnotationProcessor {
 		ModList.get().getAllScanData().stream().map(ModFileScanData::getAnnotations).flatMap(Collection::stream)
 				.filter(a -> DATA_HOLDER.equals(a.getAnnotationType())).map(AnnotationData::getClassType).distinct().map(this::getClass).filter(Objects::nonNull).map(Class::getDeclaredFields)
 				.flatMap(Stream::of).filter(field -> field.isAnnotationPresent(DataHolder.class)).forEach(field -> {
-					try {
-						field.setAccessible(true);
-						if (Modifier.isFinal(field.getModifiers())) {
-							Field modifiersField = Field.class.getDeclaredField("modifiers");
-
-							modifiersField.setAccessible(true);
-							modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-						}
-						dataHoldersBuilder.put(field, new ResourceLocation(field.getAnnotation(DataHolder.class).value()));
-					} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-								DataPackAnvilApi.LOGGER.error(() -> "Error while building @DataHolder " + field.getName(), e);
-					}
+					setAccesible(field);
+					dataHoldersBuilder.put(field, new ResourceLocation(field.getAnnotation(DataHolder.class).value()));
 				});
 		dataHolders = dataHoldersBuilder.build();
+	}
+
+	public static void setAccesible(Field field) {
+		try {
+			field.setAccessible(true);
+			if (Modifier.isFinal(field.getModifiers())) {
+				Field modifiersField;
+				modifiersField = Field.class.getDeclaredField("modifiers");
+
+				modifiersField.setAccessible(true);
+				modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+			}
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			DataPackAnvilApi.LOGGER.error(() -> "Error while making field:  " + field.getName() + " accesible", e);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

@@ -15,7 +15,7 @@ import sirttas.dpanvil.api.codec.Codecs;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
-public class MatchBlocksPredicate implements IBlockStatePredicate {
+public final class MatchBlocksPredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "blocks";
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<MatchBlocksPredicate> TYPE;

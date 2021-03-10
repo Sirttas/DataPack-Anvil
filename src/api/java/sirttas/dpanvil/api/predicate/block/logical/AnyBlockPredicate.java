@@ -9,7 +9,7 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-public class AnyBlockPredicate implements IBlockPosPredicate {
+public final class AnyBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "any";
 	public static final AnyBlockPredicate INSTANCE = new AnyBlockPredicate();
@@ -32,5 +32,10 @@ public class AnyBlockPredicate implements IBlockPosPredicate {
 	@Override
 	public IBlockPosPredicate or(IBlockPosPredicate... predicates) {
 		return INSTANCE;
+	}
+	
+	@Override
+	public IBlockPosPredicate not() {
+		return NoneBlockPredicate.INSTANCE;
 	}
 }

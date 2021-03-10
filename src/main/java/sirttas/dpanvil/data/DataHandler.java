@@ -1,7 +1,10 @@
 package sirttas.dpanvil.data;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.crafting.RecipeManager;
@@ -11,7 +14,9 @@ import net.minecraft.tags.ITagCollectionSupplier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.event.TagsUpdatedEvent.CustomTagTypes;
+import net.minecraftforge.event.TagsUpdatedEvent.VanillaTagTypes;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -23,42 +28,48 @@ import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = DataPackAnvilApi.MODID)
 public class DataHandler {
 
-	private static boolean tagsReceived = false;
-	private static boolean recipesReceived = false;
-	private static boolean dpAnvilReloaded = false;
-
 	private static RecipeManager recipeManager = null;
 	private static ITagCollectionSupplier tagManager = null;
+	private static Map<Class<? extends Event>, Boolean> map = Maps.newHashMap();
+	
+	static {
+		map.put(RecipesUpdatedEvent.class, false);
+		map.put(VanillaTagTypes.class, false);
+		map.put(CustomTagTypes.class, false);
+		map.put(DataPackReloadCompletEvent.class, false);
+	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	public static void onRecipesUpdate(RecipesUpdatedEvent event) {
 		recipeManager = event.getRecipeManager();
-		recipesReceived = true;
-		process();
+		process(event.getClass());
 	}
 
 	@SubscribeEvent
-	public static void onTagsUpdate(TagsUpdatedEvent.VanillaTagTypes event) {
-		tagsReceived = true;
+	public static void onVanillaTagsUpdate(VanillaTagTypes event) {
 		tagManager = event.getTagManager();
-		process();
+		process(event.getClass());
+	}
+	
+	@SubscribeEvent
+	public static void onCustomTagsUpdate(CustomTagTypes event) {
+		tagManager = event.getTagManager();
+		process(event.getClass());
 	}
 
 	public static void onDPAnvilUpdate() {
-		dpAnvilReloaded = true;
-		process();
+		process(DataPackReloadCompletEvent.class);
 	}
 
-	private static void process() {
-		if (recipesReceived && tagsReceived && dpAnvilReloaded) {
+	private static void process(Class<? extends Event> clazz) {
+		map.put(clazz, true);
+		if (map.values().stream().allMatch(b -> b)) {
 			DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
 			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(recipeManager, tagManager, DataPackAnvil.WRAPPER.getDataManagers()));
 			reloadJEI();
 			recipeManager = null;
 			tagManager = null;
-			recipesReceived = false;
-			tagsReceived = false;
-			dpAnvilReloaded = false;
+			map.keySet().forEach(k -> map.put(k, false));
 		}
 	}
 

@@ -2,8 +2,10 @@ package sirttas.dpanvil.data;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Maps;
@@ -41,6 +43,10 @@ public class DataManagerWrapper implements IFutureReloadListener {
 		return (M) managers.values().stream().filter(manager -> manager.getContentType().isAssignableFrom(clazz)).findAny().orElse(null);
 	}
 
+	public <T> ResourceLocation getId(IDataManager<T> manager) {
+		return managers.entrySet().stream().filter(e -> e.getValue().equals(manager)).map(Entry::getKey).findAny().orElse(DataPackAnvilApi.ID_NONE);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <T, S extends IJsonDataSerializer<T>> S getSerializer(ResourceLocation id) {
 		return (S) serializers.get(id);
@@ -57,14 +63,20 @@ public class DataManagerWrapper implements IFutureReloadListener {
 			((AbstractDataManager<?, ?>) manager).setId(id);
 		}
 	}
-
+	
 	private <T> IJsonDataSerializer<T> buildSerializer(DataManagerIMC<T> message) {
 		Codec<T> codec = message.getCodec();
 		return codec != null ? new CodecJsonDataSerializer<>(codec) : new IJsonDataSerializer<T>() {
 
 			@Override
 			public T read(JsonElement json) {
-				return message.getReadJson().apply(json);
+				Function<JsonElement, T> readJson = message.getReadJson();
+
+				if (readJson != null) {
+					return readJson.apply(json);
+				}
+				throw new IllegalStateException("trying to read json without the proper serialization tools for manager : "
+						+ message.getId() + " makes sure you provide a correct json serializer to it.");
 			}
 
 			@Override
@@ -92,10 +104,16 @@ public class DataManagerWrapper implements IFutureReloadListener {
 	public CompletableFuture<Void> reload(IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor,
 			Executor gameExecutor) {
 		if (ModLoader.isLoadingStateValid() && !managers.isEmpty()) {
-			return CompletableFuture.allOf(managers.values().stream()
+			CompletableFuture<Void> completableFuture = CompletableFuture.allOf(managers.values().stream()
 					.map(manager -> manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
 							.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager))))
-					.toArray(CompletableFuture[]::new)).thenRun(this::postLoad);
+					.toArray(CompletableFuture[]::new));
+
+			if (DataPackAnvil.DATA_TAG_MANAGER.shouldLoad()) {
+				completableFuture = completableFuture
+						.thenCompose(v -> DataPackAnvil.DATA_TAG_MANAGER.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor));
+			}
+			return completableFuture.thenRun(this::postLoad);
 		}
 		return CompletableFuture.allOf();
 	}
@@ -106,7 +124,7 @@ public class DataManagerWrapper implements IFutureReloadListener {
 			StringBuilder logBuilder = new StringBuilder();
 
 			this.managers.forEach((managerId, manager) -> {
-				logBuilder.append(managerId + " " + manager.getData().size() + "entries:\r\n");
+				logBuilder.append(managerId + " " + manager.getData().size() + " entries:\r\n");
 				manager.getData().forEach((id, data) -> logBuilder.append("\t" + id + ": " + data + "\n"));
 			});
 			return logBuilder.toString();

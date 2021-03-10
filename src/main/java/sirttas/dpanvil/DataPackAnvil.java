@@ -18,6 +18,7 @@ import sirttas.dpanvil.annotation.DPAnvilAnnotationProcessor;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
+import sirttas.dpanvil.api.imc.DataTagIMC;
 import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.network.message.MessageHandler;
 import sirttas.dpanvil.data.network.message.MessageHelper;
@@ -25,11 +26,13 @@ import sirttas.dpanvil.data.network.message.ReloadDataMessage;
 import sirttas.dpanvil.data.network.proxy.ClientProxy;
 import sirttas.dpanvil.data.network.proxy.IProxy;
 import sirttas.dpanvil.data.network.proxy.ServerProxy;
+import sirttas.dpanvil.tag.DataTagManager;
 
 @Mod(DataPackAnvilApi.MODID)
 public class DataPackAnvil {
 
 	public static final DataManagerWrapper WRAPPER = new DataManagerWrapper();
+	public static final DataTagManager DATA_TAG_MANAGER = new DataTagManager();
 	public static final DPAnvilAnnotationProcessor ANNOTATION_PROCESSOR = new DPAnvilAnnotationProcessor();
 	public static final IProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 	
@@ -61,6 +64,7 @@ public class DataPackAnvil {
 
 	private void processIMC(InterModProcessEvent event) {
 		event.getIMCStream(DataManagerIMC.METHOD::equals).forEach(message -> WRAPPER.putManagerFromIMC(message.getMessageSupplier()));
+		event.getIMCStream(DataTagIMC.METHOD::equals).forEach(message -> DATA_TAG_MANAGER.putTagRegistryFromIMC(message.getMessageSupplier()));
 	}
 
 	private void playerLogin(PlayerEvent.PlayerLoggedInEvent event) {

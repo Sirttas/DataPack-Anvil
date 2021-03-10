@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -51,6 +52,13 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	 * @return The {@link Class} used to define the type of managed data
 	 */
 	Class<T> getContentType();
+	
+	/**
+	 * The folder where the data are found in the datapack
+	 * 
+	 * @return The folder where the data are found in the datapack
+	 */
+	String getFolder();
 
 	/**
 	 * Retrieve the {@link Map} of data handled by this manager. it may be immutable
@@ -101,6 +109,16 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 		return getData().getOrDefault(id, defaultValue);
 	}
 
+	/**
+	 * Get an {@link Optional} of a data mapped by the id
+	 * 
+	 * @param id A {@link ResourceLocation} that map a data
+	 * @return an {@link Optional} of the corresponding data or an empty {@link Optional}
+	 */
+	default Optional<T> getOptional(ResourceLocation id) {
+		return getData().containsKey(id) ? Optional.of(get(id)) : Optional.empty();
+	}
+	
 	/**
 	 * Get the ID for a value
 	 * 
@@ -154,7 +172,7 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	default <U> Stream<U> keys(DynamicOps<U> dynOps) {
 		return getData().keySet().stream().map(id -> dynOps.createString(id.toString()));
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public static <T> Builder<T> builder(Class<T> type, String folder) {
 		try {

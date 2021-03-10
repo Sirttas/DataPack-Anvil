@@ -16,7 +16,7 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
-public class MatchBlockTagPredicate implements IBlockStatePredicate {
+public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "tag";
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<MatchBlockTagPredicate> TYPE;

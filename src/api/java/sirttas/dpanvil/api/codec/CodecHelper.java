@@ -121,6 +121,13 @@ public class CodecHelper {
 		return handleResult(encoder.encode(data, ops, ops.empty()));
 	}
 
+	/**
+	 * A generic way to handle {@link DataResult}
+	 * 
+	 * @param <T>    the type of data inside the result
+	 * @param result the result to handle
+	 * @return the data in the result
+	 */
 	public static <T> T handleResult(DataResult<T> result) {
 		return result.resultOrPartial(DataPackAnvilApi.LOGGER::warn)
 				.orElseThrow(() -> new IllegalStateException(result.error().map(PartialResult::message).orElse("Error while decoding data, no error message found...")));

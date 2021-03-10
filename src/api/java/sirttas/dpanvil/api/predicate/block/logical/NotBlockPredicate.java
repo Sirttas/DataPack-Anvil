@@ -9,15 +9,14 @@ import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
-import sirttas.dpanvil.api.predicate.block.BlockPosPredicates;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-public class NotBlockPredicate implements IBlockPosPredicate {
+public final class NotBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "not";
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<NotBlockPredicate> TYPE;
 	public static final Codec<NotBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-			BlockPosPredicates.CODEC.fieldOf(DPAnvilNames.VALUE).forGetter(NotBlockPredicate::getPredicate)
+			IBlockPosPredicate.CODEC.fieldOf(DPAnvilNames.VALUE).forGetter(NotBlockPredicate::getPredicate)
 	).apply(builder, NotBlockPredicate::new));
 
 	protected final IBlockPosPredicate predicate;

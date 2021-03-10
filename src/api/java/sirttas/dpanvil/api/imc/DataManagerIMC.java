@@ -68,6 +68,10 @@ public class DataManagerIMC<T> {
 		this.writePacket = writePacket;
 		return this;
 	}
+	
+	public DataManagerIMC<T> withSerializer(Function<PacketBuffer, T> readPacket, BiConsumer<PacketBuffer, T> writePacket) {
+		return withSerializer(null, readPacket, writePacket);
+	}
 
 	public static <T> void enqueue(Supplier<DataManagerIMC<T>> supplier) {
 		InterModComms.sendTo(DataPackAnvilApi.MODID, METHOD, supplier);

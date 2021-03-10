@@ -32,7 +32,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 	private final Function<Stream<R>, T> merger;
 	private final Function<JsonElement, R> rawParser;
 
-	public MergedDataManager(Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter, Function<Stream<R>, T> merger,
+	public MergedDataManager(Class<? extends T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter, Function<Stream<R>, T> merger,
 			Function<JsonElement, R> rawParser) {
 		super(contentType, folder, defaultValueFactory, idSetter);
 		this.merger = merger;
@@ -74,7 +74,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 		return map;
 	}
 
-	private JsonElement getElement(ResourceLocation resourcelocation, ResourceLocation resourceId, IResource resource) {
+	public static JsonElement getElement(ResourceLocation resourcelocation, ResourceLocation resourceId, IResource resource) {
 		try (InputStream inputstream = resource.getInputStream(); Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));) {
 			return JSONUtils.fromJson(GSON, reader, JsonElement.class);
 		} catch (IllegalArgumentException | IOException | JsonParseException e) {

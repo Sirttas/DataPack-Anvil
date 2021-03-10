@@ -1,7 +1,6 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
@@ -13,7 +12,7 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-public class OrBlockPredicate extends ListBlockPredicate {
+public final class OrBlockPredicate extends ListBlockPredicate {
 
 	public static final String NAME = "or";
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<OrBlockPredicate> TYPE;
@@ -39,9 +38,6 @@ public class OrBlockPredicate extends ListBlockPredicate {
 
 	@Override
 	public IBlockPosPredicate or(IBlockPosPredicate... predicates) {
-		List<IBlockPosPredicate> list = Lists.newArrayList(predicates);
-
-		list.addAll(this.predicates);
-		return new OrBlockPredicate(list);
+		return new OrBlockPredicate(this.merge(Lists.newArrayList(predicates), OrBlockPredicate.class));
 	}
 }

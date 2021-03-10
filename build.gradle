@@ -3,21 +3,22 @@ buildscript {
         maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
-        maven { url = 'https://dist.creeper.host/Sponge/maven' }
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
         classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
     }
 }
 
 plugins {
     id 'java'
+    id 'eclipse'
+	id 'maven-publish'
+	id "org.sonarqube" version "3.0"
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
 mixin {
@@ -28,7 +29,7 @@ version = "${dpanvil_version}"
 group = 'sirttas.dpanvil'
 archivesBaseName = 'dpanvil'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
 sourceSets {
     api {
@@ -53,7 +54,7 @@ configurations {
 }
 
 minecraft {
-    mappings channel: 'snapshot', version: "${mappings_version}"
+    mappings channel: "${mappings_channel}", version: "${mappings_version}"
     
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
@@ -68,7 +69,6 @@ minecraft {
 
             mods {
                 dpanvil {
-               		source sourceSets.api
                     source sourceSets.main
                 }
             }
@@ -83,7 +83,6 @@ minecraft {
 
             mods {
                 dpanvil {
-                	source sourceSets.api
                     source sourceSets.main
                 }
             }
@@ -101,7 +100,6 @@ minecraft {
 
             mods {
                 dpanvil {
-                	source sourceSets.api
                     source sourceSets.main
                 }
             }
@@ -120,7 +118,6 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${forge_version}"
     
-    compile "org.spongepowered:mixin:${mixins_version}"
     annotationProcessor "org.spongepowered:mixin:${mixins_version}:processor"
 }
 
