@@ -10,6 +10,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.util.registry.Registry;
+import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
 @SuppressWarnings("deprecation")
 public class Codecs {
@@ -17,6 +18,13 @@ public class Codecs {
 	public static final Codec<Block> BLOCK = Registry.BLOCK;
 	public static final Codec<Item> ITEM = Registry.ITEM;
 
+	/**
+	 * @deprecated use {@link IBlockPosPredicate.CODEC}
+	 */
+	@Deprecated
+	public static final Codec<IBlockPosPredicate> BLOCK_PREDICATE = IBlockPosPredicate.CODEC;
+
+	
 	/**
 	 * A {@link Codec} that can read a color from an hex color.
 	 */
@@ -39,7 +47,8 @@ public class Codecs {
 	/**
 	 * A {@link Codec} that can read a color either from an int, an hex color string or an rgb map.
 	 */
-	public static final Codec<Integer> COLOR = Codec.either(Codec.INT, Codec.either(HEX_COLOR, RGB_COLOR).xmap(e -> e.map(Function.identity(), Function.identity()), Either::left))
+	public static final Codec<Integer> COLOR = Codec.either(Codec.INT, Codec.either(HEX_COLOR, RGB_COLOR)
+			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left))
 			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left);
 
 }

@@ -1,3 +1,10 @@
+1.16.4-1.1.2:
+
+- improved DataTagRegistry
+- removed the timer
+- added back deprecated content for retro-compatibility (issue #1)
+
+
 1.16.4-1.1.1:
 
 - added back deprecated content for retro-compatibility
