@@ -1,5 +1,6 @@
 package sirttas.dpanvil.api.codec;
 
+import java.util.UUID;
 import java.util.function.Function;
 
 import com.mojang.datafixers.util.Either;
@@ -8,8 +9,13 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.block.Block;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.util.registry.Registry;
+import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
 @SuppressWarnings("deprecation")
@@ -17,6 +23,10 @@ public class Codecs {
 
 	public static final Codec<Block> BLOCK = Registry.BLOCK;
 	public static final Codec<Item> ITEM = Registry.ITEM;
+	public static final Codec<Enchantment> ENCHANTMENT = Registry.ENCHANTMENT;
+	public static final Codec<Attribute> ATTRIBUTE = Registry.ATTRIBUTE;
+	public static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
+	public static final Codec<EquipmentSlotType> EQUIPMENT_SLOT_TYPE = Codec.STRING.xmap(EquipmentSlotType::fromString, EquipmentSlotType::getName);
 
 	/**
 	 * @deprecated use {@link IBlockPosPredicate.CODEC}
@@ -24,7 +34,6 @@ public class Codecs {
 	@Deprecated
 	public static final Codec<IBlockPosPredicate> BLOCK_PREDICATE = IBlockPosPredicate.CODEC;
 
-	
 	/**
 	 * A {@link Codec} that can read a color from an hex color.
 	 */
@@ -50,5 +59,32 @@ public class Codecs {
 	public static final Codec<Integer> COLOR = Codec.either(Codec.INT, Codec.either(HEX_COLOR, RGB_COLOR)
 			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left))
 			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left);
-
+	
+	private static final Codec<AttributeModifier.Operation> ATTRIBUTE_MODIFIER_OPERATION = Codec.STRING.comapFlatMap(s -> {
+		switch (s) {
+		case "addition":
+			return DataResult.success(AttributeModifier.Operation.ADDITION);
+		case "multiply_base":
+			return DataResult.success(AttributeModifier.Operation.MULTIPLY_BASE);
+		case "multiply_total":
+			return DataResult.success(AttributeModifier.Operation.MULTIPLY_TOTAL);
+		default:
+			return DataResult.error("Coundn't parse AttributeModifier Operation: '" + s + '\'');
+		}
+	}, o -> {
+		switch (o) {
+		case MULTIPLY_BASE:
+			return "multiply_base";
+		case MULTIPLY_TOTAL:
+			return "multiply_total";
+		default:
+			return "addition";
+		}
+	});
+	
+	public static final Codec<AttributeModifier> ATTRIBUTE_MODIFIER = RecordCodecBuilder.create(builder -> builder.group(
+			Codec.STRING.fieldOf(DPAnvilNames.NAME).forGetter(AttributeModifier::getName),
+			Codec.DOUBLE.fieldOf(DPAnvilNames.AMOUNT).forGetter(AttributeModifier::getAmount),
+			ATTRIBUTE_MODIFIER_OPERATION.fieldOf(DPAnvilNames.OPERATION).forGetter(AttributeModifier::getOperation)
+	).apply(builder, AttributeModifier::new));
 }

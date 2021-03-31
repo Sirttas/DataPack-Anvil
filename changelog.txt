@@ -1,3 +1,11 @@
+1.16.4-1.1.3:
+
+- add uuid codec
+- add equipment slot codec
+- add attribute modifier codec
+- improve logs
+
+
 1.16.4-1.1.2:
 
 - improved DataTagRegistry

@@ -14,7 +14,7 @@ import net.minecraft.resources.DataPackRegistries;
 import net.minecraft.resources.IResourcePack;
 
 @Mixin(DataPackRegistries.class)
-public abstract class MixinDataPackRegistries implements AutoCloseable { // NOSONAR mixin
+public abstract class MixinDataPackRegistries implements AutoCloseable {
 
 	@Inject(method = "func_240961_a_", at = @At("RETURN"), cancellable = true)
 	private static void onCreate(List<IResourcePack> resourcePacks, Commands.EnvironmentType environmentType, int functionLevel,

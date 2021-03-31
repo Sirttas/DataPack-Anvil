@@ -79,7 +79,7 @@ public class DataHandler {
 
 		try {
 			Optional.ofNullable(manager).filter(SimpleReloadableResourceManager.class::isInstance).map(SimpleReloadableResourceManager.class::cast).map(r -> r.reloadListeners.stream())
-					.orElse(Stream.empty()).filter(r -> "JeiReloadListener".equals(r.getClass().getSimpleName())).map(ISelectiveResourceReloadListener.class::cast) // NOSONAR
+					.orElse(Stream.empty()).filter(r -> "JeiReloadListener".equals(r.getClass().getSimpleName())).map(ISelectiveResourceReloadListener.class::cast)
 					.forEach(r -> r.onResourceManagerReload(manager, t -> true));
 		} catch (Exception e) {
 			DataPackAnvilApi.LOGGER.error("Error while reloading JEI", e);

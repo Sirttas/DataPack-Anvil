@@ -16,6 +16,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.tags.ITag;
+import net.minecraft.tags.ITagCollection;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoader;
@@ -120,14 +122,23 @@ public class DataManagerWrapper implements IFutureReloadListener {
 
 	private void postLoad() {
 		DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
-		DataPackAnvilApi.LOGGER.debug("DataManagers loading compleat: \r\n{}", () -> {
+		DataPackAnvilApi.LOGGER.debug("DataManagers loading compleat: {}", () -> {
 			StringBuilder logBuilder = new StringBuilder();
 
 			this.managers.forEach((managerId, manager) -> {
-				logBuilder.append(managerId + " " + manager.getData().size() + " entries:\r\n");
-				manager.getData().forEach((id, data) -> logBuilder.append("\t" + id + ": " + data + "\n"));
+				logBuilder.append("\r\n" + managerId + " " + manager.getData().size() + " entries:\r\n");
+				manager.getData().forEach((id, data) -> logBuilder.append("\t" + id + ": " + data + "\r\n"));
 			});
+			logBuilder.append("\r\nData tags:");
+			DataPackAnvil.DATA_TAG_MANAGER.getData().forEach((collectionId, tagCollection) -> logTags(logBuilder, collectionId, tagCollection));
 			return logBuilder.toString();
 		});
+	}
+
+	private <T> void logTags(StringBuilder logBuilder, ResourceLocation collectionId, ITagCollection<T> tagCollection) {
+		Map<ResourceLocation, ITag<T>> map = tagCollection.getIDTagMap();
+		
+		logBuilder.append("\r\n" + collectionId + " " + map.size() + " tags:\r\n");
+		map.forEach((id, tag) -> logBuilder.append("\t" + id + ": " + tag.getAllElements().size() + " elements\r\n"));
 	}
 }
