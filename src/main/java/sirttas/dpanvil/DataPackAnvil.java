@@ -42,6 +42,7 @@ public class DataPackAnvil {
 		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::serverStarted);
 		MinecraftForge.EVENT_BUS.addListener(this::playerLogin);
 		MinecraftForge.EVENT_BUS.addListener(this::addReloadListeners);
+		PROXY.registerHandlers();
 	}
 
 	public static ResourceLocation createRL(String name) {

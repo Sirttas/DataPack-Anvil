@@ -1,7 +1,6 @@
 package sirttas.dpanvil.annotation;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +15,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
 import sirttas.dpanvil.DataPackAnvil;
+import sirttas.dpanvil.ReflectionHelper;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.annotation.DataHolder;
 import sirttas.dpanvil.api.data.IDataManager;
@@ -31,25 +31,10 @@ public class DPAnvilAnnotationProcessor {
 		ModList.get().getAllScanData().stream().map(ModFileScanData::getAnnotations).flatMap(Collection::stream)
 				.filter(a -> DATA_HOLDER.equals(a.getAnnotationType())).map(AnnotationData::getClassType).distinct().map(this::getClass).filter(Objects::nonNull).map(Class::getDeclaredFields)
 				.flatMap(Stream::of).filter(field -> field.isAnnotationPresent(DataHolder.class)).forEach(field -> {
-					setAccesible(field);
+					ReflectionHelper.setAccesible(field);
 					dataHoldersBuilder.put(field, new ResourceLocation(field.getAnnotation(DataHolder.class).value()));
 				});
 		dataHolders = dataHoldersBuilder.build();
-	}
-
-	public static void setAccesible(Field field) {
-		try {
-			field.setAccessible(true);
-			if (Modifier.isFinal(field.getModifiers())) {
-				Field modifiersField;
-				modifiersField = Field.class.getDeclaredField("modifiers");
-
-				modifiersField.setAccessible(true);
-				modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-			}
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			DataPackAnvilApi.LOGGER.error(() -> "Error while making field:  " + field.getName() + " accesible", e);
-		}
 	}
 
 	@SuppressWarnings("unchecked")
