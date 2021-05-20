@@ -12,10 +12,10 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-public final class OrBlockPredicate extends ListBlockPredicate {
+public final class OrBlockPredicate extends AbstractListBlockPredicate {
 
 	public static final String NAME = "or";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<OrBlockPredicate> TYPE;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<OrBlockPredicate> TYPE = null;
 	public static final Codec<OrBlockPredicate> CODEC = codec(OrBlockPredicate::new);
 
 	public OrBlockPredicate(IBlockPosPredicate... predicates) {

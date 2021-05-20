@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -29,12 +30,17 @@ import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.data.manager.AbstractDataManager;
 import sirttas.dpanvil.data.serializer.CodecJsonDataSerializer;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
+import sirttas.dpanvil.tag.DataTagManager;
 
 public class DataManagerWrapper implements IFutureReloadListener {
 
 	private final Map<ResourceLocation, IDataManager<?>> managers = Maps.newHashMap();
 	private final Map<ResourceLocation, IJsonDataSerializer<?>> serializers = Maps.newHashMap();
 
+	public static void logManagerException(ResourceLocation id, Throwable e) {
+		DataPackAnvilApi.LOGGER.error(() -> "Exception while loading data for manager " + id.toString() + ":", e);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <T, M extends IDataManager<T>> M getManager(ResourceLocation id) {
 		return (M) managers.get(id);
@@ -106,14 +112,18 @@ public class DataManagerWrapper implements IFutureReloadListener {
 	public CompletableFuture<Void> reload(IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor,
 			Executor gameExecutor) {
 		if (ModLoader.isLoadingStateValid() && !managers.isEmpty()) {
-			CompletableFuture<Void> completableFuture = CompletableFuture.allOf(managers.values().stream()
-							.map(manager -> manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
-									.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager))))
-							.toArray(CompletableFuture[]::new));
+			CompletableFuture<Void> completableFuture = CompletableFuture.allOf(managers.entrySet().stream()
+							.map(entry -> {
+									IDataManager<?> manager = entry.getValue();
+									return manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
+											.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager)))
+											.handle(handleManagerException(entry.getKey()));
+								}).toArray(CompletableFuture[]::new));
 
 			if (DataPackAnvil.DATA_TAG_MANAGER.shouldLoad()) {
 				completableFuture = completableFuture
-						.thenCompose(v -> DataPackAnvil.DATA_TAG_MANAGER.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor));
+						.thenCompose(v -> DataPackAnvil.DATA_TAG_MANAGER.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
+								.handle(handleManagerException(DataTagManager.ID)));
 			}
 			return completableFuture.thenRun(this::postLoad);
 		}
@@ -140,5 +150,12 @@ public class DataManagerWrapper implements IFutureReloadListener {
 		
 		logBuilder.append("\r\n" + collectionId + " " + map.size() + " tags:\r\n");
 		map.forEach((id, tag) -> logBuilder.append("\t" + id + ": " + tag.getAllElements().size() + " elements\r\n"));
+	}
+	
+	private BiFunction<Void, Throwable, Void> handleManagerException(ResourceLocation id) {
+		return (r, e) -> {
+			logManagerException(id, e);
+			return r;
+		};
 	}
 }

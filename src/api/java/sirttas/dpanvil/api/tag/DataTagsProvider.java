@@ -121,43 +121,43 @@ public abstract class DataTagsProvider<T> implements IDataProvider {
 	   }
 
 	   public class Builder implements IForgeTagBuilder<T> {
-	      private final ITag.Builder builder;
+	      private final ITag.Builder tagBuilder;
 	      private final String id;
 
 	      private Builder(ITag.Builder builder, String id) {
-	         this.builder = builder;
+	         this.tagBuilder = builder;
 	         this.id = id;
 	      }
 
 	      public Builder addItemEntry(T item) {
-	         this.builder.addItemEntry(manager.getId(item), this.id);
+	         this.tagBuilder.addItemEntry(manager.getId(item), this.id);
 	         return this;
 	      }
 
 	      public Builder addTag(ITag.INamedTag<T> tag) {
-	         this.builder.addTagEntry(tag.getName(), this.id);
+	         this.tagBuilder.addTagEntry(tag.getName(), this.id);
 	         return this;
 	      }
 
 	      @SafeVarargs
 	      public final Builder add(T... toAdd) {
-	         Stream.of(toAdd).map(manager::getId).forEach(key -> this.builder.addItemEntry(key, this.id));
+	         Stream.of(toAdd).map(manager::getId).forEach(key -> this.tagBuilder.addItemEntry(key, this.id));
 	         return this;
 	      }
 	      
 	      @SafeVarargs
 	      public final Builder add(ResourceLocation... toAdd) {
-	         Stream.of(toAdd).forEach(key -> this.builder.addItemEntry(key, this.id));
+	         Stream.of(toAdd).forEach(key -> this.tagBuilder.addItemEntry(key, this.id));
 	         return this;
 	      }
 
 	      public Builder add(ITag.ITagEntry tag) {
-	          builder.addTag(tag, id);
+	          tagBuilder.addTag(tag, id);
 	          return this;
 	      }
 
 	      public ITag.Builder getInternalBuilder() {
-	          return builder;
+	          return tagBuilder;
 	      }
 
 	      public String getModID() {

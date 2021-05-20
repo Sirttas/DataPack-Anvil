@@ -6,6 +6,9 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 import sirttas.dpanvil.DataPackAnvil;
 
 public class RegistryHelper {
+	
+	private RegistryHelper() {}
+	
 	public static <V extends IForgeRegistryEntry<V>> void register(IForgeRegistry<V> reg, IForgeRegistryEntry<V> thing,
 			ResourceLocation name) {
 		reg.register(thing.setRegistryName(name));

@@ -148,15 +148,29 @@ task apiJar(type: Jar) {
 
 build.dependsOn tasks.apiJar
 
+sonarqube {
+	properties {
+    	property "sonar.projectKey", "Sirttas_DataPack-Anvil"
+    	property "sonar.organization", "sirttas"
+    	property "sonar.host.url", "https://sonarcloud.io"
+    	properties["sonar.sources"] += sourceSets.api.allSource.srcDirs
+	}
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact jar
+             artifacts = [apiJar, jar]
         }
     }
+    
     repositories {
         maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
+            url = 'https://modmaven.dev/artifactory/local-releases/'
+            credentials {
+                username = "${modmaven_user}"
+                password = "${modmaven_password}"
+            }
         }
     }
 }

@@ -18,7 +18,7 @@ import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 public final class MatchBlocksPredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "blocks";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<MatchBlocksPredicate> TYPE;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<MatchBlocksPredicate> TYPE = null;
 	public static final Codec<MatchBlocksPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 			Codecs.BLOCK.listOf().fieldOf(DPAnvilNames.BLOCKS).forGetter(MatchBlocksPredicate::getBlocks)
 	).apply(builder, MatchBlocksPredicate::new));

@@ -32,6 +32,7 @@ import sirttas.dpanvil.api.tag.DataTagRegistry;
 
 public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecProvider<Map<ResourceLocation, ITagCollection<?>>> {
 	
+	public static final ResourceLocation ID = DataPackAnvil.createRL("tags");
 	private static final Codec<Pair<ResourceLocation, Map<ResourceLocation, List<ResourceLocation>>>> MAP_CODEC = Codec.pair(
 			ResourceLocation.CODEC.fieldOf(DPAnvilNames.ID).codec(),
 			Codec.unboundedMap(ResourceLocation.CODEC, ResourceLocation.CODEC.listOf()).fieldOf(DPAnvilNames.VALUES).codec());
@@ -65,17 +66,17 @@ public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecPr
 		
 		private <U> ITagCollection<U> mapToCollection(Pair<ResourceLocation, Map<ResourceLocation, List<ResourceLocation>>> input) {
 			ResourceLocation id = input.getFirst();
-			TagCollectionReader<U> reader = getTagCollectionReader(id, DataPackAnvil.WRAPPER.getManager(id));
-			Map<ResourceLocation, ITag.Builder> map = Maps.newHashMap();
+			IDataManager<U> manager = DataPackAnvil.WRAPPER.getManager(id);
+			Map<ResourceLocation, ITag<U>> map = Maps.newHashMap();
 			
 			
 			input.getSecond().forEach((key, tag) -> {
 				ITag.Builder builder = ITag.Builder.create();
 				
 				tag.forEach(location -> builder.addItemEntry(location, key.toString()));
-				map.put(key, builder);
+				builder.build(map::get, loc -> manager.getOrDefault(loc, null)).ifPresent(builtTag -> map.put(key, builtTag));
 			});
-			return reader.buildTagCollectionFromMap(map);
+			return ITagCollection.getTagCollectionFromMap(map);
 		}
 
 	});
@@ -83,7 +84,7 @@ public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecPr
 	@SuppressWarnings("unchecked")
 	@Override
 	public Class<ITagCollection<?>> getContentType() {
-		return (Class<ITagCollection<?>>) (Class<?>) ITagCollection.class; // double cast or we get a compile error
+		return (Class<ITagCollection<?>>) (Class<?>) ITagCollection.class; // double cast or we get a compilation error
 	}
 
 	@Override

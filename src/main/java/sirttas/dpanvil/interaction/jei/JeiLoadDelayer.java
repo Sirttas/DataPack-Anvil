@@ -3,10 +3,12 @@ package sirttas.dpanvil.interaction.jei;
 import java.lang.reflect.Field;
 
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TagsUpdatedEvent.CustomTagTypes;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.ModList;
 import sirttas.dpanvil.ReflectionHelper;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.data.DataHandler;
 
 public class JeiLoadDelayer {
 	
@@ -14,6 +16,9 @@ public class JeiLoadDelayer {
 	
 	private static boolean isSetup = false;
 	
+	private JeiLoadDelayer() {}
+	
+	@SuppressWarnings("unchecked")
 	public static void setup() {
 		if (IS_JEI_PRESENT) {
 			try {
@@ -23,7 +28,14 @@ public class JeiLoadDelayer {
 				
 				ReflectionHelper.setAccesible(listenerClassField);
 				ReflectionHelper.setAccesible(moddedRemoteField);
-				listenerClassField.set(moddedRemoteField.get(null), JeiLoadDelayerEvent.class);
+				
+				Object moddedRemote = moddedRemoteField.get(null);
+				Class<? extends Event> listenerClass = (Class<? extends Event>) listenerClassField.get(moddedRemote);
+				
+				if (!CustomTagTypes.class.equals(listenerClass)) {
+					DataHandler.addEvent(listenerClass);
+				}
+				listenerClassField.set(moddedRemote, JeiLoadDelayerEvent.class);
 				DataPackAnvilApi.LOGGER.info("JEI loading delay setup");
 				isSetup = true;
 			} catch (ClassNotFoundException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {

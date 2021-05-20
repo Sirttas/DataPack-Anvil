@@ -1,3 +1,17 @@
+1.16.4-1.1.6:
+
+- cleanup a lot of code
+- dp anvil is now on modmaven
+
+
+1.16.4-1.1.5:
+
+- add a method to create a multimap codec
+- add more exception handling to prevent a crash in dpavil loading to break the rest of the modpack loading
+- fix data tags not available on client/server when kubeJS is present
+- fix JEI not available on client/server when kubeJS is present
+
+
 1.16.4-1.1.4:
 
 - delay jei loading instead of reloading it

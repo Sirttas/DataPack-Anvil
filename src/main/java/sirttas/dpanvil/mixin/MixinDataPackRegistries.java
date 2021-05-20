@@ -12,6 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import net.minecraft.command.Commands;
 import net.minecraft.resources.DataPackRegistries;
 import net.minecraft.resources.IResourcePack;
+import net.minecraftforge.common.MinecraftForge;
+import sirttas.dpanvil.DataPackAnvil;
+import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
 
 @Mixin(DataPackRegistries.class)
 public abstract class MixinDataPackRegistries implements AutoCloseable {
@@ -23,6 +26,7 @@ public abstract class MixinDataPackRegistries implements AutoCloseable {
 
 		if (completableFuture != null) {
 			cir.setReturnValue(completableFuture.thenApply(dataPackRegistries -> {
+				MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(dataPackRegistries.getRecipeManager(), dataPackRegistries.func_244358_d(), DataPackAnvil.WRAPPER.getDataManagers()));
 				return dataPackRegistries;
 			}));
 		}

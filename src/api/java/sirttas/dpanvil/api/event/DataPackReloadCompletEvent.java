@@ -28,7 +28,7 @@ public class DataPackReloadCompletEvent extends Event {
 		return tagManager;
 	}
 
-	public Map<ResourceLocation, IDataManager<?>> getDataMnagers() {
+	public Map<ResourceLocation, IDataManager<?>> getDataManagers() {
 		return dataMnagers;
 	}
 }

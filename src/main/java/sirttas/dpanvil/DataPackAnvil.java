@@ -30,7 +30,7 @@ import sirttas.dpanvil.tag.DataTagManager;
 
 @Mod(DataPackAnvilApi.MODID)
 public class DataPackAnvil {
-
+	
 	public static final DataManagerWrapper WRAPPER = new DataManagerWrapper();
 	public static final DataTagManager DATA_TAG_MANAGER = new DataTagManager();
 	public static final DPAnvilAnnotationProcessor ANNOTATION_PROCESSOR = new DPAnvilAnnotationProcessor();

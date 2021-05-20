@@ -6,6 +6,8 @@ import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.network.PacketBuffer;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.codec.CodecHelper;
+import sirttas.dpanvil.data.DataManagerWrapper;
+import sirttas.dpanvil.tag.DataTagManager;
 
 public class TagsMessage {
 
@@ -28,7 +30,11 @@ public class TagsMessage {
 	}
 
 	public void process() {
-		DataPackAnvil.DATA_TAG_MANAGER.setData(CodecHelper.decode(DataPackAnvil.DATA_TAG_MANAGER.getCodec(), tagNBT));
+		try {
+			DataPackAnvil.DATA_TAG_MANAGER.setData(CodecHelper.decode(DataPackAnvil.DATA_TAG_MANAGER.getCodec(), tagNBT));
+		} catch (Exception e) {
+			DataManagerWrapper.logManagerException(DataTagManager.ID, e);
+		}
 	}
 	
 }

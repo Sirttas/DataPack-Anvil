@@ -7,6 +7,8 @@ import net.minecraft.network.PacketBuffer;
 @Deprecated
 public class BlockPosPredicateSerializer {
 
+	private BlockPosPredicateSerializer() {}
+	
 	public static IBlockPosPredicate read(JsonElement json) {
 		return IBlockPosPredicate.read(json);
 	}
@@ -22,6 +24,5 @@ public class BlockPosPredicateSerializer {
 	public static void writee(PacketBuffer buf, IBlockPosPredicate predicate) {
 		predicate.write(buf);
 	}
-
 
 }

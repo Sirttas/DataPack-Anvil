@@ -7,6 +7,8 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 
 public class ReflectionHelper {
 
+	private ReflectionHelper() {}
+
 	public static void setAccesible(Field field) {
 		try {
 			field.setAccessible(true);

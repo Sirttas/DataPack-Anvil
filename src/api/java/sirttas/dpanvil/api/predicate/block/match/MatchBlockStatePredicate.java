@@ -13,7 +13,7 @@ import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 public final class MatchBlockStatePredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "blockstate";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<MatchBlockStatePredicate> TYPE;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<MatchBlockStatePredicate> TYPE = null;
 	public static final Codec<MatchBlockStatePredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 			BlockState.CODEC.fieldOf(DPAnvilNames.STATE).forGetter(p -> p.state)
 	).apply(builder, MatchBlockStatePredicate::new));

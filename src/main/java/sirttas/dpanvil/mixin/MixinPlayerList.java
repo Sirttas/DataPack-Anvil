@@ -11,7 +11,7 @@ import sirttas.dpanvil.data.network.message.MessageHelper;
 import sirttas.dpanvil.data.network.message.ReloadDataMessage;
 
 @Mixin(PlayerList.class)
-public class MixinPlayerList {
+public abstract class MixinPlayerList {
 
 	@Inject(method = "reloadResources", at = @At("RETURN"))
 	public void onReloadResources(CallbackInfo ci) {

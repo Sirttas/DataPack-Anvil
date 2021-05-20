@@ -14,7 +14,7 @@ import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 public final class NotBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "not";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<NotBlockPredicate> TYPE;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<NotBlockPredicate> TYPE = null;
 	public static final Codec<NotBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 			IBlockPosPredicate.CODEC.fieldOf(DPAnvilNames.VALUE).forGetter(NotBlockPredicate::getPredicate)
 	).apply(builder, NotBlockPredicate::new));

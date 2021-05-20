@@ -16,4 +16,6 @@ public class DPAnvilNames {
 	public static final String MODIFIER = "modifier";
 	public static final String OPERATION = "operation";
 
+	private DPAnvilNames() {}
+	
 }

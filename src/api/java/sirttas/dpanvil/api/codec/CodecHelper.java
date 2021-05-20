@@ -1,9 +1,15 @@
 package sirttas.dpanvil.api.codec;
 
+import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
@@ -28,6 +34,8 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 
 public class CodecHelper {
 
+	private CodecHelper() {}
+	
 	/**
 	 * Get a codec for a {@link IForgeRegistry}
 	 * 
@@ -44,6 +52,15 @@ public class CodecHelper {
 		}, IForgeRegistryEntry::getRegistryName);
 	}
 
+	public static <K, V> Codec<Multimap<K, V>> multimapCodec(Codec<K> keyCodec, Codec<V> valueCodec) {
+		return Codec.unboundedMap(keyCodec, valueCodec.listOf()).xmap(map -> {
+			Multimap<K, V> multimap = HashMultimap.create();
+			
+			map.entrySet().forEach(e -> multimap.putAll(e.getKey(), e.getValue()));
+			return multimap;
+		}, multimap -> Multimaps.asMap(multimap).entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> Lists.newArrayList(e.getValue()))));
+	}
+	
 	public static <T, F> Codec<T> remapField(Codec<T> codec, MapEncoder<F> fieldEncoder, Function<T, F> fieldGetter) {
 		return Codec.of(remapEncoderField(codec, fieldEncoder, fieldGetter), codec);
 	}

@@ -11,6 +11,8 @@ public class BlockPosPredicates {
 
 	public static final Codec<IBlockPosPredicate> CODEC = IBlockPosPredicate.CODEC;
 
+	private BlockPosPredicates() {}
+	
 	public static IBlockPosPredicate any() {
 		return IBlockPosPredicate.any();
 	}

@@ -13,7 +13,7 @@ public final class AnyBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "any";
 	public static final AnyBlockPredicate INSTANCE = new AnyBlockPredicate();
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<AnyBlockPredicate> TYPE;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<AnyBlockPredicate> TYPE = null;
 	public static final Codec<AnyBlockPredicate> CODEC = Codec.unit(INSTANCE);
 
 	private AnyBlockPredicate() {

@@ -13,7 +13,7 @@ public final class NoneBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "none";
 	public static final NoneBlockPredicate INSTANCE = new NoneBlockPredicate();
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static BlockPosPredicateType<NoneBlockPredicate> TYPE;
+	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<NoneBlockPredicate> TYPE = null;
 	public static final Codec<NoneBlockPredicate> CODEC = Codec.unit(INSTANCE);
 
 	private NoneBlockPredicate() {

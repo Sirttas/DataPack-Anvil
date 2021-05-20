@@ -34,7 +34,14 @@ public class DataHandler {
 		map.put(DataPackReloadCompletEvent.class, false);
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGH)
+	private DataHandler() {}
+	
+	public static void addEvent(Class<? extends Event> eventType) {
+		map.put(eventType, false);
+		MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, eventType, e -> process(eventType));
+	}
+	
+	@SubscribeEvent
 	public static void onRecipesUpdate(RecipesUpdatedEvent event) {
 		recipeManager = event.getRecipeManager();
 		process(event.getClass());
@@ -56,15 +63,15 @@ public class DataHandler {
 		process(DataPackReloadCompletEvent.class);
 	}
 
-	private static void process(Class<? extends Event> clazz) {
-		map.put(clazz, true);
+	private static void process(Class<? extends Event> eventType) {
+		map.put(eventType, true);
 		if (map.values().stream().allMatch(b -> b)) {
 			DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
 			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(recipeManager, tagManager, DataPackAnvil.WRAPPER.getDataManagers()));
 			JeiLoadDelayer.loadJEI();
 			recipeManager = null;
 			tagManager = null;
-			map.keySet().forEach(k -> map.put(k, false));
+			map.replaceAll((k, v) -> false);
 		}
 	}
 }

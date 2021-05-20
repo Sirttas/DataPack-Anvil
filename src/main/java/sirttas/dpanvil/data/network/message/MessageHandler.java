@@ -10,6 +10,8 @@ public class MessageHandler {
 	public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(DataPackAnvil.createRL("main"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals,
 			PROTOCOL_VERSION::equals);
 
+	private MessageHandler() {}
+	
 	public static void setup() {
 		CHANNEL.registerMessage(0, ReloadDataMessage.class, ReloadDataMessage::encode, ReloadDataMessage::decode, ReloadDataMessage::handle);
 	}

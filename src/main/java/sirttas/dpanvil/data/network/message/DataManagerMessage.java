@@ -10,6 +10,7 @@ import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
+import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 
 public class DataManagerMessage<T> {
@@ -48,8 +49,12 @@ public class DataManagerMessage<T> {
 	}
 
 	public void process() {
-		manager.setData(data);
-		MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager));
+		try {
+			manager.setData(data);
+			MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager));
+		} catch (Exception e) {
+			DataManagerWrapper.logManagerException(id, e);
+		}
 	}
 
 	public ResourceLocation getId() {

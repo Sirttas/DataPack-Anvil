@@ -17,7 +17,7 @@ public abstract class AbstractBuilder<T> implements IDataManager.Builder<T> {
 	protected Function<ResourceLocation, T> defaultValueFactory = id -> null;
 	protected BiConsumer<T, ResourceLocation> idSetter = (t, id) -> {};
 
-	public AbstractBuilder(Class<T> type, String folder) {
+	protected AbstractBuilder(Class<T> type, String folder) {
 		this.type = type;
 		this.folder = folder;
 	}

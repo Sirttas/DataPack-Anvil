@@ -14,6 +14,8 @@ public class DPAnvilRegistries {
 	private static final int MIN_ID = 0;
 	private static final int MAX_ID = Short.MAX_VALUE - 1;
 
+	private DPAnvilRegistries() {}
+	
 	@SubscribeEvent
 	public static void createRegistries(RegistryEvent.NewRegistry event) {
 		new RegistryBuilder<>().setName(DataPackAnvil.createRL("block_predicate_type")).setIDRange(MIN_ID, MAX_ID).setType(cast(BlockPosPredicateType.class)).create();

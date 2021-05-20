@@ -13,17 +13,17 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-public abstract class ListBlockPredicate implements IBlockPosPredicate {
+public abstract class AbstractListBlockPredicate implements IBlockPosPredicate {
 
 	protected final List<IBlockPosPredicate> predicates;
 
-	protected static <T extends ListBlockPredicate> Codec<T> codec(Function<List<IBlockPosPredicate>, T> builder) {
+	protected static <T extends AbstractListBlockPredicate> Codec<T> codec(Function<List<IBlockPosPredicate>, T> builder) {
 		return RecordCodecBuilder.create(codecBuilder -> codecBuilder.group(
-				CODEC.listOf().fieldOf(DPAnvilNames.VALUES).forGetter(ListBlockPredicate::getPredicates)
+				CODEC.listOf().fieldOf(DPAnvilNames.VALUES).forGetter(AbstractListBlockPredicate::getPredicates)
 		).apply(codecBuilder, builder));
 	}
 
-	public ListBlockPredicate(Iterable<IBlockPosPredicate> predicates) {
+	protected AbstractListBlockPredicate(Iterable<IBlockPosPredicate> predicates) {
 		this.predicates = ImmutableList.copyOf(predicates);
 	}
 
@@ -31,7 +31,7 @@ public abstract class ListBlockPredicate implements IBlockPosPredicate {
 		return predicates;
 	}
 	
-	protected <T extends ListBlockPredicate> List<IBlockPosPredicate> merge(Collection<IBlockPosPredicate> predicates, Class<T> type) {
+	protected <T extends AbstractListBlockPredicate> List<IBlockPosPredicate> merge(Collection<IBlockPosPredicate> predicates, Class<T> type) {
 		return Stream.concat(predicates.stream(), this.predicates.stream()).flatMap(predicate -> {
 			if (type.isInstance(predicate)) {
 				return type.cast(predicate).predicates.stream();
