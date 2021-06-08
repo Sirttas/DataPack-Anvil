@@ -36,15 +36,15 @@ public final class DataTagRegistry<T> {
 	}
 	
 	public ITag<T> getTag(ResourceLocation id) {
-		return collection.get(id);
+		return collection.getTag(id);
 	}
 	
 	public Lazy<ITag<T>> getLazyTag(ResourceLocation id) {
-		return Lazy.of(() -> collection.get(id));
+		return Lazy.of(() -> collection.getTag(id));
 	}
 	
 	public Optional<ITag<T>> getOptionalTag(ResourceLocation id) {
-		return Optional.ofNullable(collection.get(id));
+		return Optional.ofNullable(collection.getTag(id));
 	}
 	
 	public void setCollection(ITagCollection<T> collection) {
@@ -63,7 +63,7 @@ public final class DataTagRegistry<T> {
 		}
 		
 		private void refresh(ITagCollection<T> collection) {
-			containedTag = collection.get(id);
+			containedTag = collection.getTag(id);
 		}
 		
 		@Override
@@ -75,9 +75,9 @@ public final class DataTagRegistry<T> {
 		}
 
 		@Override
-		public List<T> getAllElements() {
+		public List<T> getValues() {
 			if (this.containedTag != null) {
-				return containedTag.getAllElements();
+				return containedTag.getValues();
 			}
 			return Collections.emptyList();
 		}

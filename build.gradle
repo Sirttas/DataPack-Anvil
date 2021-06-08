@@ -46,6 +46,16 @@ sourceSets {
 	}
 }
 
+ext.updateSourceSetMapping = { sourceSet ->
+	if (project.hasProperty('UPDATE_MAPPINGS')) {
+		extractRangeMap.sources += sourceSet.java.srcDirs
+		applyRangeMap.sources += sourceSet.java.srcDirs
+		sourceSet.java.srcDirs.each { src -> 
+			extractMappedNew.addTarget(src) 
+		}
+	}
+}
+
 configurations {
 	apiCompile.extendsFrom(compile)
     apiImplementation.extendsFrom(implementation)
@@ -147,6 +157,8 @@ task apiJar(type: Jar) {
 }
 
 build.dependsOn tasks.apiJar
+
+updateSourceSetMapping(sourceSets.api)
 
 sonarqube {
 	properties {

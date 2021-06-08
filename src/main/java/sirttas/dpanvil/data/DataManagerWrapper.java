@@ -38,7 +38,9 @@ public class DataManagerWrapper implements IFutureReloadListener {
 	private final Map<ResourceLocation, IJsonDataSerializer<?>> serializers = Maps.newHashMap();
 
 	public static void logManagerException(ResourceLocation id, Throwable e) {
-		DataPackAnvilApi.LOGGER.error(() -> "Exception while loading data for manager " + id.toString() + ":", e);
+		if (e != null) {
+			DataPackAnvilApi.LOGGER.error(() -> "Exception while loading data for manager " + id.toString() + ":", e);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -146,10 +148,10 @@ public class DataManagerWrapper implements IFutureReloadListener {
 	}
 
 	private <T> void logTags(StringBuilder logBuilder, ResourceLocation collectionId, ITagCollection<T> tagCollection) {
-		Map<ResourceLocation, ITag<T>> map = tagCollection.getIDTagMap();
+		Map<ResourceLocation, ITag<T>> map = tagCollection.getAllTags();
 		
 		logBuilder.append("\r\n" + collectionId + " " + map.size() + " tags:\r\n");
-		map.forEach((id, tag) -> logBuilder.append("\t" + id + ": " + tag.getAllElements().size() + " elements\r\n"));
+		map.forEach((id, tag) -> logBuilder.append("\t" + id + ": " + tag.getValues().size() + " elements\r\n"));
 	}
 	
 	private BiFunction<Void, Throwable, Void> handleManagerException(ResourceLocation id) {

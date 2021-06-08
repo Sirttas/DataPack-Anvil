@@ -22,11 +22,11 @@ public class TagsMessage {
 	}
 
 	public void encode(PacketBuffer buf) {
-		buf.writeCompoundTag((CompoundNBT) tagNBT);
+		buf.writeNbt((CompoundNBT) tagNBT);
 	}
 	
 	public static TagsMessage decode(PacketBuffer buf) {
-		return new TagsMessage(buf.readCompoundTag());
+		return new TagsMessage(buf.readNbt());
 	}
 
 	public void process() {

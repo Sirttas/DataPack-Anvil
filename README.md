@@ -19,8 +19,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly fg.deobf("sirttas.dpanvil:dpanvil:${dpanvil_version}:api")
-    runtimeOnly fg.deobf("sirttas.dpanvil:dpanvil:${dpanvil_version}")
+    compileOnly fg.deobf("sirttas.dpanvil:DPAnvil:${dpanvil_version}:api")
+    runtimeOnly fg.deobf("sirttas.dpanvil:DPAnvil:${dpanvil_version}")
 }
 ```
 

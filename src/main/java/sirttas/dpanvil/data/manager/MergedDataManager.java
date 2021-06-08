@@ -32,7 +32,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 	private final Function<Stream<R>, T> merger;
 	private final Function<JsonElement, R> rawParser;
 
-	public MergedDataManager(Class<? extends T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter, Function<Stream<R>, T> merger,
+	public MergedDataManager(Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter, Function<Stream<R>, T> merger,
 			Function<JsonElement, R> rawParser) {
 		super(contentType, folder, defaultValueFactory, idSetter);
 		this.merger = merger;
@@ -44,13 +44,13 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 		Map<ResourceLocation, List<JsonElement>> map = Maps.newHashMap();
 		int i = this.folder.length() + 1;
 
-		for (ResourceLocation resourcelocation : resourceManager.getAllResourceLocations(this.folder, file -> file.endsWith(".json"))) {
+		for (ResourceLocation resourcelocation : resourceManager.listResources(this.folder, file -> file.endsWith(".json"))) {
 			String path = resourcelocation.getPath();
 			ResourceLocation resourceId = new ResourceLocation(resourcelocation.getNamespace(), path.substring(i, path.length() - 5));
 			List<JsonElement> list = Lists.newArrayList();
 
 			try {
-				for (IResource resource : resourceManager.getAllResources(resourcelocation)) {
+				for (IResource resource : resourceManager.getResources(resourcelocation)) {
 					JsonElement element = getElement(resourcelocation, resourceId, resource);
 
 					if (element != null) {

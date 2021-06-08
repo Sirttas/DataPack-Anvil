@@ -55,10 +55,10 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 	}
 
 	private static ITag<Block> getTag(ResourceLocation loc) {
-		ITag<Block> tag = BlockTags.getCollection().get(loc);
+		ITag<Block> tag = BlockTags.getAllTags().getTag(loc);
 
 		if (tag == null) {
-			tag = TagCollectionManager.getManager().getBlockTags().get(loc);
+			tag = TagCollectionManager.getInstance().getBlocks().getTag(loc);
 		}
 		return tag;
 	}

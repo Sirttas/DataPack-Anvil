@@ -17,7 +17,6 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.util.registry.Registry;
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
 @SuppressWarnings("deprecation")
 public class Codecs {
@@ -27,13 +26,7 @@ public class Codecs {
 	public static final Codec<Enchantment> ENCHANTMENT = Registry.ENCHANTMENT;
 	public static final Codec<Attribute> ATTRIBUTE = Registry.ATTRIBUTE;
 	public static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
-	public static final Codec<EquipmentSlotType> EQUIPMENT_SLOT_TYPE = Codec.STRING.xmap(EquipmentSlotType::fromString, EquipmentSlotType::getName);
-
-	/**
-	 * @deprecated use {@link IBlockPosPredicate.CODEC}
-	 */
-	@Deprecated
-	public static final Codec<IBlockPosPredicate> BLOCK_PREDICATE = IBlockPosPredicate.CODEC;
+	public static final Codec<EquipmentSlotType> EQUIPMENT_SLOT_TYPE = Codec.STRING.xmap(EquipmentSlotType::byName, EquipmentSlotType::getName);
 
 	/**
 	 * A {@link Codec} that can read a color from an hex color.

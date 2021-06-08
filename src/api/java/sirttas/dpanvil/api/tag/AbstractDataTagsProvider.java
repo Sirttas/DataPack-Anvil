@@ -29,7 +29,7 @@ import net.minecraftforge.common.extensions.IForgeTagBuilder;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 
-public abstract class DataTagsProvider<T> implements IDataProvider {
+public abstract class AbstractDataTagsProvider<T> implements IDataProvider {
 	
 	   private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 	   
@@ -40,7 +40,7 @@ public abstract class DataTagsProvider<T> implements IDataProvider {
 	   protected final ExistingFileHelper existingFileHelper;
 	   private final IResourceType resourceType;
 
-	   protected DataTagsProvider(DataGenerator generatorIn, IDataManager<T> manager, String modId, @javax.annotation.Nullable net.minecraftforge.common.data.ExistingFileHelper existingFileHelper) {
+	   protected AbstractDataTagsProvider(DataGenerator generatorIn, IDataManager<T> manager, String modId, @javax.annotation.Nullable net.minecraftforge.common.data.ExistingFileHelper existingFileHelper) {
 	      this.generator = generatorIn;
 	      this.manager = manager;
 	      this.modId = modId;
@@ -54,26 +54,26 @@ public abstract class DataTagsProvider<T> implements IDataProvider {
 	    * Performs this provider's action.
 	    */
 	   @Override
-	public void act(DirectoryCache cache) {
+	public void run(DirectoryCache cache) {
 	      this.tagToBuilder.clear();
 	      this.registerTags();
-	      ITag<T> itag = Tag.getEmptyTag();
+	      ITag<T> itag = Tag.empty();
 	      Function<ResourceLocation, ITag<T>> function = key -> this.tagToBuilder.containsKey(key) ? itag : null;
 	      Function<ResourceLocation, T> function1 = key -> this.manager.getOptional(key).orElse((T)null);
 	      
 	      this.tagToBuilder.forEach((tagName, builder) -> {
-	         List<ITag.Proxy> list = builder.getProxyTags(function, function1).filter(this::missing).collect(Collectors.toList());
+	         List<ITag.Proxy> list = builder.getUnresolvedEntries(function, function1).filter(this::missing).collect(Collectors.toList());
 	         if (!list.isEmpty()) {
 	            throw new IllegalArgumentException(String.format("Couldn't define tag %s as it is missing following references: %s", tagName, list.stream().map(Objects::toString).collect(Collectors.joining(","))));
 	         } else {
-	            JsonObject jsonobject = builder.serialize();
+	            JsonObject jsonobject = builder.serializeToJson();
 	            Path path = this.makePath(tagName);
 	            if (path == null) return; 
 
 	            try {
 	               String s = GSON.toJson(jsonobject);
-	               String s1 = HASH_FUNCTION.hashUnencodedChars(s).toString();
-	               if (!Objects.equals(cache.getPreviousHash(path), s1) || !Files.exists(path)) {
+	               String s1 = SHA1.hashUnencodedChars(s).toString();
+	               if (!Objects.equals(cache.getHash(path), s1) || !Files.exists(path)) {
 	                  Files.createDirectories(path.getParent());
 
 	                  try (BufferedWriter bufferedwriter = Files.newBufferedWriter(path)) {
@@ -81,7 +81,7 @@ public abstract class DataTagsProvider<T> implements IDataProvider {
 	                  }
 	               }
 
-	               cache.recordHash(path, s1);
+	               cache.putNew(path, s1);
 	            } catch (IOException ioexception) {
 	               DataPackAnvilApi.LOGGER.error("Couldn't save tags to {}", path, ioexception);
 	            }
@@ -130,29 +130,29 @@ public abstract class DataTagsProvider<T> implements IDataProvider {
 	      }
 
 	      public Builder addItemEntry(T item) {
-	         this.tagBuilder.addItemEntry(manager.getId(item), this.id);
+	         this.tagBuilder.addElement(manager.getId(item), this.id);
 	         return this;
 	      }
 
 	      public Builder addTag(ITag.INamedTag<T> tag) {
-	         this.tagBuilder.addTagEntry(tag.getName(), this.id);
+	         this.tagBuilder.addTag(tag.getName(), this.id);
 	         return this;
 	      }
 
 	      @SafeVarargs
 	      public final Builder add(T... toAdd) {
-	         Stream.of(toAdd).map(manager::getId).forEach(key -> this.tagBuilder.addItemEntry(key, this.id));
+	         Stream.of(toAdd).map(manager::getId).forEach(key -> this.tagBuilder.addElement(key, this.id));
 	         return this;
 	      }
 	      
 	      @SafeVarargs
 	      public final Builder add(ResourceLocation... toAdd) {
-	         Stream.of(toAdd).forEach(key -> this.tagBuilder.addItemEntry(key, this.id));
+	         Stream.of(toAdd).forEach(key -> this.tagBuilder.addElement(key, this.id));
 	         return this;
 	      }
 
 	      public Builder add(ITag.ITagEntry tag) {
-	          tagBuilder.addTag(tag, id);
+	          tagBuilder.add(tag, id);
 	          return this;
 	      }
 

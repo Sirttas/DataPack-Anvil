@@ -1,7 +1,15 @@
+1.16.5-1.2.0:
+
+- improve crash logs
+- moved to mojmap
+- remove deprecated code
+- fix a null pointer on multimap codec
+
+
 1.16.4-1.1.6:
 
 - cleanup a lot of code
-- dp anvil is now on modmaven
+- datapack anvil is now on modmaven
 
 
 1.16.4-1.1.5:

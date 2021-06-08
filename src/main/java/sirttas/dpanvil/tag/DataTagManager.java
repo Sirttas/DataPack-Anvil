@@ -52,7 +52,7 @@ public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecPr
 			IDataManager<U> manager = DataPackAnvil.WRAPPER.getManager(id);
 			Map<ResourceLocation, List<ResourceLocation>> map = Maps.newHashMap();
 
-			input.getIDTagMap().forEach((key, tag) -> map.put(key, tag.getAllElements().stream()
+			input.getAllTags().forEach((key, tag) -> map.put(key, tag.getValues().stream()
 					.map(manager::getId)
 					.filter(location -> !DataPackAnvilApi.ID_NONE.equals(location))
 					.collect(Collectors.toList())));
@@ -71,12 +71,12 @@ public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecPr
 			
 			
 			input.getSecond().forEach((key, tag) -> {
-				ITag.Builder builder = ITag.Builder.create();
+				ITag.Builder builder = ITag.Builder.tag();
 				
-				tag.forEach(location -> builder.addItemEntry(location, key.toString()));
+				tag.forEach(location -> builder.addElement(location, key.toString()));
 				builder.build(map::get, loc -> manager.getOrDefault(loc, null)).ifPresent(builtTag -> map.put(key, builtTag));
 			});
-			return ITagCollection.getTagCollectionFromMap(map);
+			return ITagCollection.of(map);
 		}
 
 	});
@@ -138,15 +138,15 @@ public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecPr
 			
 			ids.add(id);
 			readers.add(reader);
-			completableFutures.add(reader.readTagsFromManager(resourceManager, backgroundExecutor));
+			completableFutures.add(reader.prepare(resourceManager, backgroundExecutor));
 		});
 		
-		return CompletableFuture.allOf(completableFutures.stream().toArray(CompletableFuture[]::new)).thenCompose(stage::markCompleteAwaitingOthers).thenAcceptAsync(v -> {
+		return CompletableFuture.allOf(completableFutures.stream().toArray(CompletableFuture[]::new)).thenCompose(stage::wait).thenAcceptAsync(v -> {
 			Map<ResourceLocation, ITagCollection<?>> map = Maps.newHashMap();
 			
 			for (int i = 0; i < ids.size(); i++) {
 				ResourceLocation id = ids.get(i);
-				ITagCollection<?> collection = readers.get(i).buildTagCollectionFromMap(completableFutures.get(i).join());
+				ITagCollection<?> collection = readers.get(i).load(completableFutures.get(i).join());
 				
 				map.put(id, collection);
 			}

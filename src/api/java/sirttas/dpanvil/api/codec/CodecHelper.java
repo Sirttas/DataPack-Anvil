@@ -54,11 +54,14 @@ public class CodecHelper {
 
 	public static <K, V> Codec<Multimap<K, V>> multimapCodec(Codec<K> keyCodec, Codec<V> valueCodec) {
 		return Codec.unboundedMap(keyCodec, valueCodec.listOf()).xmap(map -> {
-			Multimap<K, V> multimap = HashMultimap.create();
-			
-			map.entrySet().forEach(e -> multimap.putAll(e.getKey(), e.getValue()));
-			return multimap;
-		}, multimap -> Multimaps.asMap(multimap).entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> Lists.newArrayList(e.getValue()))));
+			if (map != null) {
+				Multimap<K, V> multimap = HashMultimap.create();
+				
+				map.entrySet().forEach(e -> multimap.putAll(e.getKey(), e.getValue()));
+				return multimap;
+			}
+			return null;
+		}, multimap -> multimap != null ? Multimaps.asMap(multimap).entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> Lists.newArrayList(e.getValue()))) : null);
 	}
 	
 	public static <T, F> Codec<T> remapField(Codec<T> codec, MapEncoder<F> fieldEncoder, Function<T, F> fieldGetter) {
@@ -109,7 +112,7 @@ public class CodecHelper {
 	}
 
 	public static <T> T decode(Decoder<T> decoder, PacketBuffer buf) {
-		return decode(decoder, buf.readCompoundTag());
+		return decode(decoder, buf.readNbt());
 	}
 
 	public static <T> T decode(Decoder<T> decoder, INBT nbt) {
@@ -124,7 +127,7 @@ public class CodecHelper {
 		INBT nbt = handleResult(encoder.encode(data, NBTDynamicOps.INSTANCE, NBTDynamicOps.INSTANCE.empty()));
 
 		if (nbt instanceof CompoundNBT) {
-			buf.writeCompoundTag((CompoundNBT) nbt);
+			buf.writeNbt((CompoundNBT) nbt);
 		} else {
 			throw new IllegalStateException("Couldn't get a CompoundNBT from the encoder: " + encoder.toString());
 		}

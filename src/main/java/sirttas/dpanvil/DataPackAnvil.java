@@ -60,7 +60,7 @@ public class DataPackAnvil {
 	private void serverStarted(FMLServerStartedEvent event) {
 		MinecraftServer server = event.getServer();
 
-		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(server.getRecipeManager(), server.func_244266_aF(), DataPackAnvil.WRAPPER.getDataManagers()));
+		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(server.getRecipeManager(), server.getTags(), DataPackAnvil.WRAPPER.getDataManagers()));
 	}
 
 	private void processIMC(InterModProcessEvent event) {

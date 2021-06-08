@@ -23,7 +23,7 @@ public class CodecRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEn
 	}
 	
 	@Override
-	public T read(ResourceLocation recipeId, JsonObject json) {
+	public T fromJson(ResourceLocation recipeId, JsonObject json) {
 		T recipe = CodecHelper.decode(codec, json);
 		
 		if (recipe != null) {
@@ -33,7 +33,7 @@ public class CodecRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEn
 	}
 
 	@Override
-	public T read(ResourceLocation recipeId, PacketBuffer buffer) {
+	public T fromNetwork(ResourceLocation recipeId, PacketBuffer buffer) {
 		T recipe = CodecHelper.decode(codec, buffer);
 		
 		if (recipe != null) {
@@ -43,7 +43,7 @@ public class CodecRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEn
 	}
 
 	@Override
-	public void write(PacketBuffer buffer, T recipe) {
+	public void toNetwork(PacketBuffer buffer, T recipe) {
 		CodecHelper.encode(codec, recipe, buffer);
 	}
 

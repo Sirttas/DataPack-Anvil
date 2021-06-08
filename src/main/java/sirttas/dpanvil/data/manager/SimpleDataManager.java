@@ -35,7 +35,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 		Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
 		int i = this.folder.length() + 1;
 
-		for (ResourceLocation resourcelocation : resourceManager.getAllResourceLocations(this.folder, file -> file.endsWith(".json"))) {
+		for (ResourceLocation resourcelocation : resourceManager.listResources(this.folder, file -> file.endsWith(".json"))) {
 			String path = resourcelocation.getPath();
 			ResourceLocation resourceId = new ResourceLocation(resourcelocation.getNamespace(), path.substring(i, path.length() - 5));
 

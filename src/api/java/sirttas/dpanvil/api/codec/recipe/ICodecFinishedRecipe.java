@@ -12,7 +12,7 @@ public interface ICodecFinishedRecipe<T extends ICodecFinishedRecipe<T>> extends
 
 	@SuppressWarnings("unchecked")
 	@Override
-	default void serialize(JsonObject json) {
+	default void serializeRecipeData(JsonObject json) {
 		((JsonObject) CodecHelper.encode(getCodec(), (T) this)).entrySet().forEach(e -> json.add(e.getKey(), e.getValue()));
 	}
 }
