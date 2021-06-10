@@ -43,4 +43,18 @@ public final class NotBlockPredicate implements IBlockPosPredicate {
 	public IBlockPosPredicate not() {
 		return predicate;
 	}
+	
+	@Override
+	public IBlockPosPredicate simplify() {
+		IBlockPosPredicate simplified = this.predicate.simplify();
+		
+		if (simplified instanceof NotBlockPredicate) {
+			return ((NotBlockPredicate) simplified).predicate;
+		} else if (simplified instanceof AnyBlockPredicate) {
+			return IBlockPosPredicate.none();
+		} else if (simplified instanceof NoneBlockPredicate) {
+			return IBlockPosPredicate.any();
+		}
+		return IBlockPosPredicate.super.simplify();
+	}
 }

@@ -1,6 +1,7 @@
 package sirttas.dpanvil.api.predicate.block.match;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
@@ -13,6 +14,7 @@ import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.Codecs;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
+import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
 public final class MatchBlocksPredicate implements IBlockStatePredicate {
@@ -47,4 +49,16 @@ public final class MatchBlocksPredicate implements IBlockStatePredicate {
 		return TYPE;
 	}
 
+	@Override
+	public IBlockPosPredicate simplify() {
+		if (blocks.isEmpty()) {
+			return IBlockPosPredicate.none();
+		} else if (blocks.size() == 1) {
+			return new MatchBlockPredicate(blocks.get(0));
+		}
+		return new MatchBlocksPredicate(blocks.stream()
+				.distinct()
+				.collect(Collectors.toList()));
+	}
+	
 }

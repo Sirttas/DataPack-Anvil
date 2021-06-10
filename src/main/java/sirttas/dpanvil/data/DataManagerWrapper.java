@@ -32,6 +32,7 @@ import sirttas.dpanvil.data.serializer.CodecJsonDataSerializer;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 import sirttas.dpanvil.tag.DataTagManager;
 
+@SuppressWarnings("unchecked")
 public class DataManagerWrapper implements IFutureReloadListener {
 
 	private final Map<ResourceLocation, IDataManager<?>> managers = Maps.newHashMap();
@@ -43,12 +44,10 @@ public class DataManagerWrapper implements IFutureReloadListener {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T, M extends IDataManager<T>> M getManager(ResourceLocation id) {
 		return (M) managers.get(id);
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T, M extends IDataManager<T>> M getManager(Class<T> clazz) {
 		return (M) managers.values().stream().filter(manager -> manager.getContentType().isAssignableFrom(clazz)).findAny().orElse(null);
 	}
@@ -57,7 +56,6 @@ public class DataManagerWrapper implements IFutureReloadListener {
 		return managers.entrySet().stream().filter(e -> e.getValue().equals(manager)).map(Entry::getKey).findAny().orElse(DataPackAnvilApi.ID_NONE);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T, S extends IJsonDataSerializer<T>> S getSerializer(ResourceLocation id) {
 		return (S) serializers.get(id);
 	}

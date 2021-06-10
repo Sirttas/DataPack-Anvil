@@ -1,6 +1,9 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
@@ -41,4 +44,19 @@ public final class AndBlockPredicate extends AbstractListBlockPredicate {
 		return new AndBlockPredicate(this.merge(Lists.newArrayList(predicates), AndBlockPredicate.class));
 	}
 
+	@Override
+	public IBlockPosPredicate simplify() {
+		List<IBlockPosPredicate> simplified = this.predicates.stream()
+				.map(IBlockPosPredicate::simplify)
+				.flatMap(p -> p instanceof AndBlockPredicate ? ((AndBlockPredicate) p).predicates.stream() : Stream.of(p))
+				.filter(p -> !(p instanceof AnyBlockPredicate))
+				.collect(Collectors.toList());
+		
+		if (simplified.isEmpty() || simplified.stream().anyMatch(NoneBlockPredicate.class::isInstance)) {
+			return IBlockPosPredicate.none();
+		} else if (simplified.size() == 1) {
+			return simplified.get(0);
+		}
+		return new AndBlockPredicate(simplified);
+	}
 }

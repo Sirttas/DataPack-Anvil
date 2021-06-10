@@ -12,6 +12,7 @@ import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 public final class NoneBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "none";
+	@Deprecated
 	public static final NoneBlockPredicate INSTANCE = new NoneBlockPredicate();
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<NoneBlockPredicate> TYPE = null;
 	public static final Codec<NoneBlockPredicate> CODEC = Codec.unit(INSTANCE);
@@ -31,11 +32,15 @@ public final class NoneBlockPredicate implements IBlockPosPredicate {
 
 	@Override
 	public IBlockPosPredicate and(IBlockPosPredicate... predicates) {
-		return INSTANCE;
+		return IBlockPosPredicate.none();
 	}
 	
 	@Override
 	public IBlockPosPredicate not() {
-		return AnyBlockPredicate.INSTANCE;
+		return IBlockPosPredicate.any();
+	}
+	
+	public static IBlockPosPredicate get() {
+		return INSTANCE;
 	}
 }

@@ -11,6 +11,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.network.NetworkEvent;
 import sirttas.dpanvil.DataPackAnvil;
+import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.data.DataHandler;
 
 public class ReloadDataMessage {
@@ -49,6 +50,7 @@ public class ReloadDataMessage {
 			message.encode(buf);
 		}
 		tagsMessage.encode(buf);
+		DataPackAnvilApi.LOGGER.debug("Sending DataPack Anvil packet with size: {} bytes", buf::writerIndex);
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {

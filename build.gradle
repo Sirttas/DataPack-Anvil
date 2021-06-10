@@ -75,7 +75,10 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
             property 'fml.earlyprogresswindow', 'false'
-            property 'mixin.env.disableRefMap', 'true'
+            property 'mixin.debug.verbose', 'true'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', createSrgToMcp.output
+            property 'mixin.env.refMapRemappingEnv', 'searge'
 
             mods {
                 dpanvil {
@@ -89,7 +92,10 @@ minecraft {
 
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
-            property 'mixin.env.disableRefMap', 'true'
+            property 'mixin.debug.verbose', 'true'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', createSrgToMcp.output
+            property 'mixin.env.refMapRemappingEnv', 'searge'
 
             mods {
                 dpanvil {
@@ -104,7 +110,10 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
             property 'fml.earlyprogresswindow', 'false'
-            property 'mixin.env.disableRefMap', 'true'
+            property 'mixin.debug.verbose', 'true'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', createSrgToMcp.output
+            property 'mixin.env.refMapRemappingEnv', 'searge'
 
             args '--mod', 'dpanvil', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
@@ -169,20 +178,22 @@ sonarqube {
 	}
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-             artifacts = [apiJar, jar]
-        }
-    }
-    
-    repositories {
-        maven {
-            url = 'https://modmaven.dev/artifactory/local-releases/'
-            credentials {
-                username = "${modmaven_user}"
-                password = "${modmaven_password}"
-            }
-        }
-    }
+if (project.hasProperty('modmaven_user')) {
+	publishing {
+	    publications {
+	        mavenJava(MavenPublication) {
+	             artifacts = [apiJar, jar]
+	        }
+	    }
+	    
+	    repositories {
+	        maven {
+	            url = 'https://modmaven.dev/artifactory/local-releases/'
+	            credentials {
+	                username = "${modmaven_user}"
+	                password = "${modmaven_password}"
+	            }
+	        }
+	    }
+	}
 }

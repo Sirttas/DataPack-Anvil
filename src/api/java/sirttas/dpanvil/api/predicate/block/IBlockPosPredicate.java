@@ -55,11 +55,11 @@ public interface IBlockPosPredicate {
 	}
 
 	public static IBlockPosPredicate any() {
-		return AnyBlockPredicate.INSTANCE;
+		return AnyBlockPredicate.get();
 	}
 
 	public static IBlockPosPredicate none() {
-		return NoneBlockPredicate.INSTANCE;
+		return NoneBlockPredicate.get();
 	}
 
 	public static IBlockPosPredicate createOr(IBlockPosPredicate... predicates) {
@@ -94,10 +94,16 @@ public interface IBlockPosPredicate {
 	}
 	
 	public static IBlockPosPredicate read(JsonElement json) {
-		return CodecHelper.decode(CODEC, json);
+		IBlockPosPredicate value = CodecHelper.decode(CODEC, json);
+		
+		return value != null ? value.simplify() : null;
 	}
 
 	public static IBlockPosPredicate read(PacketBuffer buf) {
 		return CodecHelper.decode(CODEC, buf);
+	}
+	
+	default IBlockPosPredicate simplify() {
+		return this;
 	}
 }

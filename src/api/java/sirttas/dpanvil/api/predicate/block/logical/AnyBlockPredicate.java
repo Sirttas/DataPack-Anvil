@@ -12,12 +12,12 @@ import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 public final class AnyBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "any";
+	@Deprecated
 	public static final AnyBlockPredicate INSTANCE = new AnyBlockPredicate();
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<AnyBlockPredicate> TYPE = null;
 	public static final Codec<AnyBlockPredicate> CODEC = Codec.unit(INSTANCE);
 
-	private AnyBlockPredicate() {
-	}
+	private AnyBlockPredicate() {}
 
 	@Override
 	public boolean test(IWorldReader world, BlockPos pos) {
@@ -31,11 +31,15 @@ public final class AnyBlockPredicate implements IBlockPosPredicate {
 
 	@Override
 	public IBlockPosPredicate or(IBlockPosPredicate... predicates) {
-		return INSTANCE;
+		return IBlockPosPredicate.any();
 	}
 	
 	@Override
 	public IBlockPosPredicate not() {
-		return NoneBlockPredicate.INSTANCE;
+		return IBlockPosPredicate.none();
+	}
+
+	public static IBlockPosPredicate get() {
+		return INSTANCE;
 	}
 }

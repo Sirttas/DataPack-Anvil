@@ -1,3 +1,9 @@
+1.16.5-1.2.1:
+
+- block pos predicates are now simplified after deserialization to improve their performances
+- added more debug informations
+
+
 1.16.5-1.2.0:
 
 - improve crash logs
