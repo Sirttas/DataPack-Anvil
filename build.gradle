@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
         mavenCentral()
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     }
@@ -78,7 +77,6 @@ minecraft {
             property 'mixin.debug.verbose', 'true'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', createSrgToMcp.output
-            property 'mixin.env.refMapRemappingEnv', 'searge'
 
             mods {
                 dpanvil {
@@ -95,27 +93,6 @@ minecraft {
             property 'mixin.debug.verbose', 'true'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', createSrgToMcp.output
-            property 'mixin.env.refMapRemappingEnv', 'searge'
-
-            mods {
-                dpanvil {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            property 'fml.earlyprogresswindow', 'false'
-            property 'mixin.debug.verbose', 'true'
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', createSrgToMcp.output
-            property 'mixin.env.refMapRemappingEnv', 'searge'
-
-            args '--mod', 'dpanvil', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
                 dpanvil {
@@ -165,7 +142,14 @@ task apiJar(type: Jar) {
     afterEvaluate {finalizedBy('reobfJar') }
 }
 
+task sourcesJar(type: Jar) {
+    archiveClassifier = "sources"
+    from sourceSets.api.allSource
+    from sourceSets.main.allSource
+}
+
 build.dependsOn tasks.apiJar
+build.dependsOn tasks.sourcesJar
 
 updateSourceSetMapping(sourceSets.api)
 
@@ -174,7 +158,7 @@ sonarqube {
     	property "sonar.projectKey", "Sirttas_DataPack-Anvil"
     	property "sonar.organization", "sirttas"
     	property "sonar.host.url", "https://sonarcloud.io"
-    	properties["sonar.sources"] += sourceSets.api.allSource.srcDirs
+    	properties["sonar.sources"] += sourceSets.api.java.srcDirs
 	}
 }
 
@@ -182,7 +166,7 @@ if (project.hasProperty('modmaven_user')) {
 	publishing {
 	    publications {
 	        mavenJava(MavenPublication) {
-	             artifacts = [apiJar, jar]
+	             artifacts = [apiJar, jar, sourcesJar]
 	        }
 	    }
 	    

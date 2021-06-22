@@ -1,3 +1,7 @@
+1.16.5-1.2.2:
+
+- fix incompatibility with latest versions of jei
+
 1.16.5-1.2.1:
 
 - block pos predicates are now simplified after deserialization to improve their performances

@@ -15,3 +15,10 @@ description='''A library mod to create datapack driven mods.'''
     versionRange="[36.0.17,)"
     ordering="NONE"
     side="BOTH"
+
+    [[dependencies.elementalcraft]]
+    modId="jei"
+    mandatory=false
+    versionRange="[FORGE-1.16.5-7.7.0.106,)"
+    ordering="AFTER"
+    side="BOTH"

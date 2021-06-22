@@ -24,7 +24,7 @@ public class JeiLoadDelayer {
 			try {
 				Class<?> serverTypeClass = Class.forName("mezz.jei.startup.ClientLifecycleHandler$ServerType", false, JeiLoadDelayer.class.getClassLoader());
 				Field listenerClassField = serverTypeClass.getField("listenerClass");
-				Field moddedRemoteField = serverTypeClass.getField("MODDED_REMOTE");
+				Field moddedRemoteField = serverTypeClass.getField("MODDED");
 				
 				ReflectionHelper.setAccesible(listenerClassField);
 				ReflectionHelper.setAccesible(moddedRemoteField);

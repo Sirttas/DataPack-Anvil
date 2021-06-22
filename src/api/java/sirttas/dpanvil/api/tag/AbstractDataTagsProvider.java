@@ -54,7 +54,7 @@ public abstract class AbstractDataTagsProvider<T> implements IDataProvider {
 	    * Performs this provider's action.
 	    */
 	   @Override
-	public void run(DirectoryCache cache) {
+	   public void run(DirectoryCache cache) {
 	      this.tagToBuilder.clear();
 	      this.registerTags();
 	      ITag<T> itag = Tag.empty();
