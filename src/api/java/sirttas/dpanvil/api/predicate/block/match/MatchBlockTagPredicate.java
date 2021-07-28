@@ -3,13 +3,12 @@ package sirttas.dpanvil.api.predicate.block.match;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITag.INamedTag;
-import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.Tag.Named;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -24,18 +23,18 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 			ResourceLocation.CODEC.fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::getTagName)
 	).apply(builder, MatchBlockTagPredicate::new));
 
-	private final ITag<Block> tag;
+	private final Tag<Block> tag;
 	private final ResourceLocation tagName;
 
 	public MatchBlockTagPredicate(ResourceLocation tagName) {
 		this(tagName, getTag(tagName));
 	}
 
-	public MatchBlockTagPredicate( INamedTag<Block> tag) {
+	public MatchBlockTagPredicate( Named<Block> tag) {
 		this(tag.getName(), tag);
 	}
 
-	private MatchBlockTagPredicate(ResourceLocation tagName, ITag<Block> tag) {
+	private MatchBlockTagPredicate(ResourceLocation tagName, Tag<Block> tag) {
 		this.tagName = tagName;
 		this.tag = tag;
 	}
@@ -54,13 +53,7 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 		return TYPE;
 	}
 
-	private static ITag<Block> getTag(ResourceLocation loc) {
-		ITag<Block> tag = BlockTags.getAllTags().getTag(loc);
-
-		if (tag == null) {
-			tag = TagCollectionManager.getInstance().getBlocks().getTag(loc);
-		}
-		return tag;
+	private static Tag<Block> getTag(ResourceLocation loc) {
+		return BlockTags.getAllTags().getTag(loc);
 	}
-
 }

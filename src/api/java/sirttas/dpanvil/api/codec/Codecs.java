@@ -9,13 +9,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.block.Block;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.Registry;
 import sirttas.dpanvil.api.DPAnvilNames;
 
 @SuppressWarnings("deprecation")
@@ -26,7 +26,7 @@ public class Codecs {
 	public static final Codec<Enchantment> ENCHANTMENT = Registry.ENCHANTMENT;
 	public static final Codec<Attribute> ATTRIBUTE = Registry.ATTRIBUTE;
 	public static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
-	public static final Codec<EquipmentSlotType> EQUIPMENT_SLOT_TYPE = Codec.STRING.xmap(EquipmentSlotType::byName, EquipmentSlotType::getName);
+	public static final Codec<EquipmentSlot> EQUIPMENT_SLOT_TYPE = Codec.STRING.xmap(EquipmentSlot::byName, EquipmentSlot::getName);
 
 	/**
 	 * A {@link Codec} that can read a color from an hex color.

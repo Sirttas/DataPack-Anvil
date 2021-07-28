@@ -11,6 +11,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
@@ -20,8 +22,8 @@ import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
 
-import net.minecraft.resources.IFutureReloadListener;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -44,7 +46,7 @@ import sirttas.dpanvil.api.event.DataManagerReloadEvent;
  * 
  * @param <T> the type of data the manager contains
  */
-public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyable {
+public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Keyable {
 
 	/**
 	 * The {@link Class} used to define the type of managed data
@@ -78,6 +80,15 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	 */
 	void setData(Map<ResourceLocation, T> map);
 
+	/**
+	 * Get a {@link IDataWrapper} that wrap a value contained in this manager.
+	 * 
+	 * @param id A {@link ResourceLocation} that map a data
+	 * @return A {@link IDataWrapper}
+	 */
+	@Nonnull
+	IDataWrapper<T> getWrapper(ResourceLocation id);
+	
 	/**
 	 * Get data mapped by the id
 	 * 
@@ -167,7 +178,7 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	default <U> DataResult<U> encode(final T input, final DynamicOps<U> ops, final U prefix) {
 		return ResourceLocation.CODEC.encode(getId(input), ops, prefix);
     }
-
+	
 	@Override
 	default <U> Stream<U> keys(DynamicOps<U> dynOps) {
 		return getData().keySet().stream().map(id -> dynOps.createString(id.toString()));

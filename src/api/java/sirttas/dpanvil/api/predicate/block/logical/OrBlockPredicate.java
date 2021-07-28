@@ -8,8 +8,8 @@ import java.util.stream.Stream;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
@@ -32,7 +32,7 @@ public final class OrBlockPredicate extends AbstractListBlockPredicate {
 	}
 
 	@Override
-	public boolean test(IWorldReader world, BlockPos pos) {
+	public boolean test(LevelReader world, BlockPos pos) {
 		return predicates.stream().anyMatch(predicate -> predicate.test(world, pos));
 	}
 

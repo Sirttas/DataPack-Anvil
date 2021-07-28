@@ -13,13 +13,13 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IFutureReloadListener;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagCollection;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoader;
 import sirttas.dpanvil.DataPackAnvil;
@@ -33,7 +33,7 @@ import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 import sirttas.dpanvil.tag.DataTagManager;
 
 @SuppressWarnings("unchecked")
-public class DataManagerWrapper implements IFutureReloadListener {
+public class DataManagerWrapper implements PreparableReloadListener {
 
 	private final Map<ResourceLocation, IDataManager<?>> managers = Maps.newHashMap();
 	private final Map<ResourceLocation, IJsonDataSerializer<?>> serializers = Maps.newHashMap();
@@ -60,8 +60,8 @@ public class DataManagerWrapper implements IFutureReloadListener {
 		return (S) serializers.get(id);
 	}
 
-	public <T> void putManagerFromIMC(Supplier<DataManagerIMC<T>> imc) {
-		DataManagerIMC<T> message = imc.get();
+	public <T> void putManagerFromIMC(Supplier<?> supplier) {
+		DataManagerIMC<T> message = (DataManagerIMC<T>) supplier.get();
 		ResourceLocation id = message.getId();
 		IDataManager<T> manager = message.getManager();
 
@@ -88,12 +88,12 @@ public class DataManagerWrapper implements IFutureReloadListener {
 			}
 
 			@Override
-			public T read(PacketBuffer buf) {
+			public T read(FriendlyByteBuf buf) {
 				return message.getReadPacket().apply(buf);
 			}
 
 			@Override
-			public void write(T data, PacketBuffer buf) {
+			public void write(T data, FriendlyByteBuf buf) {
 				message.getWritePacket().accept(buf, data);
 			}
 		};
@@ -109,7 +109,7 @@ public class DataManagerWrapper implements IFutureReloadListener {
 	}
 
 	@Override
-	public CompletableFuture<Void> reload(IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor,
+	public CompletableFuture<Void> reload(PreparationBarrier stage, ResourceManager resourceManager, ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor,
 			Executor gameExecutor) {
 		if (ModLoader.isLoadingStateValid() && !managers.isEmpty()) {
 			CompletableFuture<Void> completableFuture = CompletableFuture.allOf(managers.entrySet().stream()
@@ -145,8 +145,8 @@ public class DataManagerWrapper implements IFutureReloadListener {
 		});
 	}
 
-	private <T> void logTags(StringBuilder logBuilder, ResourceLocation collectionId, ITagCollection<T> tagCollection) {
-		Map<ResourceLocation, ITag<T>> map = tagCollection.getAllTags();
+	private <T> void logTags(StringBuilder logBuilder, ResourceLocation collectionId, TagCollection<T> tagCollection) {
+		Map<ResourceLocation, Tag<T>> map = tagCollection.getAllTags();
 		
 		logBuilder.append("\r\n" + collectionId + " " + map.size() + " tags:\r\n");
 		map.forEach((id, tag) -> logBuilder.append("\t" + id + ": " + tag.getValues().size() + " elements\r\n"));

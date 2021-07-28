@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.data.DataHandler;
@@ -29,7 +29,7 @@ public class ReloadDataMessage {
 		tagsMessage = new TagsMessage();
 	}
 
-	public static ReloadDataMessage decode(PacketBuffer buf) {
+	public static ReloadDataMessage decode(FriendlyByteBuf buf) {
 		ReloadDataMessage message = new ReloadDataMessage();
 		int size = buf.readInt();
 
@@ -43,7 +43,7 @@ public class ReloadDataMessage {
 		return message;
 	}
 
-	public void encode(PacketBuffer buf) {
+	public void encode(FriendlyByteBuf buf) {
 		buf.writeInt(messages.size());
 		for (DataManagerMessage<?> message : messages) {
 			buf.writeResourceLocation(message.getId());

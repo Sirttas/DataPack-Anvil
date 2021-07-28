@@ -6,63 +6,55 @@ import java.util.Optional;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.ITag.INamedTag;
-import net.minecraft.tags.ITagCollection;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.Tag;
+import net.minecraft.tags.Tag.Named;
+import net.minecraft.tags.TagCollection;
 import net.minecraftforge.common.util.Lazy;
 
 public final class DataTagRegistry<T> {
 
-	private ITagCollection<T> collection;
+	private TagCollection<T> collection;
 
-	private final List<Tag> tags = Lists.newArrayList();
+	private final List<DataTag> tags = Lists.newArrayList();
 	
-	/**
-	 * @deprecated use {@link makeWrapperTag}
-	 */
-	@Deprecated
-	public INamedTag<T> createWrapperTag(ResourceLocation id) {
-		return makeWrapperTag(id);
-	}
-	
-	public INamedTag<T> makeWrapperTag(ResourceLocation id) {
+	public Named<T> makeWrapperTag(ResourceLocation id) {
 		return tags.stream().filter(tag -> tag.id.equals(id)).findAny().orElseGet(() -> {
-			Tag tag = new Tag(id);
+			DataTag tag = new DataTag(id);
 			
 			tags.add(tag);
 			return tag;
 		});
 	}
 	
-	public ITag<T> getTag(ResourceLocation id) {
+	public Tag<T> getTag(ResourceLocation id) {
 		return collection.getTag(id);
 	}
 	
-	public Lazy<ITag<T>> getLazyTag(ResourceLocation id) {
+	public Lazy<Tag<T>> getLazyTag(ResourceLocation id) {
 		return Lazy.of(() -> collection.getTag(id));
 	}
 	
-	public Optional<ITag<T>> getOptionalTag(ResourceLocation id) {
+	public Optional<Tag<T>> getOptionalTag(ResourceLocation id) {
 		return Optional.ofNullable(collection.getTag(id));
 	}
 	
-	public void setCollection(ITagCollection<T> collection) {
+	public void setCollection(TagCollection<T> collection) {
 		this.collection = collection;
 		tags.forEach(tag -> tag.refresh(collection));
 	}
 	
-	private class Tag implements INamedTag<T> {
+	private class DataTag implements Named<T> {
 
 		private final ResourceLocation id;
-		private ITag<T> containedTag;
+		private Tag<T> containedTag;
 		
-		private Tag(ResourceLocation id) {
+		private DataTag(ResourceLocation id) {
 			this.id = id;
 			containedTag = null;
 		}
 		
-		private void refresh(ITagCollection<T> collection) {
+		private void refresh(TagCollection<T> collection) {
 			containedTag = collection.getTag(id);
 		}
 		

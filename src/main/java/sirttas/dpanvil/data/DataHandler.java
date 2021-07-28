@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.item.crafting.RecipeManager;
-import net.minecraft.tags.ITagCollectionSupplier;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.tags.TagContainer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -24,7 +24,7 @@ import sirttas.dpanvil.interaction.jei.JeiLoadDelayer;
 public class DataHandler {
 
 	private static RecipeManager recipeManager = null;
-	private static ITagCollectionSupplier tagManager = null;
+	private static TagContainer tagManager = null;
 	private static Map<Class<? extends Event>, Boolean> map = Maps.newHashMap();
 	
 	static {

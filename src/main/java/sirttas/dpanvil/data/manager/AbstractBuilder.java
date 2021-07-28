@@ -6,7 +6,7 @@ import java.util.stream.Stream;
 
 import com.google.gson.JsonElement;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.data.IDataManager.Builder;
 

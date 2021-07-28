@@ -23,11 +23,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapDecoder;
 import com.mojang.serialization.MapEncoder;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -111,23 +111,23 @@ public class CodecHelper {
 		return decode(decoder, JsonOps.INSTANCE, json);
 	}
 
-	public static <T> T decode(Decoder<T> decoder, PacketBuffer buf) {
+	public static <T> T decode(Decoder<T> decoder, FriendlyByteBuf buf) {
 		return decode(decoder, buf.readNbt());
 	}
 
-	public static <T> T decode(Decoder<T> decoder, INBT nbt) {
-		return decode(decoder, NBTDynamicOps.INSTANCE, nbt);
+	public static <T> T decode(Decoder<T> decoder, Tag nbt) {
+		return decode(decoder, NbtOps.INSTANCE, nbt);
 	}
 
 	public static <T, U> T decode(Decoder<T> decoder, DynamicOps<U> ops, U input) {
 		return handleResult(decoder.decode(ops, input)).getFirst();
 	}
 
-	public static <T> void encode(Encoder<T> encoder, T data, PacketBuffer buf) {
-		INBT nbt = handleResult(encoder.encode(data, NBTDynamicOps.INSTANCE, NBTDynamicOps.INSTANCE.empty()));
+	public static <T> void encode(Encoder<T> encoder, T data, FriendlyByteBuf buf) {
+		Tag nbt = handleResult(encoder.encode(data, NbtOps.INSTANCE, NbtOps.INSTANCE.empty()));
 
-		if (nbt instanceof CompoundNBT) {
-			buf.writeNbt((CompoundNBT) nbt);
+		if (nbt instanceof CompoundTag) {
+			buf.writeNbt((CompoundTag) nbt);
 		} else {
 			throw new IllegalStateException("Couldn't get a CompoundNBT from the encoder: " + encoder.toString());
 		}

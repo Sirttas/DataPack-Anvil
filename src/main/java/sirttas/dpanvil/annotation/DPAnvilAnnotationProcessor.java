@@ -10,16 +10,16 @@ import org.objectweb.asm.Type;
 
 import com.google.common.collect.ImmutableMap;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
 import sirttas.dpanvil.DataPackAnvil;
-import sirttas.dpanvil.ReflectionHelper;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.annotation.DataHolder;
 import sirttas.dpanvil.api.data.IDataManager;
 
+@SuppressWarnings("deprecation")
 public class DPAnvilAnnotationProcessor {
 
 	private static final Type DATA_HOLDER = Type.getType(DataHolder.class);
@@ -28,10 +28,19 @@ public class DPAnvilAnnotationProcessor {
 	public void setup() {
 		ImmutableMap.Builder<Field, ResourceLocation> dataHoldersBuilder = ImmutableMap.builder();
 
-		ModList.get().getAllScanData().stream().map(ModFileScanData::getAnnotations).flatMap(Collection::stream)
-				.filter(a -> DATA_HOLDER.equals(a.getAnnotationType())).map(AnnotationData::getClassType).distinct().map(this::getClass).filter(Objects::nonNull).map(Class::getDeclaredFields)
-				.flatMap(Stream::of).filter(field -> field.isAnnotationPresent(DataHolder.class)).forEach(field -> {
-					ReflectionHelper.setAccesible(field);
+		ModList.get().getAllScanData().stream()
+				.map(ModFileScanData::getAnnotations)
+				.flatMap(Collection::stream)
+				.filter(a -> DATA_HOLDER.equals(a.annotationType()))
+				.map(AnnotationData::clazz)
+				.distinct()
+				.map(this::getClass)
+				.filter(Objects::nonNull)
+				.map(Class::getDeclaredFields)
+				.flatMap(Stream::of)
+				.filter(field -> field.isAnnotationPresent(DataHolder.class))
+				.forEach(field -> {
+					field.setAccessible(true);
 					dataHoldersBuilder.put(field, new ResourceLocation(field.getAnnotation(DataHolder.class).value()));
 				});
 		dataHolders = dataHoldersBuilder.build();

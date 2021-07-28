@@ -7,9 +7,13 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
@@ -17,151 +21,159 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.tags.ITag;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.tags.Tag;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ExistingFileHelper.IResourceType;
 import net.minecraftforge.common.data.ExistingFileHelper.ResourceType;
-import net.minecraftforge.common.extensions.IForgeTagBuilder;
+import net.minecraftforge.common.extensions.IForgeTagAppender;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 
-public abstract class AbstractDataTagsProvider<T> implements IDataProvider {
-	
-	   private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
-	   
-	   protected final DataGenerator generator;
-	   protected final IDataManager<T> manager;
-	   protected final Map<ResourceLocation, ITag.Builder> tagToBuilder = Maps.newLinkedHashMap();
-	   protected final String modId;
-	   protected final ExistingFileHelper existingFileHelper;
-	   private final IResourceType resourceType;
+public abstract class AbstractDataTagsProvider<T> implements DataProvider {
 
-	   protected AbstractDataTagsProvider(DataGenerator generatorIn, IDataManager<T> manager, String modId, @javax.annotation.Nullable net.minecraftforge.common.data.ExistingFileHelper existingFileHelper) {
-	      this.generator = generatorIn;
-	      this.manager = manager;
-	      this.modId = modId;
-	      this.existingFileHelper = existingFileHelper;
-	      this.resourceType = new ResourceType(net.minecraft.resources.ResourcePackType.SERVER_DATA, ".json", DataPackAnvilApi.TAGS_FOLDER + getTagFolder());
-	   }
+	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().create();
 
-	   protected abstract void registerTags();
+	protected final DataGenerator generator;
+	protected final Map<ResourceLocation, Tag.Builder> builders = Maps.newLinkedHashMap();
+	protected final String modId;
+	protected final String folder;
+	protected final ExistingFileHelper existingFileHelper;
+	private final IResourceType resourceType;
+	private IDataManager<T> manager;
 
-	   /**
-	    * Performs this provider's action.
-	    */
-	   @Override
-	   public void run(DirectoryCache cache) {
-	      this.tagToBuilder.clear();
-	      this.registerTags();
-	      ITag<T> itag = Tag.empty();
-	      Function<ResourceLocation, ITag<T>> function = key -> this.tagToBuilder.containsKey(key) ? itag : null;
-	      Function<ResourceLocation, T> function1 = key -> this.manager.getOptional(key).orElse((T)null);
-	      
-	      this.tagToBuilder.forEach((tagName, builder) -> {
-	         List<ITag.Proxy> list = builder.getUnresolvedEntries(function, function1).filter(this::missing).collect(Collectors.toList());
-	         if (!list.isEmpty()) {
-	            throw new IllegalArgumentException(String.format("Couldn't define tag %s as it is missing following references: %s", tagName, list.stream().map(Objects::toString).collect(Collectors.joining(","))));
-	         } else {
-	            JsonObject jsonobject = builder.serializeToJson();
-	            Path path = this.makePath(tagName);
-	            if (path == null) return; 
-
-	            try {
-	               String s = GSON.toJson(jsonobject);
-	               String s1 = SHA1.hashUnencodedChars(s).toString();
-	               if (!Objects.equals(cache.getHash(path), s1) || !Files.exists(path)) {
-	                  Files.createDirectories(path.getParent());
-
-	                  try (BufferedWriter bufferedwriter = Files.newBufferedWriter(path)) {
-	                     bufferedwriter.write(s);
-	                  }
-	               }
-
-	               cache.putNew(path, s1);
-	            } catch (IOException ioexception) {
-	               DataPackAnvilApi.LOGGER.error("Couldn't save tags to {}", path, ioexception);
-	            }
-
-	         }
-	      });
-	   }
-
-	   private boolean missing(ITag.Proxy reference) {
-	      ITag.ITagEntry entry = reference.getEntry();
-	      if (entry instanceof ITag.TagEntry) {
-	         return existingFileHelper == null || !existingFileHelper.exists(((ITag.TagEntry)entry).getId(), resourceType);
-	      }
-	      return false;
-	   }
-
-	   protected String getTagFolder() {
-	      return manager.getFolder();
-	   }
-
-	   /**
-	    * Resolves a Path for the location to save the given tag.
-	    */
-	   protected Path makePath(ResourceLocation id) {
-		   return this.generator.getOutputFolder().resolve("data/" + id.getNamespace() + "/" + DataPackAnvilApi.TAGS_FOLDER + getTagFolder() + "/" + id.getPath() + ".json");
-	   }
-
-	   protected Builder getOrCreateBuilder(ITag.INamedTag<T> tag) {
-	      return new Builder(this.createBuilderIfAbsent(tag), modId);
-	   }
-
-	   protected ITag.Builder createBuilderIfAbsent(ITag.INamedTag<T> tag) {
-	      return this.tagToBuilder.computeIfAbsent(tag.getName(), key -> {
-	         existingFileHelper.trackGenerated(key, resourceType);
-	         return new ITag.Builder();
-	      });
-	   }
-
-	   public class Builder implements IForgeTagBuilder<T> {
-	      private final ITag.Builder tagBuilder;
-	      private final String id;
-
-	      private Builder(ITag.Builder builder, String id) {
-	         this.tagBuilder = builder;
-	         this.id = id;
-	      }
-
-	      public Builder addItemEntry(T item) {
-	         this.tagBuilder.addElement(manager.getId(item), this.id);
-	         return this;
-	      }
-
-	      public Builder addTag(ITag.INamedTag<T> tag) {
-	         this.tagBuilder.addTag(tag.getName(), this.id);
-	         return this;
-	      }
-
-	      @SafeVarargs
-	      public final Builder add(T... toAdd) {
-	         Stream.of(toAdd).map(manager::getId).forEach(key -> this.tagBuilder.addElement(key, this.id));
-	         return this;
-	      }
-	      
-	      @SafeVarargs
-	      public final Builder add(ResourceLocation... toAdd) {
-	         Stream.of(toAdd).forEach(key -> this.tagBuilder.addElement(key, this.id));
-	         return this;
-	      }
-
-	      public Builder add(ITag.ITagEntry tag) {
-	          tagBuilder.add(tag, id);
-	          return this;
-	      }
-
-	      public ITag.Builder getInternalBuilder() {
-	          return tagBuilder;
-	      }
-
-	      public String getModID() {
-	          return id;
-	      }
-	   }
+	protected AbstractDataTagsProvider(DataGenerator generator, IDataManager<T> manager, String modId, @Nullable ExistingFileHelper existingFileHelper) {
+		this(generator, manager, modId, existingFileHelper, null);
 	}
+
+	protected AbstractDataTagsProvider(DataGenerator generator, IDataManager<T> manager, String modId, @Nullable ExistingFileHelper existingFileHelper, @Nullable String folder) {
+		this.generator = generator;
+		this.manager = manager;
+		this.modId = modId;
+		this.existingFileHelper = existingFileHelper;
+		if (folder == null) {
+			folder = manager.getFolder();
+		}
+		this.folder = folder;
+		this.resourceType = new ResourceType(PackType.SERVER_DATA, ".json", DataPackAnvilApi.TAGS_FOLDER + this.folder);
+	}
+
+	protected abstract void addTags();
+
+	@Override
+	public void run(HashCache cache) {
+		this.builders.clear();
+		this.addTags();
+		this.builders.forEach((location, builder) -> {
+			List<Tag.BuilderEntry> list = builder.getEntries()
+					.filter(entry -> !entry.getEntry().verifyIfPresent(manager.getData()::containsKey, this.builders::containsKey))
+					.filter(this::missing)
+					.collect(Collectors.toList());
+			
+			if (!list.isEmpty()) {
+				throw new IllegalArgumentException(
+						String.format("Couldn't define tag %s as it is missing following references: %s", location, list.stream().map(Objects::toString).collect(Collectors.joining(","))));
+			} else {
+				JsonObject jsonobject = builder.serializeToJson();
+				Path path = this.getPath(location);
+				if (path == null) {
+					return;
+				}
+				try {
+					String s = GSON.toJson(jsonobject);
+					String s1 = SHA1.hashUnencodedChars(s).toString();
+					
+					if (!Objects.equals(cache.getHash(path), s1) || !Files.exists(path)) {
+						Files.createDirectories(path.getParent());
+
+						try (BufferedWriter bufferedwriter = Files.newBufferedWriter(path)) {
+							bufferedwriter.write(s);
+						}
+					}
+
+					cache.putNew(path, s1);
+				} catch (IOException ioexception) {
+					LOGGER.error("Couldn't save tags to {}", path, ioexception);
+				}
+
+			}
+		});
+	}
+
+	private boolean missing(Tag.BuilderEntry reference) {
+		Tag.Entry entry = reference.getEntry();
+		// We only care about non-optional tag entries, this is the only type that can
+		// reference a resource and needs validation
+		// Optional tags should not be validated
+		if (entry instanceof Tag.TagEntry) {
+			return existingFileHelper == null || !existingFileHelper.exists(((Tag.TagEntry) entry).getId(), resourceType);
+		}
+		return false;
+	}
+
+	protected Path getPath(ResourceLocation id) {
+		return this.generator.getOutputFolder().resolve("data/" + id.getNamespace() + "/" + DataPackAnvilApi.TAGS_FOLDER + folder + "/" + id.getPath() + ".json");
+	}
+
+	protected DataTagAppender tag(Tag.Named<T> tag) {
+		Tag.Builder tagBuilder = this.getOrCreateRawBuilder(tag);
+
+		return new DataTagAppender(tagBuilder, modId);
+	}
+
+	protected Tag.Builder getOrCreateRawBuilder(Tag.Named<T> tag) {
+		return this.builders.computeIfAbsent(tag.getName(), id -> {
+			existingFileHelper.trackGenerated(id, resourceType);
+			return new Tag.Builder();
+		});
+	}
+
+	public class DataTagAppender implements IForgeTagAppender<T> {
+		private final Tag.Builder tagBuilder;
+		private final String id;
+
+		private DataTagAppender(Tag.Builder builder, String id) {
+			this.tagBuilder = builder;
+			this.id = id;
+		}
+
+		public DataTagAppender addItemEntry(T item) {
+			this.tagBuilder.addElement(manager.getId(item), this.id);
+			return this;
+		}
+
+		public DataTagAppender addTag(Tag.Named<T> tag) {
+			this.tagBuilder.addTag(tag.getName(), this.id);
+			return this;
+		}
+
+		@SafeVarargs
+		public final DataTagAppender add(T... toAdd) {
+			Stream.of(toAdd).map(manager::getId).forEach(key -> this.tagBuilder.addElement(key, this.id));
+			return this;
+		}
+
+		@SafeVarargs
+		public final DataTagAppender add(ResourceLocation... toAdd) {
+			Stream.of(toAdd).forEach(key -> this.tagBuilder.addElement(key, this.id));
+			return this;
+		}
+
+		public DataTagAppender add(Tag.Entry tag) {
+			tagBuilder.add(tag, id);
+			return this;
+		}
+
+		public Tag.Builder getInternalBuilder() {
+			return tagBuilder;
+		}
+
+		public String getModID() {
+			return id;
+		}
+	}
+}

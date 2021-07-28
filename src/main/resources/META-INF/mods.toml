@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[36,)" 
+loaderVersion="[37,)" 
 license="LGPL 2.1"
 authors="Sirttas"
 
@@ -12,6 +12,13 @@ description='''A library mod to create datapack driven mods.'''
 [[dependencies.dpanvil]]
     modId="forge"
     mandatory=true
-    versionRange="[36.0.17,)"
+    versionRange="[37.0.10,)"
     ordering="NONE"
+    side="BOTH"
+
+    [[dependencies.elementalcraft]]
+    modId="jei"
+    mandatory=false
+    versionRange="[FORGE-1.16.5-7.7.0.106,)"
+    ordering="AFTER"
     side="BOTH"

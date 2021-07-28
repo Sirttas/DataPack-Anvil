@@ -1,3 +1,13 @@
+1.17.1-2.0.0:
+
+- ported to 1.17.1
+
+
+1.16.5-1.2.2:
+
+- fix incompatibility with latest versions of jei (issue #2)
+
+
 1.16.5-1.2.1:
 
 - block pos predicates are now simplified after deserialization to improve their performances

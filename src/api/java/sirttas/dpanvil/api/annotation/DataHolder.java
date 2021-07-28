@@ -17,7 +17,9 @@ import sirttas.dpanvil.api.data.IDataManager;
  * <p>
  * <b>Note: if the data is absent in the pack this will be null</b>
  * </p>
+ * @deprecated use {@link IDataManager#getWrapper(net.minecraft.resources.ResourceLocation)} instead.
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface DataHolder {

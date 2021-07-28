@@ -14,11 +14,11 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
@@ -31,7 +31,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 	}
 
 	@Override
-	protected Map<ResourceLocation, JsonElement> prepare(IResourceManager resourceManager, IProfiler profilerIn) {
+	protected Map<ResourceLocation, JsonElement> prepare(ResourceManager resourceManager, ProfilerFiller profilerIn) {
 		Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
 		int i = this.folder.length() + 1;
 
@@ -39,11 +39,11 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 			String path = resourcelocation.getPath();
 			ResourceLocation resourceId = new ResourceLocation(resourcelocation.getNamespace(), path.substring(i, path.length() - 5));
 
-			try (IResource resource = resourceManager.getResource(resourcelocation);
+			try (Resource resource = resourceManager.getResource(resourcelocation);
 					InputStream inputstream = resource.getInputStream();
 					Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));) {
 
-				JsonElement jsonelement = JSONUtils.fromJson(GSON, reader, JsonElement.class);
+				JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
 
 				if (jsonelement != null) {
 					map.put(resourceId, jsonelement);
@@ -59,7 +59,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 
 	
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> objects, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+	protected void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
 		Map<ResourceLocation, T> map = Maps.newHashMap();
 		IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(id);
 

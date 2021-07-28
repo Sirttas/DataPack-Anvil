@@ -3,13 +3,13 @@ package sirttas.dpanvil.data.network.message;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.IPacket;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.LogicalSidedProvider;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.LogicalSidedProvider;
+import net.minecraftforge.fmllegacy.network.NetworkDirection;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import sirttas.dpanvil.DataPackAnvil;
 
 public class MessageHelper {
@@ -18,11 +18,11 @@ public class MessageHelper {
 
 	private MessageHelper() {}
 	
-	public static <T> void sendToPlayer(ServerPlayerEntity serverPlayer, T message) {
+	public static <T> void sendToPlayer(ServerPlayer serverPlayer, T message) {
 		MessageHandler.CHANNEL.sendTo(message, serverPlayer.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
 	}
 
-	public static <T> void sendToRemotePlayer(ServerPlayerEntity serverPlayer, T message) {
+	public static <T> void sendToRemotePlayer(ServerPlayer serverPlayer, T message) {
 		if (DataPackAnvil.PROXY.isRemotePlayer(serverPlayer)) {
 			sendToPlayer(serverPlayer, message);
 		}
@@ -36,7 +36,7 @@ public class MessageHelper {
 		MessageHandler.CHANNEL.send(ALL_REMOTE.noArg(), message);
 	}
 
-	private static Consumer<IPacket<?>> playerListAllRemote(PacketDistributor<Void> distributor, final Supplier<Void> voidSupplier) {
+	private static Consumer<Packet<?>> playerListAllRemote(PacketDistributor<Void> distributor, final Supplier<Void> voidSupplier) {
 		return p -> ((MinecraftServer) LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER)).getPlayerList().getPlayers().stream()
 				.filter(DataPackAnvil.PROXY::isRemotePlayer)
 				.forEach(player -> player.connection.send(p));

@@ -6,7 +6,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TagsUpdatedEvent.CustomTagTypes;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.ModList;
-import sirttas.dpanvil.ReflectionHelper;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.data.DataHandler;
 
@@ -24,10 +23,10 @@ public class JeiLoadDelayer {
 			try {
 				Class<?> serverTypeClass = Class.forName("mezz.jei.startup.ClientLifecycleHandler$ServerType", false, JeiLoadDelayer.class.getClassLoader());
 				Field listenerClassField = serverTypeClass.getField("listenerClass");
-				Field moddedRemoteField = serverTypeClass.getField("MODDED_REMOTE");
+				Field moddedRemoteField = serverTypeClass.getField("MODDED");
 				
-				ReflectionHelper.setAccesible(listenerClassField);
-				ReflectionHelper.setAccesible(moddedRemoteField);
+				listenerClassField.setAccessible(true);
+				moddedRemoteField.setAccessible(true);
 				
 				Object moddedRemote = moddedRemoteField.get(null);
 				Class<? extends Event> listenerClass = (Class<? extends Event>) listenerClassField.get(moddedRemote);

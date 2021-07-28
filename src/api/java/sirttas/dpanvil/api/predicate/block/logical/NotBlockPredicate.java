@@ -3,8 +3,8 @@ package sirttas.dpanvil.api.predicate.block.logical;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -26,7 +26,7 @@ public final class NotBlockPredicate implements IBlockPosPredicate {
 	}
 
 	@Override
-	public boolean test(IWorldReader world, BlockPos pos) {
+	public boolean test(LevelReader world, BlockPos pos) {
 		return !predicate.test(world, pos);
 	}
 

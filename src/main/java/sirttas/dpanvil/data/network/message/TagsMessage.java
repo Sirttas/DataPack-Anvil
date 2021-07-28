@@ -1,9 +1,9 @@
 package sirttas.dpanvil.data.network.message;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
-import net.minecraft.nbt.NBTDynamicOps;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.FriendlyByteBuf;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.data.DataManagerWrapper;
@@ -11,21 +11,21 @@ import sirttas.dpanvil.tag.DataTagManager;
 
 public class TagsMessage {
 
-	private final INBT tagNBT;
+	private final Tag tagNBT;
 
 	public TagsMessage() {
-		this(CodecHelper.encode(DataPackAnvil.DATA_TAG_MANAGER.getCodec(), NBTDynamicOps.INSTANCE, DataPackAnvil.DATA_TAG_MANAGER.getData()));
+		this(CodecHelper.encode(DataPackAnvil.DATA_TAG_MANAGER.getCodec(), NbtOps.INSTANCE, DataPackAnvil.DATA_TAG_MANAGER.getData()));
 	}
 	
-	public TagsMessage(INBT tagNBT) {
+	public TagsMessage(Tag tagNBT) {
 		this.tagNBT = tagNBT;
 	}
 
-	public void encode(PacketBuffer buf) {
-		buf.writeNbt((CompoundNBT) tagNBT);
+	public void encode(FriendlyByteBuf buf) {
+		buf.writeNbt((CompoundTag) tagNBT);
 	}
 	
-	public static TagsMessage decode(PacketBuffer buf) {
+	public static TagsMessage decode(FriendlyByteBuf buf) {
 		return new TagsMessage(buf.readNbt());
 	}
 

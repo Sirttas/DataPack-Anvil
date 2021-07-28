@@ -3,8 +3,8 @@ package sirttas.dpanvil.data.network.message;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -27,7 +27,7 @@ public class DataManagerMessage<T> {
 		this.data = manager.getData();
 	}
 
-	public void decode(PacketBuffer buf) {
+	public void decode(FriendlyByteBuf buf) {
 		try {
 			int mapSize = buf.readInt();
 
@@ -40,7 +40,7 @@ public class DataManagerMessage<T> {
 		}
 	}
 
-	public void encode(PacketBuffer buf) {
+	public void encode(FriendlyByteBuf buf) {
 		buf.writeInt(data.size());
 		data.forEach((loc, prop) -> {
 			buf.writeResourceLocation(loc);

@@ -1,9 +1,9 @@
 package sirttas.dpanvil;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -12,8 +12,8 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fmlserverevents.FMLServerStartedEvent;
 import sirttas.dpanvil.annotation.DPAnvilAnnotationProcessor;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
@@ -64,15 +64,15 @@ public class DataPackAnvil {
 	}
 
 	private void processIMC(InterModProcessEvent event) {
-		event.getIMCStream(DataManagerIMC.METHOD::equals).forEach(message -> WRAPPER.putManagerFromIMC(message.getMessageSupplier()));
-		event.getIMCStream(DataTagIMC.METHOD::equals).forEach(message -> DATA_TAG_MANAGER.putTagRegistryFromIMC(message.getMessageSupplier()));
+		event.getIMCStream(DataManagerIMC.METHOD::equals).forEach(message -> WRAPPER.putManagerFromIMC(message.messageSupplier()));
+		event.getIMCStream(DataTagIMC.METHOD::equals).forEach(message -> DATA_TAG_MANAGER.putTagRegistryFromIMC(message.messageSupplier()));
 	}
 
 	private void playerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-		PlayerEntity player = event.getPlayer();
+		Player player = event.getPlayer();
 
-		if (player instanceof ServerPlayerEntity) {
-			MessageHelper.sendToRemotePlayer((ServerPlayerEntity) player, new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
+		if (player instanceof ServerPlayer) {
+			MessageHelper.sendToRemotePlayer((ServerPlayer) player, new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
 		}
 	}
 

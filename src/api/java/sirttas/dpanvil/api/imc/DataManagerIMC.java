@@ -7,8 +7,8 @@ import java.util.function.Supplier;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.InterModComms;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
@@ -21,8 +21,8 @@ public class DataManagerIMC<T> {
 	private final IDataManager<T> manager;
 	private Codec<T> codec;
 	private Function<JsonElement, T> readJson;
-	private Function<PacketBuffer, T> readPacket;
-	private BiConsumer<PacketBuffer, T> writePacket;
+	private Function<FriendlyByteBuf, T> readPacket;
+	private BiConsumer<FriendlyByteBuf, T> writePacket;
 
 	public DataManagerIMC(ResourceLocation id, IDataManager<T> manager) {
 		this.id = id;
@@ -45,11 +45,11 @@ public class DataManagerIMC<T> {
 		return readJson;
 	}
 
-	public Function<PacketBuffer, T> getReadPacket() {
+	public Function<FriendlyByteBuf, T> getReadPacket() {
 		return readPacket;
 	}
 
-	public BiConsumer<PacketBuffer, T> getWritePacket() {
+	public BiConsumer<FriendlyByteBuf, T> getWritePacket() {
 		return writePacket;
 	}
 
@@ -61,7 +61,7 @@ public class DataManagerIMC<T> {
 		return this;
 	}
 
-	public DataManagerIMC<T> withSerializer(Function<JsonElement, T> readJson, Function<PacketBuffer, T> readPacket, BiConsumer<PacketBuffer, T> writePacket) {
+	public DataManagerIMC<T> withSerializer(Function<JsonElement, T> readJson, Function<FriendlyByteBuf, T> readPacket, BiConsumer<FriendlyByteBuf, T> writePacket) {
 		this.codec = null;
 		this.readJson = readJson;
 		this.readPacket = readPacket;
@@ -69,7 +69,7 @@ public class DataManagerIMC<T> {
 		return this;
 	}
 	
-	public DataManagerIMC<T> withSerializer(Function<PacketBuffer, T> readPacket, BiConsumer<PacketBuffer, T> writePacket) {
+	public DataManagerIMC<T> withSerializer(Function<FriendlyByteBuf, T> readPacket, BiConsumer<FriendlyByteBuf, T> writePacket) {
 		return withSerializer(null, readPacket, writePacket);
 	}
 

@@ -18,11 +18,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IResource;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.profiling.ProfilerFiller;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -40,7 +40,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 	}
 
 	@Override
-	protected Map<ResourceLocation, List<JsonElement>> prepare(IResourceManager resourceManager, IProfiler profilerIn) {
+	protected Map<ResourceLocation, List<JsonElement>> prepare(ResourceManager resourceManager, ProfilerFiller profilerIn) {
 		Map<ResourceLocation, List<JsonElement>> map = Maps.newHashMap();
 		int i = this.folder.length() + 1;
 
@@ -50,7 +50,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 			List<JsonElement> list = Lists.newArrayList();
 
 			try {
-				for (IResource resource : resourceManager.getResources(resourcelocation)) {
+				for (Resource resource : resourceManager.getResources(resourcelocation)) {
 					JsonElement element = getElement(resourcelocation, resourceId, resource);
 
 					if (element != null) {
@@ -74,9 +74,9 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 		return map;
 	}
 
-	public static JsonElement getElement(ResourceLocation resourcelocation, ResourceLocation resourceId, IResource resource) {
+	public static JsonElement getElement(ResourceLocation resourcelocation, ResourceLocation resourceId, Resource resource) {
 		try (InputStream inputstream = resource.getInputStream(); Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));) {
-			return JSONUtils.fromJson(GSON, reader, JsonElement.class);
+			return GsonHelper.fromJson(GSON, reader, JsonElement.class);
 		} catch (IllegalArgumentException | IOException | JsonParseException e) {
 			DataPackAnvilApi.LOGGER.error("Couldn't parse data file {} from {}", resourceId, resourcelocation, e);
 		}
@@ -85,7 +85,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void apply(Map<ResourceLocation, List<JsonElement>> objects, IResourceManager resourceManagerIn, IProfiler profilerIn) {
+	protected void apply(Map<ResourceLocation, List<JsonElement>> objects, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
 		Map<ResourceLocation, T> map = Maps.newHashMap();
 		Function<JsonElement, R> parser = rawParser != null ? rawParser : json -> (R) DataPackAnvil.WRAPPER.getSerializer(id).read(json);
 

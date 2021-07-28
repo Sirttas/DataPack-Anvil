@@ -7,12 +7,12 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tags.ITag.INamedTag;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.tags.Tag.Named;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelReader;
 import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
@@ -28,11 +28,11 @@ public interface IBlockPosPredicate {
 
 	public static final Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(() -> BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::getCodec);
 	
-	boolean test(IWorldReader world, BlockPos pos);
+	boolean test(LevelReader world, BlockPos pos);
 
 	BlockPosPredicateType<? extends IBlockPosPredicate> getType();
 
-	default BiPredicate<IWorldReader, BlockPos> asBlockPosPredicate() {
+	default BiPredicate<LevelReader, BlockPos> asBlockPosPredicate() {
 		return this::test;
 	}
 
@@ -77,7 +77,7 @@ public interface IBlockPosPredicate {
 		return new MatchBlocksPredicate(blocks);
 	}
 
-	public static IBlockPosPredicate match(INamedTag<Block> tag) {
+	public static IBlockPosPredicate match(Named<Block> tag) {
 		return new MatchBlockTagPredicate(tag);
 	}
 
@@ -89,7 +89,7 @@ public interface IBlockPosPredicate {
 		return CodecHelper.encode(CODEC, this);
 	}
 
-	default void write(PacketBuffer buf) {
+	default void write(FriendlyByteBuf buf) {
 		CodecHelper.encode(CODEC, this, buf);
 	}
 	
@@ -99,7 +99,7 @@ public interface IBlockPosPredicate {
 		return value != null ? value.simplify() : null;
 	}
 
-	public static IBlockPosPredicate read(PacketBuffer buf) {
+	public static IBlockPosPredicate read(FriendlyByteBuf buf) {
 		return CodecHelper.decode(CODEC, buf);
 	}
 	

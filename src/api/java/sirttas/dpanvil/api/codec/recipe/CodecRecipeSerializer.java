@@ -5,14 +5,14 @@ import java.util.function.BiConsumer;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
-public class CodecRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<T> {
+public class CodecRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<T> {
 
 	private final Codec<T> codec;
 	private final BiConsumer<T, ResourceLocation> idSetter;
@@ -33,7 +33,7 @@ public class CodecRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEn
 	}
 
 	@Override
-	public T fromNetwork(ResourceLocation recipeId, PacketBuffer buffer) {
+	public T fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
 		T recipe = CodecHelper.decode(codec, buffer);
 		
 		if (recipe != null) {
@@ -43,7 +43,7 @@ public class CodecRecipeSerializer<T extends IRecipe<?>> extends ForgeRegistryEn
 	}
 
 	@Override
-	public void toNetwork(PacketBuffer buffer, T recipe) {
+	public void toNetwork(FriendlyByteBuf buffer, T recipe) {
 		CodecHelper.encode(codec, recipe, buffer);
 	}
 

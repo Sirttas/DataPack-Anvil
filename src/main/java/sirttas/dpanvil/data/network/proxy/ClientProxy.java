@@ -1,7 +1,7 @@
 package sirttas.dpanvil.data.network.proxy;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -18,8 +18,8 @@ public class ClientProxy implements IProxy {
 	}
 	
 	@Override
-	public boolean isRemotePlayer(PlayerEntity player) {
-		PlayerEntity clientPlayer = Minecraft.getInstance().player;
+	public boolean isRemotePlayer(Player player) {
+		Player clientPlayer = Minecraft.getInstance().player;
 
 		return clientPlayer != null && !clientPlayer.equals(player);
 	}
