@@ -20,12 +20,10 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagCollection;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModLoader;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
-import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.data.manager.AbstractDataManager;
 import sirttas.dpanvil.data.serializer.CodecJsonDataSerializer;
@@ -116,7 +114,6 @@ public class DataManagerWrapper implements PreparableReloadListener {
 							.map(entry -> {
 									IDataManager<?> manager = entry.getValue();
 									return manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
-											.thenRun(() -> MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(manager)))
 											.handle(handleManagerException(entry.getKey()));
 								}).toArray(CompletableFuture[]::new));
 

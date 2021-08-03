@@ -13,9 +13,11 @@ import com.google.gson.GsonBuilder;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraftforge.common.MinecraftForge;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.data.IDataWrapper;
+import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
 public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadListener<Map<ResourceLocation, U>> implements IDataManager<T> {
 
@@ -48,6 +50,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 		data = ImmutableBiMap.copyOf(map);
 		this.wrappers.forEach(w -> w.set(this.get(w.getId())));
 		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), id);
+		MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(this));
 	}
 
 	@Override

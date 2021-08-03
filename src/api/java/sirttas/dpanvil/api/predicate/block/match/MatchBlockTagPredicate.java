@@ -3,8 +3,10 @@ package sirttas.dpanvil.api.predicate.block.match;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.SerializationTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.tags.Tag.Named;
 import net.minecraft.world.level.block.Block;
@@ -54,6 +56,11 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 	}
 
 	private static Tag<Block> getTag(ResourceLocation loc) {
-		return BlockTags.getAllTags().getTag(loc);
+		var tag = BlockTags.getAllTags().getTag(loc);
+		
+		if (tag != null) {
+			return tag;
+		}
+		return SerializationTags.getInstance().getTagOrThrow(Registry.BLOCK_REGISTRY, loc, id -> new IllegalStateException("Unknown block tag '" + id + "'"));
 	}
 }

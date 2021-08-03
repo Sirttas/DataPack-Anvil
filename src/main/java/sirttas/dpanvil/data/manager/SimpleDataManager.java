@@ -14,13 +14,14 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.profiling.ProfilerFiller;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 
 
@@ -60,15 +61,19 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 	
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
-		Map<ResourceLocation, T> map = Maps.newHashMap();
-		IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(id);
-
-		objects.forEach((loc, jsonObject) -> {
-			T value = serializer.read(jsonObject);
-		
-			idSetter.accept(value, loc);
-			map.put(loc, value);
-		});
-		setData(map);
+		try {
+			Map<ResourceLocation, T> map = Maps.newHashMap();
+			IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(id);
+	
+			objects.forEach((loc, jsonObject) -> {
+				T value = serializer.read(jsonObject);
+			
+				idSetter.accept(value, loc);
+				map.put(loc, value);
+			});
+			setData(map);
+		} catch (Exception e) {
+			DataManagerWrapper.logManagerException(id, e);
+		}
 	}
 }
