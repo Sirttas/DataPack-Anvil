@@ -6,11 +6,11 @@ import java.util.function.Supplier;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fmllegacy.LogicalSidedProvider;
 import net.minecraftforge.fmllegacy.network.NetworkDirection;
 import net.minecraftforge.fmllegacy.network.PacketDistributor;
-import sirttas.dpanvil.DataPackAnvil;
 
 public class MessageHelper {
 
@@ -23,7 +23,7 @@ public class MessageHelper {
 	}
 
 	public static <T> void sendToRemotePlayer(ServerPlayer serverPlayer, T message) {
-		if (DataPackAnvil.PROXY.isRemotePlayer(serverPlayer)) {
+		if (isRemotePlayer(serverPlayer)) {
 			sendToPlayer(serverPlayer, message);
 		}
 	}
@@ -38,7 +38,16 @@ public class MessageHelper {
 
 	private static Consumer<Packet<?>> playerListAllRemote(PacketDistributor<Void> distributor, final Supplier<Void> voidSupplier) {
 		return p -> ((MinecraftServer) LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER)).getPlayerList().getPlayers().stream()
-				.filter(DataPackAnvil.PROXY::isRemotePlayer)
+				.filter(MessageHelper::isRemotePlayer)
 				.forEach(player -> player.connection.send(p));
+	}
+	
+	private static boolean isRemotePlayer(Player player) {
+		var server = player.getServer();
+		
+		if (server != null) {
+			return server.isSingleplayerOwner(player.getGameProfile());
+		}
+		return true;
 	}
 }

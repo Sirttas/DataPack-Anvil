@@ -2,13 +2,10 @@ package sirttas.dpanvil;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -23,9 +20,6 @@ import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.network.message.MessageHandler;
 import sirttas.dpanvil.data.network.message.MessageHelper;
 import sirttas.dpanvil.data.network.message.ReloadDataMessage;
-import sirttas.dpanvil.data.network.proxy.ClientProxy;
-import sirttas.dpanvil.data.network.proxy.IProxy;
-import sirttas.dpanvil.data.network.proxy.ServerProxy;
 import sirttas.dpanvil.tag.DataTagManager;
 
 @Mod(DataPackAnvilApi.MODID)
@@ -34,15 +28,13 @@ public class DataPackAnvil {
 	public static final DataManagerWrapper WRAPPER = new DataManagerWrapper();
 	public static final DataTagManager DATA_TAG_MANAGER = new DataTagManager();
 	public static final DPAnvilAnnotationProcessor ANNOTATION_PROCESSOR = new DPAnvilAnnotationProcessor();
-	public static final IProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 	
 	public DataPackAnvil() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
 		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::serverStarted);
-		MinecraftForge.EVENT_BUS.addListener(this::playerLogin);
+		MinecraftForge.EVENT_BUS.addListener(this::syncDataManagers);
 		MinecraftForge.EVENT_BUS.addListener(this::addReloadListeners);
-		PROXY.registerHandlers();
 	}
 
 	public static ResourceLocation createRL(String name) {
@@ -68,11 +60,14 @@ public class DataPackAnvil {
 		event.getIMCStream(DataTagIMC.METHOD::equals).forEach(message -> DATA_TAG_MANAGER.putTagRegistryFromIMC(message.messageSupplier()));
 	}
 
-	private void playerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-		Player player = event.getPlayer();
+	private void syncDataManagers(OnDatapackSyncEvent event) {
+		var message = new ReloadDataMessage(DataPackAnvil.WRAPPER.ids());
+		var player = event.getPlayer();
 
-		if (player instanceof ServerPlayer) {
-			MessageHelper.sendToRemotePlayer((ServerPlayer) player, new ReloadDataMessage(DataPackAnvil.WRAPPER.ids()));
+		if (player != null) {
+			MessageHelper.sendToRemotePlayer(player, message);
+		} else {
+			MessageHelper.sendToAllRemotePlayers(message);
 		}
 	}
 

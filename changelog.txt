@@ -1,3 +1,10 @@
+1.17.1-2.0.2:
+
+- bump forge
+- added AbstractManagedDataProvider
+- fix datamangers not working with /reload
+
+
 1.17.1-2.0.1:
 
 - fix a broken events

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
@@ -53,6 +54,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * 
 	 * @return The {@link Class} used to define the type of managed data
 	 */
+	@Nonnull
 	Class<T> getContentType();
 	
 	/**
@@ -60,6 +62,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * 
 	 * @return The folder where the data are found in the datapack
 	 */
+	@Nonnull
 	String getFolder();
 
 	/**
@@ -69,6 +72,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @see #setData()
 	 * @see ImmutableMap
 	 */
+	@Nonnull
 	Map<ResourceLocation, T> getData();
 
 	/**
@@ -78,7 +82,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @param map the new data {@link Map}
 	 * @see #getData()
 	 */
-	void setData(Map<ResourceLocation, T> map);
+	void setData(@Nonnull Map<ResourceLocation, T> map);
 
 	/**
 	 * Get a {@link IDataWrapper} that wrap a value contained in this manager.
@@ -87,7 +91,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @return A {@link IDataWrapper}
 	 */
 	@Nonnull
-	IDataWrapper<T> getWrapper(ResourceLocation id);
+	IDataWrapper<T> getWrapper(@Nonnull ResourceLocation id);
 	
 	/**
 	 * Get data mapped by the id
@@ -95,7 +99,8 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @param id A {@link ResourceLocation} that map a data
 	 * @return The corresponding data
 	 */
-	default T get(ResourceLocation id) {
+	@Nullable
+	default T get(@Nonnull ResourceLocation id) {
 		return getData().get(id);
 	}
 
@@ -104,8 +109,11 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * 
 	 * @param id A {@link ResourceLocation} that map a data
 	 * @return A {@link Lazy} of the corresponding data
+	 * @deprecated use {@link IDataManager#getWrapper(net.minecraft.resources.ResourceLocation)} instead.
 	 */
-	default Lazy<T> getLazy(ResourceLocation id) {
+	@Deprecated
+	@Nonnull
+	default Lazy<T> getLazy(@Nonnull ResourceLocation id) {
 		return Lazy.of(() -> this.get(id));
 	}
 
@@ -116,7 +124,8 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @param defaultValue the default value
 	 * @return The corresponding data or the default value
 	 */
-	default T getOrDefault(ResourceLocation id, T defaultValue) {
+	@Nullable
+	default T getOrDefault(@Nonnull ResourceLocation id, @Nullable T defaultValue) {
 		return getData().getOrDefault(id, defaultValue);
 	}
 
@@ -126,7 +135,8 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @param id A {@link ResourceLocation} that map a data
 	 * @return an {@link Optional} of the corresponding data or an empty {@link Optional}
 	 */
-	default Optional<T> getOptional(ResourceLocation id) {
+	@Nonnull
+	default Optional<T> getOptional(@Nonnull ResourceLocation id) {
 		return getData().containsKey(id) ? Optional.of(get(id)) : Optional.empty();
 	}
 	
@@ -136,7 +146,8 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @param value the value to search
 	 * @return the id used for this value
 	 */
-	default ResourceLocation getId(final T value) {
+	@Nonnull
+	default ResourceLocation getId(final @Nullable T value) {
 		return getData().entrySet().stream().filter(e -> e.getValue().equals(value)).map(Entry::getKey).findAny().orElse(DataPackAnvilApi.ID_NONE);
 	}
 
@@ -146,7 +157,8 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @param ids the ids to use
 	 * @return the list of corresponding data
 	 */
-	default List<T> getAll(Collection<ResourceLocation> ids) {
+	@Nonnull
+	default List<T> getAll(@Nonnull Collection<ResourceLocation> ids) {
 		return ids.stream().map(this::get).collect(Collectors.toList());
 	}
 
@@ -156,16 +168,19 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * 
 	 * @param ids the ids to use
 	 * @return a {@link Lazy} of the list of corresponding data
+	 * @deprecated use {@link IDataManager#getWrapper(net.minecraft.resources.ResourceLocation)} instead.
 	 */
-	default Lazy<List<T>> getAllLazy(Collection<ResourceLocation> ids) {
+	@Deprecated
+	@Nonnull
+	default Lazy<List<T>> getAllLazy(@Nonnull Collection<ResourceLocation> ids) {
 		return Lazy.of(() -> this.getAll(ids));
 	}
 
-	default boolean hasId(ResourceLocation id) {
+	default boolean hasId(@Nonnull ResourceLocation id) {
 		return getData().containsKey(id);
 	}
 
-	default boolean has(T value) {
+	default boolean has(@Nonnull T value) {
 		return getData().containsValue(value);
 	}
 

@@ -15,6 +15,7 @@ plugins {
     id 'eclipse'
 	id 'maven-publish'
 	id "org.sonarqube" version "3.0"
+	id "com.matthewprenger.cursegradle" version '1.4.0'
 }
 
 apply plugin: 'net.minecraftforge.gradle'
@@ -131,7 +132,7 @@ jar {
             "Implementation-Version": "${version}",
             "Implementation-Vendor" :"dpanvil",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "MixinConfigs": "dpanvil.mixins.json"
+//            "MixinConfigs": "dpanvil.mixins.json"
         ])
     }
     afterEvaluate {finalizedBy('reobfJar') }
@@ -165,10 +166,11 @@ sonarqube {
 	}
 }
 
-if (project.hasProperty('modmaven_user')) {
+if (System.getenv("MODMAVEN_USER") != null || project.hasProperty('modmaven_user')) {
 	publishing {
 	    publications {
 	        mavenJava(MavenPublication) {
+	        	artifactId = 'DPAnvil'
 	             artifacts = [apiJar, jar, sourcesJar]
 	        }
 	    }
@@ -177,10 +179,49 @@ if (project.hasProperty('modmaven_user')) {
 	        maven {
 	            url = 'https://modmaven.dev/artifactory/local-releases/'
 	            credentials {
-	                username = "${modmaven_user}"
-	                password = "${modmaven_password}"
+					username = System.getenv("MODMAVEN_USER") ?: project.findProperty("modmaven_user")
+	                password = System.getenv("MODMAVEN_PASSWORD") ?: project.findProperty("modmaven_password")
 	            }
 	        }
 	    }
+	}
+}
+
+if (System.getenv("CURSEFORGE_KEY") != null || project.hasProperty('curseforge_key')) {
+	curseforge {
+		apiKey = System.getenv("CURSEFORGE_KEY") ?: project.findProperty("curseforge_key")
+	
+		def changeLog = { ->
+			def generatedChangelog = ""
+			def changeStart = false;
+			def changeEnd = false;
+			
+			println('Changelog:')
+			
+			def changelogFile = file('changelog.txt').withReader { reader ->
+				def line
+			
+		        while ((line = reader.readLine()) != null && !changeEnd) {
+		        	if (line.matches('^\s*- ')) {
+		        		changeStart = true;
+		        	} else if (changeStart) {
+		        		changeEnd = true;
+		        	}
+					if (changeStart && !changeEnd) {
+						println(line)
+						generatedChangelog += line + '\n'
+					}
+				}
+			}
+			return generatedChangelog
+		}
+	
+		project {
+			id = '432817'
+			changelog = changeLog
+			releaseType = "${curse_release_type}"
+			mainArtifact(jar) { }
+			addGameVersion "${minecraft_version}"
+		}
 	}
 }

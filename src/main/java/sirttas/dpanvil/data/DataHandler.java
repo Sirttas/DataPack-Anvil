@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.tags.TagContainer;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -18,7 +18,6 @@ import net.minecraftforge.fml.common.Mod;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
-import sirttas.dpanvil.interaction.jei.JeiLoadDelayer;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = DataPackAnvilApi.MODID)
 public class DataHandler {
@@ -41,19 +40,19 @@ public class DataHandler {
 		MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, eventType, e -> process(eventType));
 	}
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onRecipesUpdate(RecipesUpdatedEvent event) {
 		recipeManager = event.getRecipeManager();
 		process(event.getClass());
 	}
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onVanillaTagsUpdate(VanillaTagTypes event) {
 		tagManager = event.getTagManager();
 		process(event.getClass());
 	}
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onCustomTagsUpdate(CustomTagTypes event) {
 		tagManager = event.getTagManager();
 		process(event.getClass());
@@ -68,7 +67,6 @@ public class DataHandler {
 		if (map.values().stream().allMatch(b -> b)) {
 			DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
 			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(recipeManager, tagManager, DataPackAnvil.WRAPPER.getDataManagers()));
-			JeiLoadDelayer.loadJEI();
 			recipeManager = null;
 			tagManager = null;
 			map.replaceAll((k, v) -> false);
