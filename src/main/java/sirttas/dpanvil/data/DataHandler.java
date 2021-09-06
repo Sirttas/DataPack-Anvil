@@ -9,8 +9,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TagsUpdatedEvent.CustomTagTypes;
-import net.minecraftforge.event.TagsUpdatedEvent.VanillaTagTypes;
+import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,8 +27,7 @@ public class DataHandler {
 	
 	static {
 		map.put(RecipesUpdatedEvent.class, false);
-		map.put(VanillaTagTypes.class, false);
-		map.put(CustomTagTypes.class, false);
+		map.put(TagsUpdatedEvent.class, false);
 		map.put(DataPackReloadCompletEvent.class, false);
 	}
 
@@ -47,13 +45,7 @@ public class DataHandler {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void onVanillaTagsUpdate(VanillaTagTypes event) {
-		tagManager = event.getTagManager();
-		process(event.getClass());
-	}
-	
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void onCustomTagsUpdate(CustomTagTypes event) {
+	public static void onVanillaTagsUpdate(TagsUpdatedEvent event) {
 		tagManager = event.getTagManager();
 		process(event.getClass());
 	}

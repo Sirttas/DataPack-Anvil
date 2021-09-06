@@ -1,12 +1,12 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
         mavenCentral()
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://maven.parchmentmc.org' }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        //classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
@@ -19,11 +19,7 @@ plugins {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
-//apply plugin: 'org.spongepowered.mixin'
-
-/*mixin {
-    add sourceSets.main, "dpanvil.refmap.json"
-}*/
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
 version = "${dpanvil_version}"
 group = 'sirttas.dpanvil'
@@ -78,7 +74,6 @@ minecraft {
             property 'fml.earlyprogresswindow', 'false'
             property 'mixin.debug.verbose', 'true'
             property 'mixin.env.remapRefMap', 'true'
-            // property 'mixin.env.refMapRemappingFile', createSrgToMcp.output
 
             mods {
                 dpanvil {
@@ -94,7 +89,6 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'mixin.debug.verbose', 'true'
             property 'mixin.env.remapRefMap', 'true'
-            // property 'mixin.env.refMapRemappingFile', createSrgToMcp.output
 
             mods {
                 dpanvil {
@@ -115,8 +109,6 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${forge_version}"
-    
-    //annotationProcessor "org.spongepowered:mixin:${mixins_version}:processor"
 }
 
 jar {
@@ -132,7 +124,6 @@ jar {
             "Implementation-Version": "${version}",
             "Implementation-Vendor" :"dpanvil",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-//            "MixinConfigs": "dpanvil.mixins.json"
         ])
     }
     afterEvaluate {finalizedBy('reobfJar') }
@@ -202,7 +193,7 @@ if (System.getenv("CURSEFORGE_KEY") != null || project.hasProperty('curseforge_k
 				def line
 			
 		        while ((line = reader.readLine()) != null && !changeEnd) {
-		        	if (line.matches('^\s*- ')) {
+		        	if (line ==~ '^\s*- .*') {
 		        		changeStart = true;
 		        	} else if (changeStart) {
 		        		changeEnd = true;
