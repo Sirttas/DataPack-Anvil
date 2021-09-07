@@ -158,9 +158,7 @@ public class DataTagManager implements IDataManager<TagCollection<?>>, ICodecPro
 			ImmutableMap.Builder<ResourceLocation, TagCollection<?>> builder = ImmutableMap.builder();
 			
 			list.forEach(loader -> loader.addToBuilder(builder));
-
-			var map = builder.build();
-			this.setData(reinjectOptionalTags(map));
+			this.setData(builder.build());
 		}, gameExecutor);
 	}
 	
@@ -168,17 +166,6 @@ public class DataTagManager implements IDataManager<TagCollection<?>>, ICodecPro
 		DataPackAnvil.WRAPPER.getDataManagers().entrySet().stream()
 				.filter(e -> tagRegistries.get(e.getKey()) != null)
 				.forEach(e -> consumer.accept(e.getValue()));
-	}
-
-	public ImmutableMap<ResourceLocation, TagCollection<?>> reinjectOptionalTags(ImmutableMap<ResourceLocation, TagCollection<?>> map) {
-		ImmutableMap.Builder<ResourceLocation, TagCollection<?>> builder = ImmutableMap.builder();
-		
-		visitDataManagers(manager -> {
-			var id = DataPackAnvil.WRAPPER.getId(manager);
-			
-			// TODO builder.add(id, h.reinjectOptionalTags(map.get(id))));
-		});
-		return builder.build();
 	}
 	
 	@Nullable

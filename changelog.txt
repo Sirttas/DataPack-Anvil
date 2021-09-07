@@ -1,6 +1,11 @@
+1.17.1-2.0.4:
+
+- fix data tags
+
+
 1.17.1-2.0.3:
 
-- fix a crash with forge 37.0.53+
+- fix a crash with forge 37.0.53+ (issue #3)
 
 
 1.17.1-2.0.2:
