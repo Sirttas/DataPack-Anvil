@@ -1,3 +1,14 @@
+1.17.1-2.0.5:
+
+- cache DataWrappers so they are not regenerated
+- copy changes from 1.16.5-1.2.3
+
+
+1.16.5-1.2.3:
+
+- fix DataPackReloadCompletEvent not firing on reload
+
+
 1.17.1-2.0.4:
 
 - fix data tags

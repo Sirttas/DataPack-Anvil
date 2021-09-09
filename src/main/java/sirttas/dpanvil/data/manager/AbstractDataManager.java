@@ -1,13 +1,12 @@
 package sirttas.dpanvil.data.manager;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -25,8 +24,8 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	
 	private final Class<T> contentType;
 	private final Function<ResourceLocation, T> defaultValueFactory;
-	private final List<DefaultDataWrapper<T>> wrappers;
-	private BiMap<ResourceLocation, T> data = ImmutableBiMap.of();
+	private final Map<ResourceLocation, DefaultDataWrapper<T>> wrappers;
+	private BiMap<ResourceLocation, T> data;
 	protected final String folder;
 	protected final BiConsumer<T, ResourceLocation> idSetter;
 	protected ResourceLocation id;
@@ -36,7 +35,8 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 		this.defaultValueFactory = defaultValueFactory;
 		this.idSetter = idSetter;
 		this.folder = folder;
-		this.wrappers = Lists.newArrayList();
+		this.data = ImmutableBiMap.of();
+		this.wrappers = new HashMap<>();
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	public void setData(Map<ResourceLocation, T> map) {
 		map.forEach((loc, value) -> idSetter.accept(value, loc));
 		data = ImmutableBiMap.copyOf(map);
-		this.wrappers.forEach(w -> w.set(this.get(w.getId())));
+		this.wrappers.values().forEach(w -> w.set(this.get(w.getId())));
 		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), id);
 		MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(this));
 	}
@@ -75,11 +75,12 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 
 	@Override
 	public IDataWrapper<T> getWrapper(ResourceLocation id) {
-		DefaultDataWrapper<T> wrapper = new DefaultDataWrapper<>(id);
-		
-		wrapper.set(this.get(id));
-		this.wrappers.add(wrapper);
-		return wrapper;
+		return this.wrappers.computeIfAbsent(id, i -> {
+			DefaultDataWrapper<T> wrapper = new DefaultDataWrapper<>(id);
+			
+			wrapper.set(this.get(id));
+			return wrapper;
+		});
 	}
 	
 	@Override

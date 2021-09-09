@@ -50,9 +50,7 @@ public class DataPackAnvil {
 	}
 
 	private void serverStarted(FMLServerStartedEvent event) {
-		MinecraftServer server = event.getServer();
-
-		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(server.getRecipeManager(), server.getTags(), DataPackAnvil.WRAPPER.getDataManagers()));
+		onReloadComplet(event.getServer());
 	}
 
 	private void processIMC(InterModProcessEvent event) {
@@ -68,7 +66,12 @@ public class DataPackAnvil {
 			MessageHelper.sendToRemotePlayer(player, message);
 		} else {
 			MessageHelper.sendToAllRemotePlayers(message);
+			onReloadComplet(event.getPlayerList().getServer());
 		}
+	}
+	
+	private static void onReloadComplet(MinecraftServer server) {
+		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(server.getRecipeManager(), server.getTags(), DataPackAnvil.WRAPPER.getDataManagers()));
 	}
 
 	private void addReloadListeners(AddReloadListenerEvent event) {

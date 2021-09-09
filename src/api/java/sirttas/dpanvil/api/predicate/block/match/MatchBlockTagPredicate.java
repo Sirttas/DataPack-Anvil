@@ -32,7 +32,7 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 		this(tagName, getTag(tagName));
 	}
 
-	public MatchBlockTagPredicate( Named<Block> tag) {
+	public MatchBlockTagPredicate(Named<Block> tag) {
 		this(tag.getName(), tag);
 	}
 
