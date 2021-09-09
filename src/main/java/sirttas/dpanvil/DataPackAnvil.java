@@ -2,7 +2,6 @@ package sirttas.dpanvil;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -16,7 +15,6 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import sirttas.dpanvil.annotation.DPAnvilAnnotationProcessor;
 import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.api.imc.DataTagIMC;
 import sirttas.dpanvil.data.DataManagerWrapper;
@@ -58,9 +56,7 @@ public class DataPackAnvil {
 	}
 
 	private void serverStarted(FMLServerStartedEvent event) {
-		MinecraftServer server = event.getServer();
-
-		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(server.getRecipeManager(), server.getTags(), DataPackAnvil.WRAPPER.getDataManagers()));
+		DataPackAnvilHooks.onReloadComplet(event.getServer());
 	}
 
 	private void processIMC(InterModProcessEvent event) {

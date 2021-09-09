@@ -1,6 +1,12 @@
+1.16.5-1.2.3:
+
+- fix DataPackReloadCompletEvent not firing on reload
+
+
 1.16.5-1.2.2:
 
-- fix incompatibility with latest versions of jei
+- fix incompatibility with latest versions of jei (issue #2)
+
 
 1.16.5-1.2.1:
 
