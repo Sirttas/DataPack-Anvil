@@ -21,7 +21,8 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
-version = project.hasProperty('tag_version') ? "${minecraft_version}-${tag_version}" : "${dpanvil_version}"group = 'sirttas.dpanvil'
+version = project.hasProperty('tag_version') ? "${minecraft_version}-${tag_version}" : "${dpanvil_version}"
+group = 'sirttas.dpanvil'
 archivesBaseName = 'dpanvil'
 
 println('Building DataPack Anvil: ' + project.version)
