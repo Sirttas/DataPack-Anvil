@@ -11,6 +11,7 @@ import net.minecraft.tags.Tag;
 import net.minecraft.tags.Tag.Named;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -25,25 +26,25 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 			ResourceLocation.CODEC.fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::getTagName)
 	).apply(builder, MatchBlockTagPredicate::new));
 
-	private final Tag<Block> tag;
+	private Lazy<Tag<Block>> tag;
 	private final ResourceLocation tagName;
 
 	public MatchBlockTagPredicate(ResourceLocation tagName) {
-		this(tagName, getTag(tagName));
+		this(tagName, Lazy.concurrentOf(() -> getTag(tagName)));
 	}
 
 	public MatchBlockTagPredicate(Named<Block> tag) {
-		this(tag.getName(), tag);
+		this(tag.getName(), Lazy.of(() -> tag));
 	}
 
-	private MatchBlockTagPredicate(ResourceLocation tagName, Tag<Block> tag) {
+	private MatchBlockTagPredicate(ResourceLocation tagName, Lazy<Tag<Block>> tag) {
 		this.tagName = tagName;
 		this.tag = tag;
 	}
 
 	@Override
 	public boolean test(BlockState state) {
-		return tag.contains(state.getBlock());
+		return tag.get().contains(state.getBlock());
 	}
 
 	public ResourceLocation getTagName() {

@@ -18,6 +18,7 @@ import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockStatePredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockTagPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
+import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 import sirttas.dpanvil.registry.RegistryHelper;
 
 @Mod.EventBusSubscriber(modid = DataPackAnvilApi.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -35,10 +36,13 @@ public class BlockPosPredicateTypes {
 		register(registry, OrBlockPredicate.CODEC, OrBlockPredicate.NAME);
 		register(registry, AndBlockPredicate.CODEC, AndBlockPredicate.NAME);
 		register(registry, NotBlockPredicate.CODEC, NotBlockPredicate.NAME);
+		
 		register(registry, MatchBlockPredicate.CODEC, MatchBlockPredicate.NAME);
 		register(registry, MatchBlocksPredicate.CODEC, MatchBlocksPredicate.NAME);
 		register(registry, MatchBlockTagPredicate.CODEC, MatchBlockTagPredicate.NAME);
 		register(registry, MatchBlockStatePredicate.CODEC, MatchBlockStatePredicate.NAME);
+		
+		register(registry, OffsetBlockPredicate.CODEC, OffsetBlockPredicate.NAME);
 	}
 
 	private static <T extends IBlockPosPredicate> void register(IForgeRegistry<BlockPosPredicateType<?>> registry, Codec<T> codec, String name) {

@@ -19,7 +19,7 @@ import sirttas.dpanvil.api.data.IDataManager;
  * </p>
  * @deprecated use {@link IDataManager#getWrapper(net.minecraft.resources.ResourceLocation)} instead.
  */
-@Deprecated
+@Deprecated(since = "2.0.0", forRemoval = true)
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface DataHolder {

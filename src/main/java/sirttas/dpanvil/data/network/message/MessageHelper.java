@@ -46,7 +46,7 @@ public class MessageHelper {
 		var server = player.getServer();
 		
 		if (server != null) {
-			return server.isSingleplayerOwner(player.getGameProfile());
+			return !server.isSingleplayerOwner(player.getGameProfile());
 		}
 		return true;
 	}

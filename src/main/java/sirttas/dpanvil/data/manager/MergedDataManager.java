@@ -55,12 +55,8 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 					JsonElement element = getElement(resourcelocation, resourceId, resource);
 
 					if (element != null) {
-						if (element instanceof JsonObject) {
-							JsonObject json = (JsonObject) element;
-							
-							if (json.has(DPAnvilNames.REPLACE) && json.get(DPAnvilNames.REPLACE).getAsBoolean()) {
-								list.clear();
-							}
+						if (element instanceof JsonObject json && json.has(DPAnvilNames.REPLACE) && json.get(DPAnvilNames.REPLACE).getAsBoolean()) {
+							list.clear();
 						}
 						list.add(element);
 					} else {

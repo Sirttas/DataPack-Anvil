@@ -7,12 +7,13 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tags.Tag.Named;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
@@ -23,6 +24,7 @@ import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockStatePredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockTagPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
+import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 
 public interface IBlockPosPredicate {
 
@@ -54,6 +56,10 @@ public interface IBlockPosPredicate {
 		return new NotBlockPredicate(this);
 	}
 
+    default IBlockPosPredicate offset(Vec3i offset) {
+        return new OffsetBlockPredicate(this, offset);
+    }
+	
 	public static IBlockPosPredicate any() {
 		return AnyBlockPredicate.get();
 	}

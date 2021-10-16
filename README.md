@@ -25,4 +25,14 @@ dependencies {
 }
 ```
 
+Also I recommend adding dependency in your mod.toml like so: 
+```toml
+[[dependencies.mymod]]
+    modId="dpanvil"
+    mandatory=true
+    versionRange="[${current},${next_minor})" # example "[1.17.1-2.0.0,1.17.1-2.1.0)"
+    ordering="AFTER"
+    side="BOTH"
+```
+
 [![discord](https://i.imgur.com/mANW7ms.png "discord")](https://discord.gg/BFfAmJP "")

@@ -50,7 +50,7 @@ public class ReloadDataMessage {
 			message.encode(buf);
 		}
 		tagsMessage.encode(buf);
-		DataPackAnvilApi.LOGGER.debug("Sending DataPack Anvil packet with size: {} bytes", buf::writerIndex);
+		DataPackAnvilApi.LOGGER.debug("Sending DataPack Anvil packet with size: {} bytes", () -> buf.writerIndex()); // NOSONAR - bug eclipse
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {

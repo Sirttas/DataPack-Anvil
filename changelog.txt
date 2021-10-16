@@ -1,3 +1,11 @@
+1.17.1-2.0.6:
+
+- added offset BlockPosPredicate
+- bump forge version
+- fix a major sync error
+- fix a crash with tag block pos predicates
+
+
 1.17.1-2.0.5:
 
 - cache DataWrappers so they are not regenerated

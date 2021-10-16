@@ -11,20 +11,23 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0 
-      - name: Set up JDK 16
+      - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 16
+          java-version: 11
       - name: Cache Gradle packages
         uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
+      - name: Get the version in tag
+        id: get_tag_version
+        run: echo ::set-output name=TAG_VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Publish
         env:
           MODMAVEN_USER: ${{ secrets.MODMAVEN_USER }}
           MODMAVEN_PASSWORD: ${{ secrets.MODMAVEN_PASSWORD }}
           CURSEFORGE_KEY: ${{ secrets.CURSEFORGE_KEY }}
-        run: ./gradlew publish curseforge --info --stacktrace
+        run: ./gradlew publish curseforge -Ptag_version=${{ steps.get_tag_version.outputs.TAG_VERSION }} --info --stacktrace

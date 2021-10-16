@@ -19,12 +19,14 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.annotation.DataHolder;
 import sirttas.dpanvil.api.data.IDataManager;
 
-@SuppressWarnings("deprecation")
+
+@SuppressWarnings("removal")
 public class DPAnvilAnnotationProcessor {
 
 	private static final Type DATA_HOLDER = Type.getType(DataHolder.class);
 	private Map<Field, ResourceLocation> dataHolders;
 
+	@SuppressWarnings("deprecation")
 	public void setup() {
 		ImmutableMap.Builder<Field, ResourceLocation> dataHoldersBuilder = ImmutableMap.builder();
 

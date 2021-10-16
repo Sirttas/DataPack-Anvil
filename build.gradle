@@ -21,9 +21,10 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
 
-version = "${dpanvil_version}"
-group = 'sirttas.dpanvil'
+version = project.hasProperty('tag_version') ? "${minecraft_version}-${tag_version}" : "${dpanvil_version}"group = 'sirttas.dpanvil'
 archivesBaseName = 'dpanvil'
+
+println('Building DataPack Anvil: ' + project.version)
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
@@ -193,7 +194,7 @@ if (System.getenv("CURSEFORGE_KEY") != null || project.hasProperty('curseforge_k
 				def line
 			
 		        while ((line = reader.readLine()) != null && !changeEnd) {
-		        	if (line ==~ '^\s*- .*') {
+		        	if (line ==~ '^\\s*- .*') {
 		        		changeStart = true;
 		        	} else if (changeStart) {
 		        		changeEnd = true;

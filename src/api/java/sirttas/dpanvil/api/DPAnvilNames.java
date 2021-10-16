@@ -14,6 +14,7 @@ public class DPAnvilNames {
 	public static final String NAME = "name";
 	public static final String AMOUNT = "amount";
 	public static final String MODIFIER = "modifier";
+    public static final String OFFSET = "offset";
 	public static final String OPERATION = "operation";
 
 	private DPAnvilNames() {}
