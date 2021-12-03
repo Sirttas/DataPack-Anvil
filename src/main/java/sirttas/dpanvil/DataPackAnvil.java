@@ -5,12 +5,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fmlserverevents.FMLServerStartedEvent;
 import sirttas.dpanvil.annotation.DPAnvilAnnotationProcessor;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
@@ -49,7 +49,7 @@ public class DataPackAnvil {
 		ANNOTATION_PROCESSOR.setup();
 	}
 
-	private void serverStarted(FMLServerStartedEvent event) {
+	private void serverStarted(ServerStartedEvent event) {
 		onReloadComplet(event.getServer());
 	}
 

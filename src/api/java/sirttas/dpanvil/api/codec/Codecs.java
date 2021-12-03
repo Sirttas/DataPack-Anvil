@@ -21,10 +21,10 @@ import sirttas.dpanvil.api.DPAnvilNames;
 @SuppressWarnings("deprecation")
 public class Codecs {
 
-	public static final Codec<Block> BLOCK = Registry.BLOCK;
-	public static final Codec<Item> ITEM = Registry.ITEM;
-	public static final Codec<Enchantment> ENCHANTMENT = Registry.ENCHANTMENT;
-	public static final Codec<Attribute> ATTRIBUTE = Registry.ATTRIBUTE;
+	public static final Codec<Block> BLOCK = Registry.BLOCK.byNameCodec();
+	public static final Codec<Item> ITEM = Registry.ITEM.byNameCodec();
+	public static final Codec<Enchantment> ENCHANTMENT = Registry.ENCHANTMENT.byNameCodec();
+	public static final Codec<Attribute> ATTRIBUTE = Registry.ATTRIBUTE.byNameCodec();
 	public static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
 	public static final Codec<EquipmentSlot> EQUIPMENT_SLOT_TYPE = Codec.STRING.xmap(EquipmentSlot::byName, EquipmentSlot::getName);
 

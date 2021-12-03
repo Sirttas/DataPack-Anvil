@@ -1,8 +1,9 @@
 package sirttas.dpanvil.data.network.message;
 
 
-import net.minecraftforge.fmllegacy.network.NetworkRegistry;
-import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
+
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 import sirttas.dpanvil.DataPackAnvil;
 
 public class MessageHandler {
