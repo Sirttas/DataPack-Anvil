@@ -1,18 +1,16 @@
 package sirttas.dpanvil.data.network.message;
 
+import com.google.common.collect.Lists;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkEvent;
+import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.data.DataHandler;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Lists;
-
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkEvent;
-import sirttas.dpanvil.DataPackAnvil;
-import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.data.DataHandler;
 
 public class ReloadDataMessage {
 
@@ -50,13 +48,12 @@ public class ReloadDataMessage {
 			message.encode(buf);
 		}
 		tagsMessage.encode(buf);
-		DataPackAnvilApi.LOGGER.debug("Sending DataPack Anvil packet with size: {} bytes", () -> buf.writerIndex()); // NOSONAR - bug eclipse
+		DataPackAnvilApi.LOGGER.debug("Sending DataPack Anvil packet with size: {} bytes", buf::writerIndex);
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> messages.forEach(DataManagerMessage::process));
 		tagsMessage.process();
-		DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
 		DataHandler.onDPAnvilUpdate();
 		ctx.get().setPacketHandled(true);
 	}

@@ -12,13 +12,13 @@ description='''A library mod to create datapack driven mods.'''
 [[dependencies.dpanvil]]
     modId="forge"
     mandatory=true
-    versionRange="[38.0.8,)"
+    versionRange="[38.0.14,)"
     ordering="NONE"
     side="BOTH"
 
     [[dependencies.dpanvil]]
     modId="jei"
     mandatory=false
-    versionRange="[FORGE-1.16.5-7.7.0.106,)"
+    versionRange="[FORGE-1.18-9.0.0.40,)"
     ordering="AFTER"
     side="BOTH"

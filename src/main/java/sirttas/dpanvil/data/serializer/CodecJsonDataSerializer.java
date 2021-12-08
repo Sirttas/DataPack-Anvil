@@ -2,17 +2,12 @@ package sirttas.dpanvil.data.serializer;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
-
 import net.minecraft.network.FriendlyByteBuf;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
-public class CodecJsonDataSerializer<T> implements IJsonDataSerializer<T> {
-
-	private final Codec<T> codec;
-	
-	public CodecJsonDataSerializer(Codec<T> codec) {
-		this.codec = codec;
-	}
+public record CodecJsonDataSerializer<T>(
+		Codec<T> codec
+) implements IJsonDataSerializer<T> {
 
 	@Override
 	public T read(JsonElement json) {

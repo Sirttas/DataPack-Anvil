@@ -1,16 +1,16 @@
 package sirttas.dpanvil.api.tag;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import com.google.common.collect.Lists;
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
 import net.minecraft.tags.Tag.Named;
 import net.minecraft.tags.TagCollection;
 import net.minecraftforge.common.util.Lazy;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 public final class DataTagRegistry<T> {
 
@@ -59,7 +59,7 @@ public final class DataTagRegistry<T> {
 		}
 		
 		@Override
-		public boolean contains(T element) {
+		public boolean contains(@NotNull T element) {
 			if (this.containedTag != null) {
 				return containedTag.contains(element);
 			}
@@ -67,7 +67,7 @@ public final class DataTagRegistry<T> {
 		}
 
 		@Override
-		public List<T> getValues() {
+		public @NotNull List<T> getValues() {
 			if (this.containedTag != null) {
 				return containedTag.getValues();
 			}
@@ -75,7 +75,7 @@ public final class DataTagRegistry<T> {
 		}
 
 		@Override
-		public ResourceLocation getName() {
+		public @NotNull ResourceLocation getName() {
 			return id;
 		}
 		

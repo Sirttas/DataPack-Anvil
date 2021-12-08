@@ -18,11 +18,11 @@ public class DPAnvilRegistries {
 	
 	@SubscribeEvent
 	public static void createRegistries(RegistryEvent.NewRegistry event) {
-		new RegistryBuilder<>().setName(DataPackAnvil.createRL("block_predicate_type")).setIDRange(MIN_ID, MAX_ID).setType(cast(BlockPosPredicateType.class)).create();
+		new RegistryBuilder<>().setName(DataPackAnvil.createRL("block_predicate_type")).setIDRange(MIN_ID, MAX_ID).setType(cast()).create();
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T> Class<T> cast(Class<?> cls) {
-		return (Class<T>) cls;
+	private static <T> Class<T> cast() {
+		return (Class<T>) BlockPosPredicateType.class;
 	}
 }

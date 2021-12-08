@@ -1,16 +1,16 @@
 package sirttas.dpanvil.api.codec.recipe;
 
-import java.util.function.BiConsumer;
-
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
-
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.codec.CodecHelper;
+
+import java.util.function.BiConsumer;
 
 public class CodecRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<T> {
 
@@ -23,27 +23,25 @@ public class CodecRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEnt
 	}
 	
 	@Override
-	public T fromJson(ResourceLocation recipeId, JsonObject json) {
+	public @NotNull T fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
 		T recipe = CodecHelper.decode(codec, json);
-		
-		if (recipe != null) {
-			idSetter.accept(recipe, recipeId);
-		}
+
+		assert recipe != null;
+		idSetter.accept(recipe, recipeId);
 		return recipe;
 	}
 
 	@Override
-	public T fromNetwork(ResourceLocation recipeId, FriendlyByteBuf buffer) {
+	public @NotNull T fromNetwork(@NotNull ResourceLocation recipeId, @NotNull FriendlyByteBuf buffer) {
 		T recipe = CodecHelper.decode(codec, buffer);
-		
-		if (recipe != null) {
-			idSetter.accept(recipe, recipeId);
-		}
+
+		assert recipe != null;
+		idSetter.accept(recipe, recipeId);
 		return recipe;
 	}
 
 	@Override
-	public void toNetwork(FriendlyByteBuf buffer, T recipe) {
+	public void toNetwork(@NotNull FriendlyByteBuf buffer, @NotNull T recipe) {
 		CodecHelper.encode(codec, recipe, buffer);
 	}
 

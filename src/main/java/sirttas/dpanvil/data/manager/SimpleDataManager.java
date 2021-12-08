@@ -1,5 +1,19 @@
 package sirttas.dpanvil.data.manager;
 
+import com.google.common.collect.Maps;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.util.profiling.ProfilerFiller;
+import org.jetbrains.annotations.NotNull;
+import sirttas.dpanvil.DataPackAnvil;
+import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.data.DataManagerWrapper;
+import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,20 +24,6 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import com.google.common.collect.Maps;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.util.profiling.ProfilerFiller;
-import sirttas.dpanvil.DataPackAnvil;
-import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.data.DataManagerWrapper;
-import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
-
 
 public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 
@@ -32,7 +32,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 	}
 
 	@Override
-	protected Map<ResourceLocation, JsonElement> prepare(ResourceManager resourceManager, ProfilerFiller profilerIn) {
+	protected @NotNull Map<ResourceLocation, JsonElement> prepare(ResourceManager resourceManager, @NotNull ProfilerFiller profilerIn) {
 		Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
 		int i = this.folder.length() + 1;
 
@@ -42,7 +42,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 
 			try (Resource resource = resourceManager.getResource(resourcelocation);
 					InputStream inputstream = resource.getInputStream();
-					Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));) {
+					Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))) {
 
 				JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
 
@@ -60,7 +60,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 
 	
 	@Override
-	protected void apply(Map<ResourceLocation, JsonElement> objects, ResourceManager resourceManagerIn, ProfilerFiller profilerIn) {
+	protected void apply(@NotNull Map<ResourceLocation, JsonElement> objects, @NotNull ResourceManager resourceManagerIn, @NotNull ProfilerFiller profilerIn) {
 		try {
 			Map<ResourceLocation, T> map = Maps.newHashMap();
 			IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(id);

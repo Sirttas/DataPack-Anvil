@@ -1,13 +1,7 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.registries.ObjectHolder;
@@ -16,6 +10,10 @@ import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
 public final class OrBlockPredicate extends AbstractListBlockPredicate {
 
@@ -50,9 +48,9 @@ public final class OrBlockPredicate extends AbstractListBlockPredicate {
 	public IBlockPosPredicate simplify() {
 		List<IBlockPosPredicate> simplified = this.predicates.stream()
 				.map(IBlockPosPredicate::simplify)
-				.flatMap(p -> p instanceof OrBlockPredicate ? ((OrBlockPredicate) p).predicates.stream() : Stream.of(p))
+				.flatMap(p -> p instanceof OrBlockPredicate orBlockPredicate ? orBlockPredicate.predicates.stream() : Stream.of(p))
 				.filter(p -> !(p instanceof NoneBlockPredicate))
-				.collect(Collectors.toList());
+				.toList();
 		
 		if (simplified.isEmpty()) {
 			return IBlockPosPredicate.none();
@@ -62,8 +60,8 @@ public final class OrBlockPredicate extends AbstractListBlockPredicate {
 			return simplified.get(0);
 		} else if (simplified.stream().allMatch(p -> p instanceof MatchBlockPredicate || p instanceof MatchBlocksPredicate)) {
 			return new MatchBlocksPredicate(simplified.stream()
-					.flatMap(p -> p instanceof MatchBlockPredicate ? Stream.of(((MatchBlockPredicate) p).getBlock()) : ((MatchBlocksPredicate) p).getBlocks().stream())
-					.collect(Collectors.toList())).simplify();
+					.flatMap(p -> p instanceof MatchBlockPredicate matchBlockPredicate ? Stream.of(matchBlockPredicate.block()) : ((MatchBlocksPredicate) p).getBlocks().stream())
+					.toList()).simplify();
 		}
 		return new OrBlockPredicate(simplified);
 	}

@@ -1,17 +1,15 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public abstract class AbstractListBlockPredicate implements IBlockPosPredicate {
 
@@ -37,6 +35,6 @@ public abstract class AbstractListBlockPredicate implements IBlockPosPredicate {
 				return type.cast(predicate).predicates.stream();
 			}
 			return Stream.of(predicate);
-		}).collect(Collectors.toList());
+		}).toList();
 	}
 }

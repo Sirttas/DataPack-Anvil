@@ -1,12 +1,8 @@
 package sirttas.dpanvil.api.predicate.block;
 
-import java.util.List;
-import java.util.function.BiPredicate;
-
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
@@ -26,9 +22,12 @@ import sirttas.dpanvil.api.predicate.block.match.MatchBlockTagPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
 import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 
+import java.util.List;
+import java.util.function.BiPredicate;
+
 public interface IBlockPosPredicate {
 
-	public static final Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(() -> BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::getCodec);
+	Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(() -> BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::getCodec);
 	
 	boolean test(LevelReader world, BlockPos pos);
 
@@ -60,34 +59,34 @@ public interface IBlockPosPredicate {
         return new OffsetBlockPredicate(this, offset);
     }
 	
-	public static IBlockPosPredicate any() {
+	static IBlockPosPredicate any() {
 		return AnyBlockPredicate.get();
 	}
 
-	public static IBlockPosPredicate none() {
+	static IBlockPosPredicate none() {
 		return NoneBlockPredicate.get();
 	}
 
-	public static IBlockPosPredicate createOr(IBlockPosPredicate... predicates) {
+	static IBlockPosPredicate createOr(IBlockPosPredicate... predicates) {
 		return new OrBlockPredicate(predicates);
 	}
 
-	public static IBlockPosPredicate createAnd(IBlockPosPredicate... predicates) {
+	static IBlockPosPredicate createAnd(IBlockPosPredicate... predicates) {
 		return new AndBlockPredicate(predicates);
 	}
 
-	public static IBlockPosPredicate match(Block... blocks) {
+	static IBlockPosPredicate match(Block... blocks) {
 		if (blocks.length == 1) {
 			return new MatchBlockPredicate(blocks[0]);
 		}
 		return new MatchBlocksPredicate(blocks);
 	}
 
-	public static IBlockPosPredicate match(Named<Block> tag) {
+	static IBlockPosPredicate match(Named<Block> tag) {
 		return new MatchBlockTagPredicate(tag);
 	}
 
-	public static IBlockPosPredicate match(BlockState state) {
+	static IBlockPosPredicate match(BlockState state) {
 		return new MatchBlockStatePredicate(state);
 	}
 	
@@ -99,13 +98,13 @@ public interface IBlockPosPredicate {
 		CodecHelper.encode(CODEC, this, buf);
 	}
 	
-	public static IBlockPosPredicate read(JsonElement json) {
+	static IBlockPosPredicate read(JsonElement json) {
 		IBlockPosPredicate value = CodecHelper.decode(CODEC, json);
 		
 		return value != null ? value.simplify() : null;
 	}
 
-	public static IBlockPosPredicate read(FriendlyByteBuf buf) {
+	static IBlockPosPredicate read(FriendlyByteBuf buf) {
 		return CodecHelper.decode(CODEC, buf);
 	}
 	

@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import sirttas.dpanvil.annotation.DPAnvilAnnotationProcessor;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
@@ -27,7 +26,6 @@ public class DataPackAnvil {
 	
 	public static final DataManagerWrapper WRAPPER = new DataManagerWrapper();
 	public static final DataTagManager DATA_TAG_MANAGER = new DataTagManager();
-	public static final DPAnvilAnnotationProcessor ANNOTATION_PROCESSOR = new DPAnvilAnnotationProcessor();
 	
 	public DataPackAnvil() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -46,7 +44,6 @@ public class DataPackAnvil {
 
 	private void setup(FMLCommonSetupEvent event) {
 		MessageHandler.setup();
-		ANNOTATION_PROCESSOR.setup();
 	}
 
 	private void serverStarted(ServerStartedEvent event) {

@@ -1,19 +1,5 @@
 package sirttas.dpanvil.api.data;
 
-import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
@@ -22,7 +8,6 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraftforge.common.util.Lazy;
@@ -31,17 +16,29 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 /**
  * <p>
  * A manager used to retrieve data from the datapack.
  * </p>
  * <p>
- * It is a {@link IFutureReloadListener} and will be automatically register
+ * It is a {@link PreparableReloadListener} and will be automatically register
  * during {@link AddReloadListenerEvent}. <b>Don't add it yourself or it will
  * break!</b>.
  * <p>
  * It can also be used as a codec but it will only serialize the resource
- * location. It cannot be used to read datapack or sychronize it's conten, only
+ * location. It cannot be used to read datapack or sychronize it's content, only
  * help with NBT or network messages.
  * </p>
  * 
@@ -69,7 +66,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * Retrieve the {@link Map} of data handled by this manager. it may be immutable
 	 * 
 	 * @return a map of the data
-	 * @see #setData()
+	 * @see #setData(Map)
 	 * @see ImmutableMap
 	 */
 	@Nonnull
@@ -137,7 +134,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 */
 	@Nonnull
 	default Optional<T> getOptional(@Nonnull ResourceLocation id) {
-		return getData().containsKey(id) ? Optional.of(get(id)) : Optional.empty();
+		return Optional.ofNullable(get(id));
 	}
 	
 	/**
@@ -159,7 +156,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 */
 	@Nonnull
 	default List<T> getAll(@Nonnull Collection<ResourceLocation> ids) {
-		return ids.stream().map(this::get).collect(Collectors.toList());
+		return ids.stream().map(this::get).toList();
 	}
 
 	/**
@@ -200,7 +197,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> Builder<T> builder(Class<T> type, String folder) {
+	static <T> Builder<T> builder(Class<T> type, String folder) {
 		try {
 			Constructor<?> constructor = Class.forName("sirttas.dpanvil.data.manager.SimpleDataManagerBuilder", true, IDataManager.class.getClassLoader()).getConstructor(Class.class, String.class);
 
@@ -211,7 +208,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 		}
 	}
 
-	public interface Builder<T> {
+	interface Builder<T> {
 
 		Builder<T> withIdSetter(BiConsumer<T, ResourceLocation> idSetter);
 

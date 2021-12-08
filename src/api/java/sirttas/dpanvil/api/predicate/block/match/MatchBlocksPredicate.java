@@ -1,12 +1,8 @@
 package sirttas.dpanvil.api.predicate.block.match;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ObjectHolder;
@@ -16,6 +12,8 @@ import sirttas.dpanvil.api.codec.Codecs;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
+
+import java.util.List;
 
 public final class MatchBlocksPredicate implements IBlockStatePredicate {
 
@@ -58,7 +56,7 @@ public final class MatchBlocksPredicate implements IBlockStatePredicate {
 		}
 		return new MatchBlocksPredicate(blocks.stream()
 				.distinct()
-				.collect(Collectors.toList()));
+				.toList());
 	}
 	
 }

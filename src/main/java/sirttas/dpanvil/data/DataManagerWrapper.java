@@ -1,18 +1,8 @@
 package sirttas.dpanvil.data;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
-
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -21,6 +11,7 @@ import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagCollection;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.fml.ModLoader;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
@@ -29,6 +20,15 @@ import sirttas.dpanvil.data.manager.AbstractDataManager;
 import sirttas.dpanvil.data.serializer.CodecJsonDataSerializer;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 import sirttas.dpanvil.tag.DataTagManager;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
 public class DataManagerWrapper implements PreparableReloadListener {
@@ -72,7 +72,7 @@ public class DataManagerWrapper implements PreparableReloadListener {
 	
 	private <T> IJsonDataSerializer<T> buildSerializer(DataManagerIMC<T> message) {
 		Codec<T> codec = message.getCodec();
-		return codec != null ? new CodecJsonDataSerializer<>(codec) : new IJsonDataSerializer<T>() {
+		return codec != null ? new CodecJsonDataSerializer<>(codec) : new IJsonDataSerializer<>() {
 
 			@Override
 			public T read(JsonElement json) {
@@ -107,8 +107,8 @@ public class DataManagerWrapper implements PreparableReloadListener {
 	}
 
 	@Override
-	public CompletableFuture<Void> reload(PreparationBarrier stage, ResourceManager resourceManager, ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor,
-			Executor gameExecutor) {
+	public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier stage, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller preparationsProfiler, @NotNull ProfilerFiller reloadProfiler, @NotNull Executor backgroundExecutor,
+												   @NotNull Executor gameExecutor) {
 		if (ModLoader.isLoadingStateValid() && !managers.isEmpty()) {
 			CompletableFuture<Void> completableFuture = CompletableFuture.allOf(managers.entrySet().stream()
 							.map(entry -> {
@@ -128,13 +128,21 @@ public class DataManagerWrapper implements PreparableReloadListener {
 	}
 
 	private void postLoad() {
-		DataPackAnvil.ANNOTATION_PROCESSOR.applyDataHolder();
 		DataPackAnvilApi.LOGGER.debug("DataManagers loading compleat: {}", () -> {
 			StringBuilder logBuilder = new StringBuilder();
 
 			this.managers.forEach((managerId, manager) -> {
-				logBuilder.append("\r\n" + managerId + " " + manager.getData().size() + " entries:\r\n");
-				manager.getData().forEach((id, data) -> logBuilder.append("\t" + id + ": " + data + "\r\n"));
+				logBuilder.append("\r\n")
+						.append(managerId)
+						.append(" ")
+						.append(manager.getData().size())
+						.append(" entries:\r\n");
+				manager.getData().forEach((id, data) -> logBuilder
+						.append("\t")
+						.append(id)
+						.append(": ")
+						.append(data)
+						.append("\r\n"));
 			});
 			logBuilder.append("\r\nData tags:");
 			DataPackAnvil.DATA_TAG_MANAGER.getData().forEach((collectionId, tagCollection) -> logTags(logBuilder, collectionId, tagCollection));
@@ -145,8 +153,15 @@ public class DataManagerWrapper implements PreparableReloadListener {
 	private <T> void logTags(StringBuilder logBuilder, ResourceLocation collectionId, TagCollection<T> tagCollection) {
 		Map<ResourceLocation, Tag<T>> map = tagCollection.getAllTags();
 		
-		logBuilder.append("\r\n" + collectionId + " " + map.size() + " tags:\r\n");
-		map.forEach((id, tag) -> logBuilder.append("\t" + id + ": " + tag.getValues().size() + " elements\r\n"));
+		logBuilder.append("\r\n")
+				.append(collectionId)
+				.append(" ")
+				.append(map.size())
+				.append(" tags:\r\n");
+		map.forEach((id, tag) -> logBuilder.append("\t")
+				.append(id).append(": ")
+				.append(tag.getValues().size())
+				.append(" elements\r\n"));
 	}
 	
 	private BiFunction<Void, Throwable, Void> handleManagerException(ResourceLocation id) {

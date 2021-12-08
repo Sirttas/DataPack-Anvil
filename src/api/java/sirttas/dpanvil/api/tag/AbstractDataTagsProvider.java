@@ -1,25 +1,9 @@
 package sirttas.dpanvil.api.tag;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -30,8 +14,22 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.data.ExistingFileHelper.IResourceType;
 import net.minecraftforge.common.data.ExistingFileHelper.ResourceType;
 import net.minecraftforge.common.extensions.IForgeTagAppender;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
+
+import javax.annotation.Nullable;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class AbstractDataTagsProvider<T> implements DataProvider {
 
@@ -44,7 +42,7 @@ public abstract class AbstractDataTagsProvider<T> implements DataProvider {
 	protected final String folder;
 	protected final ExistingFileHelper existingFileHelper;
 	private final IResourceType resourceType;
-	private IDataManager<T> manager;
+	private final IDataManager<T> manager;
 
 	protected AbstractDataTagsProvider(DataGenerator generator, IDataManager<T> manager, String modId, @Nullable ExistingFileHelper existingFileHelper) {
 		this(generator, manager, modId, existingFileHelper, null);
@@ -65,14 +63,14 @@ public abstract class AbstractDataTagsProvider<T> implements DataProvider {
 	protected abstract void addTags();
 
 	@Override
-	public void run(HashCache cache) {
+	public void run(@NotNull HashCache cache) {
 		this.builders.clear();
 		this.addTags();
 		this.builders.forEach((location, builder) -> {
 			List<Tag.BuilderEntry> list = builder.getEntries()
 					.filter(entry -> !entry.getEntry().verifyIfPresent(manager.getData()::containsKey, this.builders::containsKey))
 					.filter(this::missing)
-					.collect(Collectors.toList());
+					.toList();
 			
 			if (!list.isEmpty()) {
 				throw new IllegalArgumentException(
@@ -109,8 +107,8 @@ public abstract class AbstractDataTagsProvider<T> implements DataProvider {
 		// We only care about non-optional tag entries, this is the only type that can
 		// reference a resource and needs validation
 		// Optional tags should not be validated
-		if (entry instanceof Tag.TagEntry) {
-			return existingFileHelper == null || !existingFileHelper.exists(((Tag.TagEntry) entry).getId(), resourceType);
+		if (entry instanceof Tag.TagEntry tagEntry) {
+			return existingFileHelper == null || !existingFileHelper.exists(tagEntry.getId(), resourceType);
 		}
 		return false;
 	}

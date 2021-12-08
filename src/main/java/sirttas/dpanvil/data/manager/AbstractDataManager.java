@@ -1,22 +1,22 @@
 package sirttas.dpanvil.data.manager;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraftforge.common.MinecraftForge;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.data.IDataWrapper;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadListener<Map<ResourceLocation, U>> implements IDataManager<T> {
 
@@ -40,12 +40,12 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	}
 
 	@Override
-	public Map<ResourceLocation, T> getData() {
+	public @NotNull Map<ResourceLocation, T> getData() {
 		return data;
 	}
 
 	@Override
-	public void setData(Map<ResourceLocation, T> map) {
+	public void setData(@NotNull Map<ResourceLocation, T> map) {
 		map.forEach((loc, value) -> idSetter.accept(value, loc));
 		data = ImmutableBiMap.copyOf(map);
 		this.wrappers.values().forEach(w -> w.set(this.get(w.getId())));
@@ -54,17 +54,17 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	}
 
 	@Override
-	public Class<T> getContentType() {
+	public @NotNull Class<T> getContentType() {
 		return contentType;
 	}
 
 	@Override
-	public ResourceLocation getId(final T value) {
+	public @NotNull ResourceLocation getId(final T value) {
 		return data.inverse().getOrDefault(value, DataPackAnvilApi.ID_NONE);
 	}
 
 	@Override
-	public T get(ResourceLocation id) {
+	public T get(@NotNull ResourceLocation id) {
 		T value = data.get(id);
 
 		if (value != null) {
@@ -74,7 +74,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	}
 
 	@Override
-	public IDataWrapper<T> getWrapper(ResourceLocation id) {
+	public @NotNull IDataWrapper<T> getWrapper(@NotNull ResourceLocation id) {
 		return this.wrappers.computeIfAbsent(id, i -> {
 			DefaultDataWrapper<T> wrapper = new DefaultDataWrapper<>(id);
 			
@@ -84,7 +84,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	}
 	
 	@Override
-	public String getFolder() {
+	public @NotNull String getFolder() {
 		return folder;
 	}
 	

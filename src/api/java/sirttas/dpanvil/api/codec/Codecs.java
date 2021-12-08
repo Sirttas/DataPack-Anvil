@@ -1,22 +1,21 @@
 package sirttas.dpanvil.api.codec;
 
-import java.util.UUID;
-import java.util.function.Function;
-
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.core.Registry;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
-import net.minecraft.core.Registry;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.block.Block;
 import sirttas.dpanvil.api.DPAnvilNames;
+
+import java.util.UUID;
+import java.util.function.Function;
 
 @SuppressWarnings("deprecation")
 public class Codecs {
@@ -82,7 +81,7 @@ public class Codecs {
 			ATTRIBUTE_MODIFIER_OPERATION.fieldOf(DPAnvilNames.OPERATION).forGetter(AttributeModifier::getOperation)
 	).apply(builder, AttributeModifier::new));
 	
-	public static final Codec<Multimap<Attribute, AttributeModifier>> ATTRIBUTE_MULTIMAP = CodecHelper.multimapCodec(ATTRIBUTE, ATTRIBUTE_MODIFIER);
+	public static final Codec<Multimap<Attribute, AttributeModifier>> ATTRIBUTE_MULTIMAP = CodecHelper.multiMapCodec(ATTRIBUTE, ATTRIBUTE_MODIFIER);
 	
 	private Codecs() {}
 }

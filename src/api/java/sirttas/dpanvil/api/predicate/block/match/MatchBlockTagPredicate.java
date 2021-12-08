@@ -2,7 +2,6 @@ package sirttas.dpanvil.api.predicate.block.match;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -26,7 +25,7 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 			ResourceLocation.CODEC.fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::getTagName)
 	).apply(builder, MatchBlockTagPredicate::new));
 
-	private Lazy<Tag<Block>> tag;
+	private final Lazy<Tag<Block>> tag;
 	private final ResourceLocation tagName;
 
 	public MatchBlockTagPredicate(ResourceLocation tagName) {

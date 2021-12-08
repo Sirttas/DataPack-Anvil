@@ -1,7 +1,6 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
 import com.mojang.serialization.Codec;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.registries.ObjectHolder;
@@ -12,8 +11,7 @@ import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 public final class AnyBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "any";
-	@Deprecated
-	public static final AnyBlockPredicate INSTANCE = new AnyBlockPredicate();
+	private static final AnyBlockPredicate INSTANCE = new AnyBlockPredicate();
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<AnyBlockPredicate> TYPE = null;
 	public static final Codec<AnyBlockPredicate> CODEC = Codec.unit(INSTANCE);
 

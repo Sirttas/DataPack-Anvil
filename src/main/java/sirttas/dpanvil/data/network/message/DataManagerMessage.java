@@ -1,8 +1,5 @@
 package sirttas.dpanvil.data.network.message;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.DataPackAnvil;
@@ -10,6 +7,9 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DataManagerMessage<T> {
 
@@ -34,7 +34,7 @@ public class DataManagerMessage<T> {
 				data.put(buf.readResourceLocation(), serializer.read(buf));
 			}
 		} catch (Exception e) {
-			DataPackAnvilApi.LOGGER.error(() -> "Error while decoding network packet for datamanger " + id, e);
+			DataPackAnvilApi.LOGGER.error(() -> "Error while decoding network packet for DataManger " + id, e);
 		}
 	}
 

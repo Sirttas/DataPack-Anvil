@@ -1,23 +1,23 @@
 package sirttas.dpanvil.api.event;
 
-import java.util.Map;
-
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.tags.TagContainer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagContainer;
+import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraftforge.eventbus.api.Event;
 import sirttas.dpanvil.api.data.IDataManager;
+
+import java.util.Map;
 
 public class DataPackReloadCompletEvent extends Event {
 
 	private final RecipeManager recipeManager;
 	private final TagContainer tagManager;
-	private final Map<ResourceLocation, IDataManager<?>> dataMnagers;
+	private final Map<ResourceLocation, IDataManager<?>> dataManagers;
 
-	public DataPackReloadCompletEvent(RecipeManager recipeManager, TagContainer tagManager, Map<ResourceLocation, IDataManager<?>> dataMnagers) {
+	public DataPackReloadCompletEvent(RecipeManager recipeManager, TagContainer tagManager, Map<ResourceLocation, IDataManager<?>> dataManagers) {
 		this.recipeManager = recipeManager;
 		this.tagManager = tagManager;
-		this.dataMnagers = dataMnagers;
+		this.dataManagers = dataManagers;
 	}
 
 	public RecipeManager getRecipeManager() {
@@ -29,6 +29,6 @@ public class DataPackReloadCompletEvent extends Event {
 	}
 
 	public Map<ResourceLocation, IDataManager<?>> getDataManagers() {
-		return dataMnagers;
+		return dataManagers;
 	}
 }
