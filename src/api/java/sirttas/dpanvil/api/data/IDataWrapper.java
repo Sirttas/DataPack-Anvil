@@ -25,8 +25,9 @@ public interface IDataWrapper<T> extends Supplier<T> {
     }
 
     default void ifPresent(Consumer<? super T> consumer) {
-        if (isPresent())
-            consumer.accept(get());
+        if (isPresent()) {
+			consumer.accept(get());
+		}
     }
     
 	static <T> Codec<IDataWrapper<T>> codec(IDataManager<T> manager) {

@@ -6,8 +6,8 @@ import net.minecraft.tags.Tag;
 import net.minecraft.tags.Tag.Named;
 import net.minecraft.tags.TagCollection;
 import net.minecraftforge.common.util.Lazy;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +59,7 @@ public final class DataTagRegistry<T> {
 		}
 		
 		@Override
-		public boolean contains(@NotNull T element) {
+		public boolean contains(@Nonnull T element) {
 			if (this.containedTag != null) {
 				return containedTag.contains(element);
 			}
@@ -67,7 +67,7 @@ public final class DataTagRegistry<T> {
 		}
 
 		@Override
-		public @NotNull List<T> getValues() {
+		public @Nonnull List<T> getValues() {
 			if (this.containedTag != null) {
 				return containedTag.getValues();
 			}
@@ -75,7 +75,7 @@ public final class DataTagRegistry<T> {
 		}
 
 		@Override
-		public @NotNull ResourceLocation getName() {
+		public @Nonnull ResourceLocation getName() {
 			return id;
 		}
 		

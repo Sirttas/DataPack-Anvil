@@ -1,3 +1,9 @@
+1.18.1-3.2.0:
+
+- upgrade forge version to 39.0.5 for security purpose
+- removed all deprecated apis
+
+
 1.18-3.1.0:
 
 - cleanup api
@@ -7,6 +13,7 @@
 1.18-3.0.0:
 
 - initial port to 1.18
+
 
 1.17.1-2.0.6:
 

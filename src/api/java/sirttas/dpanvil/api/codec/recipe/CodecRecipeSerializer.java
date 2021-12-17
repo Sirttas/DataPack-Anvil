@@ -7,9 +7,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
+import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 
 public class CodecRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<T> {
@@ -23,7 +23,7 @@ public class CodecRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEnt
 	}
 	
 	@Override
-	public @NotNull T fromJson(@NotNull ResourceLocation recipeId, @NotNull JsonObject json) {
+	public @Nonnull T fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json) {
 		T recipe = CodecHelper.decode(codec, json);
 
 		assert recipe != null;
@@ -32,7 +32,7 @@ public class CodecRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEnt
 	}
 
 	@Override
-	public @NotNull T fromNetwork(@NotNull ResourceLocation recipeId, @NotNull FriendlyByteBuf buffer) {
+	public @Nonnull T fromNetwork(@Nonnull ResourceLocation recipeId, @Nonnull FriendlyByteBuf buffer) {
 		T recipe = CodecHelper.decode(codec, buffer);
 
 		assert recipe != null;
@@ -41,7 +41,7 @@ public class CodecRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEnt
 	}
 
 	@Override
-	public void toNetwork(@NotNull FriendlyByteBuf buffer, @NotNull T recipe) {
+	public void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull T recipe) {
 		CodecHelper.encode(codec, recipe, buffer);
 	}
 

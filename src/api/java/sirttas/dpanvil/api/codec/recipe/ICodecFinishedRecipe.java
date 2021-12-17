@@ -3,8 +3,9 @@ package sirttas.dpanvil.api.codec.recipe;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import net.minecraft.data.recipes.FinishedRecipe;
-import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.codec.CodecHelper;
+
+import javax.annotation.Nonnull;
 
 public interface ICodecFinishedRecipe<T extends ICodecFinishedRecipe<T>> extends FinishedRecipe {
 
@@ -12,7 +13,7 @@ public interface ICodecFinishedRecipe<T extends ICodecFinishedRecipe<T>> extends
 
 	@SuppressWarnings("unchecked")
 	@Override
-	default void serializeRecipeData(@NotNull JsonObject json) {
+	default void serializeRecipeData(@Nonnull JsonObject json) {
 		((JsonObject) CodecHelper.encode(getCodec(), (T) this)).entrySet().forEach(e -> json.add(e.getKey(), e.getValue()));
 	}
 }

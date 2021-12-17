@@ -16,10 +16,10 @@ import net.minecraftforge.common.data.ExistingFileHelper.ResourceType;
 import net.minecraftforge.common.extensions.IForgeTagAppender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -63,7 +63,7 @@ public abstract class AbstractDataTagsProvider<T> implements DataProvider {
 	protected abstract void addTags();
 
 	@Override
-	public void run(@NotNull HashCache cache) {
+	public void run(@Nonnull HashCache cache) {
 		this.builders.clear();
 		this.addTags();
 		this.builders.forEach((location, builder) -> {

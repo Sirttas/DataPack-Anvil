@@ -17,7 +17,7 @@ import sirttas.dpanvil.api.DPAnvilNames;
 import java.util.UUID;
 import java.util.function.Function;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation"})
 public class Codecs {
 
 	public static final Codec<Block> BLOCK = Registry.BLOCK.byNameCodec();
@@ -34,7 +34,7 @@ public class Codecs {
 		if (s.startsWith("#")) {
 			return DataResult.success(Integer.parseInt(s.substring(1), 16));
 		}
-		return DataResult.error("Coundn't parse color: '" + s + '\'');
+		return DataResult.error("Couldn't parse color: '" + s + '\'');
 	}, i -> String.format("#%06X", i));
 	
 	/**
@@ -53,27 +53,16 @@ public class Codecs {
 			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left))
 			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left);
 	
-	private static final Codec<AttributeModifier.Operation> ATTRIBUTE_MODIFIER_OPERATION = Codec.STRING.comapFlatMap(s -> {
-		switch (s) {
-		case "addition":
-			return DataResult.success(AttributeModifier.Operation.ADDITION);
-		case "multiply_base":
-			return DataResult.success(AttributeModifier.Operation.MULTIPLY_BASE);
-		case "multiply_total":
-			return DataResult.success(AttributeModifier.Operation.MULTIPLY_TOTAL);
-		default:
-			return DataResult.error("Coundn't parse AttributeModifier Operation: '" + s + '\'');
-		}
-	}, o -> {
-		switch (o) {
-		case MULTIPLY_BASE:
-			return "multiply_base";
-		case MULTIPLY_TOTAL:
-			return "multiply_total";
-		default:
-			return "addition";
-		}
-	});
+	private static final Codec<AttributeModifier.Operation> ATTRIBUTE_MODIFIER_OPERATION = Codec.STRING.comapFlatMap(s -> switch (s) {
+			case "addition" -> DataResult.success(AttributeModifier.Operation.ADDITION);
+			case "multiply_base" -> DataResult.success(AttributeModifier.Operation.MULTIPLY_BASE);
+			case "multiply_total" -> DataResult.success(AttributeModifier.Operation.MULTIPLY_TOTAL);
+			default -> DataResult.error("Couldn't parse AttributeModifier Operation: '" + s + '\'');
+		}, o -> switch (o) {
+			case MULTIPLY_BASE -> "multiply_base";
+			case MULTIPLY_TOTAL -> "multiply_total";
+			default -> "addition";
+		});
 	
 	public static final Codec<AttributeModifier> ATTRIBUTE_MODIFIER = RecordCodecBuilder.create(builder -> builder.group(
 			Codec.STRING.fieldOf(DPAnvilNames.NAME).forGetter(AttributeModifier::getName),

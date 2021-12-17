@@ -10,7 +10,6 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.CodecHelper;
@@ -102,19 +101,6 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	}
 
 	/**
-	 * Get a {@link Lazy} version of the data mapped by the id
-	 * 
-	 * @param id A {@link ResourceLocation} that map a data
-	 * @return A {@link Lazy} of the corresponding data
-	 * @deprecated use {@link IDataManager#getWrapper(net.minecraft.resources.ResourceLocation)} instead.
-	 */
-	@Deprecated
-	@Nonnull
-	default Lazy<T> getLazy(@Nonnull ResourceLocation id) {
-		return Lazy.of(() -> this.get(id));
-	}
-
-	/**
 	 * Get data mapped by the id or a default value
 	 * 
 	 * @param id           A {@link ResourceLocation} that map a data
@@ -159,20 +145,6 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 		return ids.stream().map(this::get).toList();
 	}
 
-	/**
-	 * get a{@link Lazy} version of a list of {@link T} corresponding to each of the
-	 * ids in a collection
-	 * 
-	 * @param ids the ids to use
-	 * @return a {@link Lazy} of the list of corresponding data
-	 * @deprecated use {@link IDataManager#getWrapper(net.minecraft.resources.ResourceLocation)} instead.
-	 */
-	@Deprecated
-	@Nonnull
-	default Lazy<List<T>> getAllLazy(@Nonnull Collection<ResourceLocation> ids) {
-		return Lazy.of(() -> this.getAll(ids));
-	}
-
 	default boolean hasId(@Nonnull ResourceLocation id) {
 		return getData().containsKey(id);
 	}
@@ -197,14 +169,14 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	}
 	
 	@SuppressWarnings("unchecked")
-	static <T> Builder<T> builder(Class<T> type, String folder) {
+	@Nonnull
+	static <T> Builder<T> builder(@Nonnull Class<T> type, @Nonnull String folder) {
 		try {
 			Constructor<?> constructor = Class.forName("sirttas.dpanvil.data.manager.SimpleDataManagerBuilder", true, IDataManager.class.getClassLoader()).getConstructor(Class.class, String.class);
 
 			return (Builder<T>) constructor.newInstance(type, folder);
 		} catch (Exception e) {
-			DataPackAnvilApi.LOGGER.error("Couldn't get constructor", e);
-			return null;
+			throw new IllegalStateException("Couldn't get constructor", e);
 		}
 	}
 
