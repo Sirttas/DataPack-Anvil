@@ -28,6 +28,8 @@ import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
+import javax.annotation.Nonnull;
+
 /**
  * <p>
  * A manager used to retrieve data from the datapack.
@@ -77,6 +79,15 @@ public interface IDataManager<T> extends IFutureReloadListener, Codec<T>, Keyabl
 	 * @see #getData()
 	 */
 	void setData(Map<ResourceLocation, T> map);
+
+	/**
+	 * Get a {@link IDataWrapper} that wrap a value contained in this manager.
+	 *
+	 * @param id A {@link ResourceLocation} that map a data
+	 * @return A {@link IDataWrapper}
+	 */
+	@Nonnull
+	IDataWrapper<T> getWrapper(@Nonnull ResourceLocation id);
 
 	/**
 	 * Get data mapped by the id

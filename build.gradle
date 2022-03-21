@@ -1,8 +1,9 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        maven { url = 'https://maven.minecraftforge.net/' }
+		maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+		maven { url = 'https://reposilite.shendai.rip/public' }
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
@@ -25,9 +26,11 @@ mixin {
     add sourceSets.main, "dpanvil.refmap.json"
 }
 
-version = "${dpanvil_version}"
+version = project.hasProperty('tag_version') ? "${minecraft_version}-${tag_version}" : "${dpanvil_version}"
 group = 'sirttas.dpanvil'
 archivesBaseName = 'dpanvil'
+
+println('Building DataPack Anvil: ' + project.version)
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
@@ -106,10 +109,6 @@ minecraft {
 
 repositories {
     mavenCentral()
-    maven { url "https://maven.theillusivec4.top/" }
-    maven { url "https://dvs1.progwml6.com/files/maven/" }
-  	maven { url "https://modmaven.dev/" }
-  	maven { url "https://maven.blamejared.com" }
 }
 
 dependencies {
@@ -163,7 +162,14 @@ sonarqube {
 	}
 }
 
-if (System.getenv("MODMAVEN_USER") != null || project.hasProperty('modmaven_user')) {
+def modmaven_user = System.getenv("MODMAVEN_USER") ?: project.findProperty("modmaven_user")
+def modmaven_password = System.getenv("MODMAVEN_PASSWORD") ?: project.findProperty("modmaven_password")
+def use_modmaven = modmaven_user != null && modmaven_password != null
+def shendai_reposlite_user = System.getenv("SHENDAI_REPOSLITE_USER") ?: project.findProperty("shendai_reposlite_user")
+def shendai_reposlite_password = System.getenv("SHENDAI_REPOSLITE_PASSWORD") ?: project.findProperty("shendai_reposlite_password")
+def use_shendai_reposlite = shendai_reposlite_user != null && shendai_reposlite_password != null
+
+if (use_modmaven || use_shendai_reposlite) {
 	publishing {
 	    publications {
 	        mavenJava(MavenPublication) {
@@ -171,16 +177,27 @@ if (System.getenv("MODMAVEN_USER") != null || project.hasProperty('modmaven_user
 	             artifacts = [apiJar, jar, sourcesJar]
 	        }
 	    }
-	    
-	    repositories {
-	        maven {
-	            url = 'https://modmaven.dev/artifactory/local-releases/'
-	            credentials {
-					username = System.getenv("MODMAVEN_USER") ?: project.findProperty("modmaven_user")
-	                password = System.getenv("MODMAVEN_PASSWORD") ?: project.findProperty("modmaven_password")
-	            }
-	        }
-	    }
+
+		repositories {
+			if (use_modmaven) {
+				maven {
+					url = 'https://modmaven.dev/artifactory/local-releases/'
+					credentials {
+						username = modmaven_user
+						password = modmaven_password
+					}
+				}
+			}
+			if (use_shendai_reposlite) {
+				maven {
+					url = 'https://reposilite.shendai.rip/releases'
+					credentials {
+						username = shendai_reposlite_user
+						password = shendai_reposlite_password
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -190,8 +207,8 @@ if (System.getenv("CURSEFORGE_KEY") != null || project.hasProperty('curseforge_k
 	
 		def changeLog = { ->
 			def generatedChangelog = ""
-			def changeStart = false;
-			def changeEnd = false;
+			def changeStart = false
+			def changeEnd = false
 			
 			println('Changelog:')
 			
@@ -200,9 +217,9 @@ if (System.getenv("CURSEFORGE_KEY") != null || project.hasProperty('curseforge_k
 			
 		        while ((line = reader.readLine()) != null && !changeEnd) {
 		        	if (line ==~ '^\\s*- .*') {
-		        		changeStart = true;
+		        		changeStart = true
 		        	} else if (changeStart) {
-		        		changeEnd = true;
+		        		changeEnd = true
 		        	}
 					if (changeStart && !changeEnd) {
 						println(line)
