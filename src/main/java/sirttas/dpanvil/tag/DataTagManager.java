@@ -27,8 +27,11 @@ import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.ICodecProvider;
 import sirttas.dpanvil.api.data.IDataManager;
+import sirttas.dpanvil.api.data.IDataWrapper;
 import sirttas.dpanvil.api.imc.DataTagIMC;
 import sirttas.dpanvil.api.tag.DataTagRegistry;
+
+import javax.annotation.Nonnull;
 
 public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecProvider<Map<ResourceLocation, ITagCollection<?>>> {
 	
@@ -123,7 +126,12 @@ public class DataTagManager implements IDataManager<ITagCollection<?>>, ICodecPr
 	public Codec<Map<ResourceLocation, ITagCollection<?>>> getCodec() {
 		return codec;
 	}
-	
+
+	@Override
+	public @Nonnull IDataWrapper<ITagCollection<?>> getWrapper(@Nonnull ResourceLocation id) {
+		throw new UnsupportedOperationException();
+	}
+
 	@Override
 	public CompletableFuture<Void> reload(IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor,
 			Executor gameExecutor) {
