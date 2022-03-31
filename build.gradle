@@ -173,6 +173,7 @@ if (use_modmaven || use_shendai_reposlite) {
 		repositories {
 			if (use_modmaven) {
 				maven {
+					name = "ModMaven"
 					url = 'https://modmaven.dev/artifactory/local-releases/'
 					credentials {
 						username = modmaven_user
@@ -182,6 +183,7 @@ if (use_modmaven || use_shendai_reposlite) {
 			}
 			if (use_shendai_reposlite) {
 				maven {
+					name = "Shendai ReposLite"
 					url = 'https://reposilite.shendai.rip/releases'
 					credentials {
 						username = shendai_reposlite_user
