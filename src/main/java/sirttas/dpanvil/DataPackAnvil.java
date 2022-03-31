@@ -14,18 +14,15 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
-import sirttas.dpanvil.api.imc.DataTagIMC;
 import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.network.message.MessageHandler;
 import sirttas.dpanvil.data.network.message.MessageHelper;
 import sirttas.dpanvil.data.network.message.ReloadDataMessage;
-import sirttas.dpanvil.tag.DataTagManager;
 
 @Mod(DataPackAnvilApi.MODID)
 public class DataPackAnvil {
 	
 	public static final DataManagerWrapper WRAPPER = new DataManagerWrapper();
-	public static final DataTagManager DATA_TAG_MANAGER = new DataTagManager();
 	
 	public DataPackAnvil() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -52,7 +49,6 @@ public class DataPackAnvil {
 
 	private void processIMC(InterModProcessEvent event) {
 		event.getIMCStream(DataManagerIMC.METHOD::equals).forEach(message -> WRAPPER.putManagerFromIMC(message.messageSupplier()));
-		event.getIMCStream(DataTagIMC.METHOD::equals).forEach(message -> DATA_TAG_MANAGER.putTagRegistryFromIMC(message.messageSupplier()));
 	}
 
 	private void syncDataManagers(OnDatapackSyncEvent event) {
@@ -68,7 +64,7 @@ public class DataPackAnvil {
 	}
 	
 	private static void onReloadComplet(MinecraftServer server) {
-		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(server.getRecipeManager(), server.getTags(), DataPackAnvil.WRAPPER.getDataManagers()));
+		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers()));
 	}
 
 	private void addReloadListeners(AddReloadListenerEvent event) {

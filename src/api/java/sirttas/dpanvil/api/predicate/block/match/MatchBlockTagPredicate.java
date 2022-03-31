@@ -4,13 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.Tag.Named;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -22,32 +18,26 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 	public static final String NAME = "tag";
 	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<MatchBlockTagPredicate> TYPE = null;
 	public static final Codec<MatchBlockTagPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-			ResourceLocation.CODEC.fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::getTagName)
+			TagKey.codec(Registry.BLOCK_REGISTRY).fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::getTag)
 	).apply(builder, MatchBlockTagPredicate::new));
 
-	private final Lazy<Tag<Block>> tag;
-	private final ResourceLocation tagName;
+	private final TagKey<Block> tag;
 
 	public MatchBlockTagPredicate(ResourceLocation tagName) {
-		this(tagName, Lazy.concurrentOf(() -> getTag(tagName)));
+		this(TagKey.create(Registry.BLOCK_REGISTRY, tagName));
 	}
 
-	public MatchBlockTagPredicate(Named<Block> tag) {
-		this(tag.getName(), Lazy.of(() -> tag));
-	}
-
-	private MatchBlockTagPredicate(ResourceLocation tagName, Lazy<Tag<Block>> tag) {
-		this.tagName = tagName;
+	public MatchBlockTagPredicate(TagKey<Block> tag) {
 		this.tag = tag;
+	}
+
+	public TagKey<Block> getTag() {
+		return tag;
 	}
 
 	@Override
 	public boolean test(BlockState state) {
-		return tag.get().contains(state.getBlock());
-	}
-
-	public ResourceLocation getTagName() {
-		return tagName;
+		return state.is(this.tag);
 	}
 
 	@Override
@@ -55,12 +45,4 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 		return TYPE;
 	}
 
-	private static Tag<Block> getTag(ResourceLocation loc) {
-		var tag = BlockTags.getAllTags().getTag(loc);
-		
-		if (tag != null) {
-			return tag;
-		}
-		return SerializationTags.getInstance().getTagOrThrow(Registry.BLOCK_REGISTRY, loc, id -> new IllegalStateException("Unknown block tag '" + id + "'"));
-	}
 }

@@ -6,7 +6,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tags.Tag.Named;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -82,7 +82,7 @@ public interface IBlockPosPredicate {
 		return new MatchBlocksPredicate(blocks);
 	}
 
-	static IBlockPosPredicate match(Named<Block> tag) {
+	static IBlockPosPredicate match(TagKey<Block> tag) {
 		return new MatchBlockTagPredicate(tag);
 	}
 

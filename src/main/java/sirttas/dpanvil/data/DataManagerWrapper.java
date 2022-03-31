@@ -7,19 +7,15 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.tags.Tag;
-import net.minecraft.tags.TagCollection;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.fml.ModLoader;
 import org.jetbrains.annotations.NotNull;
-import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.data.manager.AbstractDataManager;
 import sirttas.dpanvil.data.serializer.CodecJsonDataSerializer;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
-import sirttas.dpanvil.tag.DataTagManager;
 
 import java.util.Collection;
 import java.util.Map;
@@ -116,12 +112,6 @@ public class DataManagerWrapper implements PreparableReloadListener {
 									return manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
 											.handle(handleManagerException(entry.getKey()));
 								}).toArray(CompletableFuture[]::new));
-
-			if (DataPackAnvil.DATA_TAG_MANAGER.shouldLoad()) {
-				completableFuture = completableFuture
-						.thenCompose(v -> DataPackAnvil.DATA_TAG_MANAGER.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
-								.handle(handleManagerException(DataTagManager.ID)));
-			}
 			return completableFuture.thenRun(this::postLoad);
 		}
 		return CompletableFuture.allOf();
@@ -144,24 +134,8 @@ public class DataManagerWrapper implements PreparableReloadListener {
 						.append(data)
 						.append("\r\n"));
 			});
-			logBuilder.append("\r\nData tags:");
-			DataPackAnvil.DATA_TAG_MANAGER.getData().forEach((collectionId, tagCollection) -> logTags(logBuilder, collectionId, tagCollection));
 			return logBuilder.toString();
 		});
-	}
-
-	private <T> void logTags(StringBuilder logBuilder, ResourceLocation collectionId, TagCollection<T> tagCollection) {
-		Map<ResourceLocation, Tag<T>> map = tagCollection.getAllTags();
-		
-		logBuilder.append("\r\n")
-				.append(collectionId)
-				.append(" ")
-				.append(map.size())
-				.append(" tags:\r\n");
-		map.forEach((id, tag) -> logBuilder.append("\t")
-				.append(id).append(": ")
-				.append(tag.getValues().size())
-				.append(" elements\r\n"));
 	}
 	
 	private BiFunction<Void, Throwable, Void> handleManagerException(ResourceLocation id) {

@@ -1,6 +1,5 @@
 package sirttas.dpanvil.data;
 
-import net.minecraft.tags.TagContainer;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
@@ -21,7 +20,6 @@ import java.util.Map;
 public class DataHandler {
 
 	private static RecipeManager recipeManager = null;
-	private static TagContainer tagManager = null;
 	private static final Map<Class<? extends Event>, Boolean> map = new HashMap<>();
 	
 	static {
@@ -43,12 +41,6 @@ public class DataHandler {
 		process(event.getClass());
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void onVanillaTagsUpdate(TagsUpdatedEvent event) {
-		tagManager = event.getTagManager();
-		process(event.getClass());
-	}
-
 	public static void onDPAnvilUpdate() {
 		process(DataPackReloadCompletEvent.class);
 	}
@@ -56,9 +48,8 @@ public class DataHandler {
 	private static void process(Class<? extends Event> eventType) {
 		map.put(eventType, true);
 		if (map.values().stream().allMatch(b -> b)) {
-			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(recipeManager, tagManager, DataPackAnvil.WRAPPER.getDataManagers()));
+			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(recipeManager, DataPackAnvil.WRAPPER.getDataManagers()));
 			recipeManager = null;
-			tagManager = null;
 			map.replaceAll((k, v) -> false);
 		}
 	}

@@ -15,16 +15,13 @@ import java.util.stream.Collectors;
 public class ReloadDataMessage {
 
 	private final List<DataManagerMessage<?>> messages;
-	private TagsMessage tagsMessage;
 
 	public ReloadDataMessage() {
 		messages = Lists.newArrayList();
-		tagsMessage = null;
 	}
 
 	public ReloadDataMessage(Collection<ResourceLocation> managers) {
 		messages = managers.stream().map(DataManagerMessage::new).collect(Collectors.toList());
-		tagsMessage = new TagsMessage();
 	}
 
 	public static ReloadDataMessage decode(FriendlyByteBuf buf) {
@@ -37,7 +34,6 @@ public class ReloadDataMessage {
 			managerMessage.decode(buf);
 			message.messages.add(managerMessage);
 		}
-		message.tagsMessage = TagsMessage.decode(buf);
 		return message;
 	}
 
@@ -47,13 +43,11 @@ public class ReloadDataMessage {
 			buf.writeResourceLocation(message.getId());
 			message.encode(buf);
 		}
-		tagsMessage.encode(buf);
 		DataPackAnvilApi.LOGGER.debug("Sending DataPack Anvil packet with size: {} bytes", buf::writerIndex);
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> messages.forEach(DataManagerMessage::process));
-		tagsMessage.process();
 		DataHandler.onDPAnvilUpdate();
 		ctx.get().setPacketHandled(true);
 	}

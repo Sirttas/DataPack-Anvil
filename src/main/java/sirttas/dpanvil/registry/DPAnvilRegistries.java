@@ -1,8 +1,8 @@
 package sirttas.dpanvil.registry;
 
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -17,8 +17,8 @@ public class DPAnvilRegistries {
 	private DPAnvilRegistries() {}
 	
 	@SubscribeEvent
-	public static void createRegistries(RegistryEvent.NewRegistry event) {
-		new RegistryBuilder<>().setName(DataPackAnvil.createRL("block_predicate_type")).setIDRange(MIN_ID, MAX_ID).setType(cast()).create();
+	public static void createRegistries(NewRegistryEvent event) {
+		event.create(new RegistryBuilder<>().setName(DataPackAnvil.createRL("block_predicate_type")).setIDRange(MIN_ID, MAX_ID).setType(cast()));
 	}
 
 	@SuppressWarnings("unchecked")
