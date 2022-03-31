@@ -162,6 +162,12 @@ def shendai_reposlite_password = System.getenv("SHENDAI_REPOSLITE_PASSWORD") ?: 
 def use_shendai_reposlite = shendai_reposlite_user != null && shendai_reposlite_password != null
 
 if (use_modmaven || use_shendai_reposlite) {
+	if (use_modmaven) {
+		logger.info("Uploading to modmaven")
+	}
+	if (use_shendai_reposlite) {
+		logger.info("Uploading to shendai reposlite")
+	}
 	publishing {
 	    publications {
 	        mavenJava(MavenPublication) {
