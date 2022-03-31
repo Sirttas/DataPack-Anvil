@@ -163,10 +163,10 @@ def use_shendai_reposlite = shendai_reposlite_user != null && shendai_reposlite_
 
 if (use_modmaven || use_shendai_reposlite) {
 	if (use_modmaven) {
-		logger.info("Uploading to modmaven")
+		logger.info("Maven publish setup for modmaven")
 	}
 	if (use_shendai_reposlite) {
-		logger.info("Uploading to shendai reposlite")
+		logger.info("Maven publish setup for shendai reposlite")
 	}
 	publishing {
 	    publications {
