@@ -183,7 +183,7 @@ if (use_modmaven || use_shendai_reposlite) {
 			}
 			if (use_shendai_reposlite) {
 				maven {
-					name = "Shendai ReposLite"
+					name = "ShendaiReposLite"
 					url = 'https://reposilite.shendai.rip/releases'
 					credentials {
 						username = shendai_reposlite_user
@@ -193,6 +193,9 @@ if (use_modmaven || use_shendai_reposlite) {
 			}
 		}
 	}
+}
+if (use_shendai_reposlite) {
+	publish.dependsOn tasks.publishMavenJavaPublicationToShendaiReposLiteRepository
 }
 
 if (System.getenv("CURSEFORGE_KEY") != null || project.hasProperty('curseforge_key')) {
