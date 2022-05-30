@@ -4,15 +4,17 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraftforge.common.MinecraftForge;
-import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.data.IDataWrapper;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -25,10 +27,11 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	private final Class<T> contentType;
 	private final Function<ResourceLocation, T> defaultValueFactory;
 	private final Map<ResourceLocation, DefaultDataWrapper<T>> wrappers;
+	private final Map<ResourceLocation, DataReference<T>> references;
 	private BiMap<ResourceLocation, T> data;
 	protected final String folder;
 	protected final BiConsumer<T, ResourceLocation> idSetter;
-	protected ResourceLocation id;
+	protected ResourceKey<IDataManager<T>> key;
 	
 	protected AbstractDataManager(Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter) {
 		this.contentType = contentType;
@@ -37,34 +40,36 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 		this.folder = folder;
 		this.data = ImmutableBiMap.of();
 		this.wrappers = new HashMap<>();
+		this.references = new HashMap<>();
 	}
 
 	@Override
-	public @NotNull Map<ResourceLocation, T> getData() {
+	public @Nonnull Map<ResourceLocation, T> getData() {
 		return data;
 	}
 
 	@Override
-	public void setData(@NotNull Map<ResourceLocation, T> map) {
+	public void setData(@Nonnull Map<ResourceLocation, T> map) {
 		map.forEach((loc, value) -> idSetter.accept(value, loc));
 		data = ImmutableBiMap.copyOf(map);
 		this.wrappers.values().forEach(w -> w.set(this.get(w.getId())));
-		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), id);
+		rebindReferences();
+		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), key);
 		MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(this));
 	}
 
 	@Override
-	public @NotNull Class<T> getContentType() {
+	public @Nonnull Class<T> getContentType() {
 		return contentType;
 	}
 
 	@Override
-	public @NotNull ResourceLocation getId(final T value) {
+	public @Nonnull ResourceLocation getId(final T value) {
 		return data.inverse().getOrDefault(value, DataPackAnvilApi.ID_NONE);
 	}
 
 	@Override
-	public T get(@NotNull ResourceLocation id) {
+	public T get(@Nonnull ResourceLocation id) {
 		T value = data.get(id);
 
 		if (value != null) {
@@ -74,7 +79,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	}
 
 	@Override
-	public @NotNull IDataWrapper<T> getWrapper(@NotNull ResourceLocation id) {
+	public @Nonnull IDataWrapper<T> getWrapper(@Nonnull ResourceLocation id) {
 		return this.wrappers.computeIfAbsent(id, i -> {
 			DefaultDataWrapper<T> wrapper = new DefaultDataWrapper<>(id);
 			
@@ -82,13 +87,37 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 			return wrapper;
 		});
 	}
+
+	@Override
+	@Nonnull
+	public  Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
+		return this.references.computeIfAbsent(key.location(), i -> new DataReference<>(this, key, this.get(i)));
+	}
 	
 	@Override
-	public @NotNull String getFolder() {
+	public @Nonnull String getFolder() {
 		return folder;
 	}
 	
-	public void setId(ResourceLocation id) {
-		this.id = id;
+	public void setKey(ResourceKey<IDataManager<T>> key) {
+		this.key = key;
+	}
+
+	private void rebindReferences() {
+		this.references.values().forEach(r -> {
+			var l = r.key().location();
+
+			r.bind(createKey(l), this.get(l));
+		});
+	}
+
+	@Nonnull
+	private ResourceKey<T> createKey(ResourceLocation l) {
+		return IDataManager.createKey(this.key, l);
+	}
+
+	@Override
+	public String toString() {
+		return key != null ? key.toString() : folder;
 	}
 }

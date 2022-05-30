@@ -8,6 +8,8 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -17,11 +19,11 @@ import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -62,6 +64,27 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	String getFolder();
 
 	/**
+	 * Create a {@link ResourceKey} from a {@link ResourceLocation}
+	 *
+	 * @param id the {@link ResourceLocation}
+	 * @return The {@link ResourceKey} created
+	 */
+	@Nonnull
+	static <T> ResourceKey<T> createKey(@Nonnull ResourceKey<? super IDataManager<T>> managerKey, @Nonnull ResourceLocation id) {
+		return DataPackAnvilApi.createResourceKey(managerKey.location(), id);
+	}
+
+	@Nonnull
+	static <T> ResourceKey<IDataManager<T>> createManagerKey(@Nonnull ResourceLocation pLocation) {
+		return DataPackAnvilApi.createResourceKey(DataPackAnvilApi.DATA_MANAGER_ROOT, pLocation);
+	}
+
+	@Nonnull
+	static <T> Codec<ResourceKey<T>> keyCodec(@Nonnull ResourceKey<? super IDataManager<T>> managerKey) {
+		return ResourceLocation.CODEC.xmap(l -> createKey(managerKey, l), ResourceKey::location);
+	}
+
+	/**
 	 * Retrieve the {@link Map} of data handled by this manager. it may be immutable
 	 * 
 	 * @return a map of the data
@@ -85,9 +108,22 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * 
 	 * @param id A {@link ResourceLocation} that map a data
 	 * @return A {@link IDataWrapper}
+	 * use {@link IDataManager#getOrCreateHolder(ResourceKey<T>)} instead
 	 */
 	@Nonnull
+	@Deprecated(since = "1.18.2-3.3.3", forRemoval = true)
 	IDataWrapper<T> getWrapper(@Nonnull ResourceLocation id);
+
+	/**
+	 * Get a {@link Holder} that wrap a value contained in this manager.
+	 *
+	 * @param key A {@link ResourceKey<T>} that map a data
+	 * @return A {@link Holder}
+	 */
+	@Nonnull
+	default Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
+		return Holder.direct(get(key.location()));
+	}
 	
 	/**
 	 * Get data mapped by the id
@@ -142,7 +178,10 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 */
 	@Nonnull
 	default List<T> getAll(@Nonnull Collection<ResourceLocation> ids) {
-		return ids.stream().map(this::get).toList();
+		return ids.stream()
+				.map(this::get)
+				.filter(Objects::nonNull)
+				.toList();
 	}
 
 	default boolean hasId(@Nonnull ResourceLocation id) {
@@ -171,13 +210,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	@SuppressWarnings("unchecked")
 	@Nonnull
 	static <T> Builder<T> builder(@Nonnull Class<T> type, @Nonnull String folder) {
-		try {
-			Constructor<?> constructor = Class.forName("sirttas.dpanvil.data.manager.SimpleDataManagerBuilder", true, IDataManager.class.getClassLoader()).getConstructor(Class.class, String.class);
-
-			return (Builder<T>) constructor.newInstance(type, folder);
-		} catch (Exception e) {
-			throw new IllegalStateException("Couldn't get constructor", e);
-		}
+		return DataPackAnvilApi.service().createDataManagerBuilder(type, folder);
 	}
 
 	interface Builder<T> {

@@ -12,7 +12,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
+import sirttas.dpanvil.api.event.DataPackReloadCompleteEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.network.message.MessageHandler;
@@ -44,7 +44,7 @@ public class DataPackAnvil {
 	}
 
 	private void serverStarted(ServerStartedEvent event) {
-		onReloadComplet(event.getServer());
+		onReloadCompleted(event.getServer());
 	}
 
 	private void processIMC(InterModProcessEvent event) {
@@ -59,12 +59,12 @@ public class DataPackAnvil {
 			MessageHelper.sendToRemotePlayer(player, message);
 		} else {
 			MessageHelper.sendToAllRemotePlayers(message);
-			onReloadComplet(event.getPlayerList().getServer());
+			onReloadCompleted(event.getPlayerList().getServer());
 		}
 	}
 	
-	private static void onReloadComplet(MinecraftServer server) {
-		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers()));
+	private static void onReloadCompleted(MinecraftServer server) {
+		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers()));
 	}
 
 	private void addReloadListeners(AddReloadListenerEvent event) {

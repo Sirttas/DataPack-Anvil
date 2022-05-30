@@ -11,7 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.api.event.DataPackReloadCompletEvent;
+import sirttas.dpanvil.api.event.DataPackReloadCompleteEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class DataHandler {
 	static {
 		map.put(RecipesUpdatedEvent.class, false);
 		map.put(TagsUpdatedEvent.class, false);
-		map.put(DataPackReloadCompletEvent.class, false);
+		map.put(DataPackReloadCompleteEvent.class, false);
 	}
 
 	private DataHandler() {}
@@ -42,13 +42,13 @@ public class DataHandler {
 	}
 
 	public static void onDPAnvilUpdate() {
-		process(DataPackReloadCompletEvent.class);
+		process(DataPackReloadCompleteEvent.class);
 	}
 
 	private static void process(Class<? extends Event> eventType) {
 		map.put(eventType, true);
 		if (map.values().stream().allMatch(b -> b)) {
-			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompletEvent(recipeManager, DataPackAnvil.WRAPPER.getDataManagers()));
+			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(recipeManager, DataPackAnvil.WRAPPER.getDataManagers()));
 			recipeManager = null;
 			map.replaceAll((k, v) -> false);
 		}

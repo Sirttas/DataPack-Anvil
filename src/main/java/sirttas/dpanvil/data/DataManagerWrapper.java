@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -19,7 +19,6 @@ import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
@@ -29,40 +28,52 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public class DataManagerWrapper implements PreparableReloadListener {
 
-	private final Map<ResourceLocation, IDataManager<?>> managers = Maps.newHashMap();
-	private final Map<ResourceLocation, IJsonDataSerializer<?>> serializers = Maps.newHashMap();
+	private final Map<ResourceKey<IDataManager<?>>, IDataManager<?>> managers = Maps.newHashMap();
+	private final Map<ResourceKey<IDataManager<?>>, IJsonDataSerializer<?>> serializers = Maps.newHashMap();
 
-	public static void logManagerException(ResourceLocation id, Throwable e) {
+	public static <T> void logManagerException(ResourceKey<? super IDataManager<T>> key, Throwable e) {
 		if (e != null) {
-			DataPackAnvilApi.LOGGER.error(() -> "Exception while loading data for manager " + id.toString() + ":", e);
+			DataPackAnvilApi.LOGGER.error(() -> "Exception while loading data for manager " + key + ":", e);
 		}
 	}
-	
-	public <T, M extends IDataManager<T>> M getManager(ResourceLocation id) {
-		return (M) managers.get(id);
+
+	public <T, M extends IDataManager<T>> M getManager(ResourceKey<? super IDataManager<T>> key) {
+		return (M) managers.get(key);
 	}
 
 	public <T, M extends IDataManager<T>> M getManager(Class<T> clazz) {
-		return (M) managers.values().stream().filter(manager -> manager.getContentType().isAssignableFrom(clazz)).findAny().orElse(null);
+		return (M) managers.values().stream()
+				.filter(manager -> manager.getContentType().isAssignableFrom(clazz))
+				.findAny()
+				.orElse(null);
 	}
 
-	public <T> ResourceLocation getId(IDataManager<T> manager) {
-		return managers.entrySet().stream().filter(e -> e.getValue().equals(manager)).map(Entry::getKey).findAny().orElse(DataPackAnvilApi.ID_NONE);
+	public <T> ResourceKey<IDataManager<T>> getKey(IDataManager<T> manager) {
+		return managers.entrySet().stream()
+				.filter(e -> e.getValue().equals(manager))
+				.map(e -> this.<ResourceKey<IDataManager<T>>>cast(e.getKey()))
+				.findAny()
+				.orElseGet(() -> IDataManager.createManagerKey(DataPackAnvilApi.ID_NONE));
 	}
-	
-	public <T, S extends IJsonDataSerializer<T>> S getSerializer(ResourceLocation id) {
-		return (S) serializers.get(id);
+
+	private <T> T cast(Object key) {
+		return (T)key;
+	}
+
+	public <T, S extends IJsonDataSerializer<T>> S getSerializer(ResourceKey<? super IDataManager<T>> key) {
+		return (S) serializers.get(key);
 	}
 
 	public <T> void putManagerFromIMC(Supplier<?> supplier) {
 		DataManagerIMC<T> message = (DataManagerIMC<T>) supplier.get();
-		ResourceLocation id = message.getId();
+		var key = message.getKey();
+		ResourceKey<IDataManager<?>> castedKey = this.cast(key);
 		IDataManager<T> manager = message.getManager();
 
-		serializers.put(id, buildSerializer(message));
-		managers.put(id, manager);
+		serializers.put(castedKey, buildSerializer(message));
+		managers.put(castedKey, manager);
 		if (manager instanceof AbstractDataManager) {
-			((AbstractDataManager<?, ?>) manager).setId(id);
+			((AbstractDataManager<T, ?>) manager).setKey(key);
 		}
 	}
 	
@@ -78,7 +89,7 @@ public class DataManagerWrapper implements PreparableReloadListener {
 					return readJson.apply(json);
 				}
 				throw new IllegalStateException("trying to read json without the proper serialization tools for manager : "
-						+ message.getId() + " makes sure you provide a correct json serializer to it.");
+						+ message.getKey() + " makes sure you provide a correct json serializer to it.");
 			}
 
 			@Override
@@ -94,11 +105,11 @@ public class DataManagerWrapper implements PreparableReloadListener {
 	}
 
 
-	public Collection<ResourceLocation> ids() {
+	public Collection<ResourceKey<IDataManager<?>>> ids() {
 		return managers.keySet();
 	}
 
-	public Map<ResourceLocation, IDataManager<?>> getDataManagers() {
+	public Map<ResourceKey<IDataManager<?>>, IDataManager<?>> getDataManagers() {
 		return managers;
 	}
 
@@ -138,9 +149,9 @@ public class DataManagerWrapper implements PreparableReloadListener {
 		});
 	}
 	
-	private BiFunction<Void, Throwable, Void> handleManagerException(ResourceLocation id) {
+	private BiFunction<Void, Throwable, Void> handleManagerException(ResourceKey<IDataManager<?>> key) {
 		return (r, e) -> {
-			logManagerException(id, e);
+			logManagerException(key, e);
 			return r;
 		};
 	}

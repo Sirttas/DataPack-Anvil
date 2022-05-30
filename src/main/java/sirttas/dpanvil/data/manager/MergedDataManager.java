@@ -85,7 +85,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 	protected void apply(@NotNull Map<ResourceLocation, List<JsonElement>> objects, @NotNull ResourceManager resourceManagerIn, @NotNull ProfilerFiller profilerIn) {
 		try {
 			Map<ResourceLocation, T> map = Maps.newHashMap();
-			Function<JsonElement, R> parser = rawParser != null ? rawParser : json -> (R) DataPackAnvil.WRAPPER.getSerializer(id).read(json);
+			Function<JsonElement, R> parser = rawParser != null ? rawParser : json -> (R) DataPackAnvil.WRAPPER.getSerializer(key).read(json);
 	
 			objects.forEach((loc, list) -> {
 				T value = merger.apply(list.stream().map(parser));
@@ -95,7 +95,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 			});
 			setData(map);
 		} catch (Exception e) {
-			DataManagerWrapper.logManagerException(id, e);
+			DataManagerWrapper.logManagerException(key, e);
 		}
 	}
 }

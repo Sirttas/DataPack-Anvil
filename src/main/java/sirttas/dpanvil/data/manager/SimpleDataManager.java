@@ -63,7 +63,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 	protected void apply(@NotNull Map<ResourceLocation, JsonElement> objects, @NotNull ResourceManager resourceManagerIn, @NotNull ProfilerFiller profilerIn) {
 		try {
 			Map<ResourceLocation, T> map = Maps.newHashMap();
-			IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(id);
+			IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
 	
 			objects.forEach((loc, jsonObject) -> {
 				T value = serializer.read(jsonObject);
@@ -73,7 +73,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 			});
 			setData(map);
 		} catch (Exception e) {
-			DataManagerWrapper.logManagerException(id, e);
+			DataManagerWrapper.logManagerException(key, e);
 		}
 	}
 }

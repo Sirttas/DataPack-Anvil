@@ -2,9 +2,10 @@ package sirttas.dpanvil.data.network.message;
 
 import com.google.common.collect.Lists;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraftforge.network.NetworkEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.data.DataHandler;
 
 import java.util.Collection;
@@ -20,8 +21,10 @@ public class ReloadDataMessage {
 		messages = Lists.newArrayList();
 	}
 
-	public ReloadDataMessage(Collection<ResourceLocation> managers) {
-		messages = managers.stream().map(DataManagerMessage::new).collect(Collectors.toList());
+	public ReloadDataMessage(Collection<ResourceKey<IDataManager<?>>> managers) {
+		messages = managers.stream()
+				.map(DataManagerMessage::new)
+				.collect(Collectors.toList());
 	}
 
 	public static ReloadDataMessage decode(FriendlyByteBuf buf) {

@@ -1,6 +1,7 @@
 package sirttas.dpanvil.data.network.message;
 
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -13,15 +14,20 @@ import java.util.Map;
 
 public class DataManagerMessage<T> {
 
-	private final ResourceLocation id;
+	private final ResourceKey<IDataManager<T>> key;
 	private final IDataManager<T> manager;
 	private final IJsonDataSerializer<T> serializer;
 	private Map<ResourceLocation, T> data;
 
 	public DataManagerMessage(ResourceLocation id) {
-		this.id = id;
-		this.manager = DataPackAnvil.WRAPPER.getManager(id);
-		this.serializer = DataPackAnvil.WRAPPER.getSerializer(id);
+		this(IDataManager.createManagerKey(id));
+	}
+
+	@SuppressWarnings("unchecked")
+	public DataManagerMessage(ResourceKey<? super IDataManager<T>> key) {
+		this.key = (ResourceKey<IDataManager<T>>) key;
+		this.manager = DataPackAnvil.WRAPPER.getManager(key);
+		this.serializer = DataPackAnvil.WRAPPER.getSerializer(key);
 		this.data = manager.getData();
 	}
 
@@ -34,7 +40,7 @@ public class DataManagerMessage<T> {
 				data.put(buf.readResourceLocation(), serializer.read(buf));
 			}
 		} catch (Exception e) {
-			DataPackAnvilApi.LOGGER.error(() -> "Error while decoding network packet for DataManger " + id, e);
+			DataPackAnvilApi.LOGGER.error(() -> "Error while decoding network packet for DataManger " + key, e);
 		}
 	}
 
@@ -50,11 +56,11 @@ public class DataManagerMessage<T> {
 		try {
 			manager.setData(data);
 		} catch (Exception e) {
-			DataManagerWrapper.logManagerException(id, e);
+			DataManagerWrapper.logManagerException(key, e);
 		}
 	}
 
 	public ResourceLocation getId() {
-		return id;
+		return key.location();
 	}
 }

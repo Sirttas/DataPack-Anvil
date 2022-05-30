@@ -35,4 +35,5 @@ Also I recommend adding dependency in your mod.toml like so:
     side="BOTH"
 ```
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/X8X8CLYPH)
 [![discord](https://i.imgur.com/mANW7ms.png "discord")](https://discord.gg/BFfAmJP "")

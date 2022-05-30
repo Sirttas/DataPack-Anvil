@@ -14,7 +14,9 @@ import java.util.stream.Stream;
  * A wrapper of an object present in a {@link IDataManager}
  *
  * @param <T>
+ * use {@link net.minecraft.core.Holder} instead
  */
+@Deprecated(since = "1.18.2-3.3.3", forRemoval = true)
 public interface IDataWrapper<T> extends Supplier<T> {
 
 	boolean isPresent();

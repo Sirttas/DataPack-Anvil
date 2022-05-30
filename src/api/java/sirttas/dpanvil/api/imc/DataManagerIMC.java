@@ -1,36 +1,46 @@
 package sirttas.dpanvil.api.imc;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
-
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.InterModComms;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 public class DataManagerIMC<T> {
 
 	public static final String METHOD = "data_manager";
 
-	private final ResourceLocation id;
+	private final ResourceKey<IDataManager<T>> key;
 	private final IDataManager<T> manager;
 	private Codec<T> codec;
 	private Function<JsonElement, T> readJson;
 	private Function<FriendlyByteBuf, T> readPacket;
 	private BiConsumer<FriendlyByteBuf, T> writePacket;
 
+	@Deprecated(since = "1.18.2-3.3.3", forRemoval = true)
 	public DataManagerIMC(ResourceLocation id, IDataManager<T> manager) {
-		this.id = id;
+		this(IDataManager.createManagerKey(id), manager);
+	}
+
+	public DataManagerIMC(ResourceKey<IDataManager<T>> key, IDataManager<T> manager) {
+		this.key = key;
 		this.manager = manager;
 	}
 
+	public ResourceKey<IDataManager<T>> getKey() {
+		return key;
+	}
+
+	@Deprecated(since = "1.18.2-3.3.3", forRemoval = true)
 	public ResourceLocation getId() {
-		return id;
+		return key.location();
 	}
 
 	public IDataManager<T> getManager() {
