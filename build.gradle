@@ -255,7 +255,7 @@ if (modrinth_token != null) {
 		versionNumber = project.version
 		versionType = "${release_type}"
 		uploadFile = jar
-		gameVersions = "${minecraft_version}"
+		gameVersions = ["${minecraft_version}"]
 		loaders = ["forge"]
 		changelog = changeLog
 	}
