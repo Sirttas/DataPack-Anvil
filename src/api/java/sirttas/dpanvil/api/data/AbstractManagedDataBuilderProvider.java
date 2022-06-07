@@ -41,11 +41,11 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 
 	protected abstract void collectBuilders();
 
-	protected void add(ResourceKey<T> key, B element) {
+	protected void add(ResourceKey<T> key, B element) { // TODO 1.19 return element
 		add(key.location(), element);
 	}
 
-	protected void add(ResourceLocation id, B element) {
+	protected void add(ResourceLocation id, B element) { // TODO 1.19 return element
 		data.compute(id, (k, v) -> {
 			if (v != null) {
 				throw new IllegalStateException("Duplicate id: " + id + ", manager: " + manager);

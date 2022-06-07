@@ -1,3 +1,8 @@
+1.18.2-3.4.1:
+
+- fix DataPackReloadCompleteEvent not firing
+
+
 1.18.2-3.4.0:
 
 - Added support for vanilla Holder/ResourceKey

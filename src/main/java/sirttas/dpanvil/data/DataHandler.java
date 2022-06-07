@@ -24,7 +24,7 @@ public class DataHandler {
 	
 	static {
 		map.put(RecipesUpdatedEvent.class, false);
-		map.put(TagsUpdatedEvent.class, false);
+		addEvent(TagsUpdatedEvent.class);
 		map.put(DataPackReloadCompleteEvent.class, false);
 	}
 
