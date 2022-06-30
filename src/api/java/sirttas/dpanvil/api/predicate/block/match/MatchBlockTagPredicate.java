@@ -7,16 +7,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
 public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "tag";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<MatchBlockTagPredicate> TYPE = null;
 	public static final Codec<MatchBlockTagPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 			TagKey.codec(Registry.BLOCK_REGISTRY).fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::getTag)
 	).apply(builder, MatchBlockTagPredicate::new));
@@ -42,7 +39,7 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 
 	@Override
 	public BlockPosPredicateType<MatchBlockTagPredicate> getType() {
-		return TYPE;
+		return BlockPosPredicateType.MATCH_TAG.get();
 	}
 
 }

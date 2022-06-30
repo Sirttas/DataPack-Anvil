@@ -4,5 +4,5 @@ import com.mojang.serialization.Codec;
 
 public interface ICodecProvider<T> {
 
-	Codec<T> getCodec();
+	Codec<T> codec();
 }

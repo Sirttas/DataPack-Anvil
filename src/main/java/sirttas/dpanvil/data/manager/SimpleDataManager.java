@@ -2,9 +2,7 @@ package sirttas.dpanvil.data.manager;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -36,23 +34,23 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 		Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
 		int i = this.folder.length() + 1;
 
-		for (ResourceLocation resourcelocation : resourceManager.listResources(this.folder, file -> file.endsWith(".json"))) {
-			String path = resourcelocation.getPath();
-			ResourceLocation resourceId = new ResourceLocation(resourcelocation.getNamespace(), path.substring(i, path.length() - 5));
+		for (var entry : resourceManager.listResources(this.folder, file -> file.getPath().endsWith(".json")).entrySet()) {
+			var resourceLocation = entry.getKey();
+			String path = resourceLocation.getPath();
+			ResourceLocation resourceId = new ResourceLocation(resourceLocation.getNamespace(), path.substring(i, path.length() - 5));
 
-			try (Resource resource = resourceManager.getResource(resourcelocation);
-					InputStream inputstream = resource.getInputStream();
-					Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))) {
 
+			try (InputStream inputstream = entry.getValue().open()){
+				Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
 				JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
 
 				if (jsonelement != null) {
 					map.put(resourceId, jsonelement);
 				} else {
-					DataPackAnvilApi.LOGGER.error("Couldn't load data file {} from {} as it's null or empty", resourceId, resourcelocation);
+					DataPackAnvilApi.LOGGER.error("Couldn't load data file {} from {} as it's null or empty", resourceId, resourceLocation);
 				}
-			} catch (IllegalArgumentException | IOException | JsonParseException e) {
-				DataPackAnvilApi.LOGGER.error("Couldn't parse data file {} from {}", resourceId, resourcelocation, e);
+			} catch (IOException e) {
+				DataPackAnvilApi.LOGGER.error("Couldn't parse data file {} from {}", resourceId, resourceLocation, e);
 			}
 		}
 		return map;

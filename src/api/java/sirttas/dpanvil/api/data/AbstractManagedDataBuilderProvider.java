@@ -2,8 +2,8 @@ package sirttas.dpanvil.api.data;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Encoder;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.HashCache;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.api.codec.CodecHelper;
@@ -31,7 +31,7 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 	}
 
 	@Override
-	public void run(@Nonnull HashCache cache) throws IOException {
+	public void run(@Nonnull CachedOutput cache) throws IOException {
 		collectBuilders();
 		for (Map.Entry<ResourceLocation, B> entry : data.entrySet()) {
 			save(cache, entry.getValue(), entry.getKey());
@@ -55,11 +55,11 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 	}
 
 
-	protected void save(HashCache cache, B element, ResourceKey<T> key) throws IOException {
+	protected void save(CachedOutput cache, B element, ResourceKey<T> key) throws IOException {
 		save(cache, element, key.location());
 	}
 
-	protected void save(HashCache cache, B element, ResourceLocation id) throws IOException {
+	protected void save(CachedOutput cache, B element, ResourceLocation id) throws IOException {
 		save(cache, builder.apply(element), id);
 	}
 

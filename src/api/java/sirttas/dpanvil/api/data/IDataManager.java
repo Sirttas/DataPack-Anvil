@@ -103,16 +103,6 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 */
 	void setData(@Nonnull Map<ResourceLocation, T> map);
 
-	/**
-	 * Get a {@link IDataWrapper} that wrap a value contained in this manager.
-	 * 
-	 * @param id A {@link ResourceLocation} that map a data
-	 * @return A {@link IDataWrapper}
-	 * use {@link IDataManager#getOrCreateHolder(ResourceKey<T>)} instead
-	 */
-	@Nonnull
-	@Deprecated(since = "1.18.2-3.3.3", forRemoval = true)
-	IDataWrapper<T> getWrapper(@Nonnull ResourceLocation id);
 
 	/**
 	 * Get a {@link Holder} that wrap a value contained in this manager.

@@ -27,7 +27,7 @@ import java.util.function.BiPredicate;
 
 public interface IBlockPosPredicate {
 
-	Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(() -> BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::getCodec);
+	Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec);
 	
 	boolean test(LevelReader world, BlockPos pos);
 

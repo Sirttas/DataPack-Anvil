@@ -45,26 +45,23 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 		Map<ResourceLocation, List<JsonElement>> map = Maps.newHashMap();
 		int i = this.folder.length() + 1;
 
-		for (ResourceLocation resourcelocation : resourceManager.listResources(this.folder, file -> file.endsWith(".json"))) {
-			String path = resourcelocation.getPath();
-			ResourceLocation resourceId = new ResourceLocation(resourcelocation.getNamespace(), path.substring(i, path.length() - 5));
+		for (var entry : resourceManager.listResourceStacks(this.folder, file -> file.getPath().endsWith(".json")).entrySet()) {
+			var resourceLocation = entry.getKey();
+			String path = resourceLocation.getPath();
+			ResourceLocation resourceId = new ResourceLocation(resourceLocation.getNamespace(), path.substring(i, path.length() - 5));
 			List<JsonElement> list = Lists.newArrayList();
 
-			try {
-				for (Resource resource : resourceManager.getResources(resourcelocation)) {
-					JsonElement element = getElement(resourcelocation, resourceId, resource);
+			for (Resource resource : entry.getValue()) {
+				JsonElement element = getElement(resourceLocation, resourceId, resource);
 
-					if (element != null) {
-						if (element instanceof JsonObject json && json.has(DPAnvilNames.REPLACE) && json.get(DPAnvilNames.REPLACE).getAsBoolean()) {
-							list.clear();
-						}
-						list.add(element);
-					} else {
-						DataPackAnvilApi.LOGGER.error("Couldn't load data file {} from {} as it's null or empty", resourceId, resourcelocation);
+				if (element != null) {
+					if (element instanceof JsonObject json && json.has(DPAnvilNames.REPLACE) && json.get(DPAnvilNames.REPLACE).getAsBoolean()) {
+						list.clear();
 					}
+					list.add(element);
+				} else {
+					DataPackAnvilApi.LOGGER.error("Couldn't load data file {} from {} as it's null or empty", resourceId, resourceLocation);
 				}
-			} catch (IOException e) {
-				DataPackAnvilApi.LOGGER.error("Couldn't parse data file {} from {}", resourceId, resourcelocation, e);
 			}
 			map.put(resourceId, list);
 		}
@@ -72,7 +69,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 	}
 
 	public static JsonElement getElement(ResourceLocation resourcelocation, ResourceLocation resourceId, Resource resource) {
-		try (InputStream inputstream = resource.getInputStream(); Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))) {
+		try (InputStream inputstream = resource.open(); Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))) {
 			return GsonHelper.fromJson(GSON, reader, JsonElement.class);
 		} catch (IllegalArgumentException | IOException | JsonParseException e) {
 			DataPackAnvilApi.LOGGER.error("Couldn't parse data file {} from {}", resourceId, resourcelocation, e);

@@ -204,7 +204,8 @@ def curseforge_key = System.getenv("CURSEFORGE_KEY") ?: project.findProperty("cu
 def modrinth_token = System.getenv("MODRINTH_TOKEN") ?: project.findProperty("modrinth_token")
 def changeLog
 
-if (curseforge_key  != null || modrinth_token != null) {
+
+if (curseforge_key != null || modrinth_token != null) {
 	def generatedChangelog = ""
 	def changeStart = false
 	def changeEnd = false
@@ -242,6 +243,8 @@ if (curseforge_key != null) {
 		}
 	}
 }
+
+
 
 if (modrinth_token != null) {
 	modrinth {

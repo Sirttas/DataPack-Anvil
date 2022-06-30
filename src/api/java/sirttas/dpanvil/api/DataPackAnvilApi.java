@@ -41,4 +41,11 @@ public class DataPackAnvilApi {
 			throw new IllegalStateException("Reflection error", e);
 		}
 	}
+
+	public static ResourceLocation createRL(String name) {
+		if (name.contains(":")) {
+			return new ResourceLocation(name);
+		}
+		return new ResourceLocation(DataPackAnvilApi.MODID, name);
+	}
 }

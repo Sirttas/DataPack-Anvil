@@ -5,9 +5,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.Codecs;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
@@ -18,7 +16,6 @@ import java.util.List;
 public final class MatchBlocksPredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "blocks";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<MatchBlocksPredicate> TYPE = null;
 	public static final Codec<MatchBlocksPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 			Codecs.BLOCK.listOf().fieldOf(DPAnvilNames.BLOCKS).forGetter(MatchBlocksPredicate::getBlocks)
 	).apply(builder, MatchBlocksPredicate::new));
@@ -44,7 +41,7 @@ public final class MatchBlocksPredicate implements IBlockStatePredicate {
 
 	@Override
 	public BlockPosPredicateType<MatchBlocksPredicate> getType() {
-		return TYPE;
+		return BlockPosPredicateType.MATCH_BLOCKS.get();
 	}
 
 	@Override

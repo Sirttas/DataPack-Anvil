@@ -3,8 +3,6 @@ package sirttas.dpanvil.api.predicate.block.logical;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
-import net.minecraftforge.registries.ObjectHolder;
-import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
@@ -15,7 +13,6 @@ import java.util.stream.Stream;
 public final class AndBlockPredicate extends AbstractListBlockPredicate {
 
 	public static final String NAME = "and";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<AndBlockPredicate> TYPE = null;
 	public static final Codec<AndBlockPredicate> CODEC = codec(AndBlockPredicate::new);
 
 	public AndBlockPredicate(IBlockPosPredicate... predicates) {
@@ -33,7 +30,7 @@ public final class AndBlockPredicate extends AbstractListBlockPredicate {
 
 	@Override
 	public BlockPosPredicateType<AndBlockPredicate> getType() {
-		return TYPE;
+		return BlockPosPredicateType.AND.get();
 	}
 
 	@Override

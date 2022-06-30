@@ -1,15 +1,14 @@
 package sirttas.dpanvil.data.network.message;
 
 
-
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
-import sirttas.dpanvil.DataPackAnvil;
+import sirttas.dpanvil.api.DataPackAnvilApi;
 
 public class MessageHandler {
 
 	private static final String PROTOCOL_VERSION = "1";
-	public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(DataPackAnvil.createRL("main"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals,
+	public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(DataPackAnvilApi.createRL("main"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals,
 			PROTOCOL_VERSION::equals);
 
 	private MessageHandler() {}

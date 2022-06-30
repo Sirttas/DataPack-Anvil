@@ -4,9 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
-import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
@@ -15,7 +13,6 @@ public record NotBlockPredicate(
 ) implements IBlockPosPredicate {
 
 	public static final String NAME = "not";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME)
 	public static final BlockPosPredicateType<NotBlockPredicate> TYPE = null;
 	public static final Codec<NotBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 			IBlockPosPredicate.CODEC.fieldOf(DPAnvilNames.VALUE).forGetter(NotBlockPredicate::predicate)
@@ -28,7 +25,7 @@ public record NotBlockPredicate(
 
 	@Override
 	public BlockPosPredicateType<NotBlockPredicate> getType() {
-		return TYPE;
+		return BlockPosPredicateType.NOT.get();
 	}
 
 	@Override

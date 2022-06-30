@@ -5,9 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelReader;
-import net.minecraftforge.registries.ObjectHolder;
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
@@ -19,8 +17,6 @@ public record OffsetBlockPredicate(
 ) implements IBlockPosPredicate {
 
 	public static final String NAME = "offset";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME)
-	public static final BlockPosPredicateType<OffsetBlockPredicate> TYPE = null;
 	public static final Codec<OffsetBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
 			IBlockPosPredicate.CODEC.fieldOf(DPAnvilNames.VALUE).forGetter(OffsetBlockPredicate::predicate),
 			Vec3i.CODEC.fieldOf(DPAnvilNames.OFFSET).forGetter(OffsetBlockPredicate::offset)
@@ -38,7 +34,7 @@ public record OffsetBlockPredicate(
 
 	@Override
 	public BlockPosPredicateType<OffsetBlockPredicate> getType() {
-		return TYPE;
+		return BlockPosPredicateType.OFFSET.get();
 	}
 
 	@Override

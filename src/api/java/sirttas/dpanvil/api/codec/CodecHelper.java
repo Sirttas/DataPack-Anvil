@@ -15,13 +15,16 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapDecoder;
 import com.mojang.serialization.MapEncoder;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.registries.RegistryManager;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 
 import java.util.Map.Entry;
@@ -41,13 +44,12 @@ public class CodecHelper {
 	 * @param supplier a {@link Supplier} for the {@link IForgeRegistry}
 	 * @return a Codec
 	 */
-	public static <T extends IForgeRegistryEntry<T>> Codec<T> getRegistryCodec(Supplier<IForgeRegistry<T>> supplier) {
-		return ResourceLocation.CODEC.comapFlatMap(id -> {
-			IForgeRegistry<T> registry = supplier.get();
-			T value = registry.getValue(id);
-			
-			return value != null ? DataResult.success(value) : DataResult.error(id.toString() + " is not present in registry: " + registry.getRegistryName().toString());
-		}, IForgeRegistryEntry::getRegistryName);
+	public static <T> Codec<T> getRegistryCodec(Supplier<IForgeRegistry<T>> supplier) {
+		return ExtraCodecs.lazyInitializedCodec(Lazy.of(() -> supplier.get().getCodec()));
+	}
+
+	public static <T> Codec<T> getRegistryCodec(ResourceKey<Registry<T>> key) {
+		return getRegistryCodec(() -> RegistryManager.ACTIVE.getRegistry(key));
 	}
 
 	public static <K, V> Codec<Multimap<K, V>> multiMapCodec(Codec<K> keyCodec, Codec<V> valueCodec) {

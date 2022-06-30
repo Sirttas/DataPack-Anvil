@@ -11,7 +11,6 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraftforge.common.MinecraftForge;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
-import sirttas.dpanvil.api.data.IDataWrapper;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
 import javax.annotation.Nonnull;
@@ -26,7 +25,6 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	
 	private final Class<T> contentType;
 	private final Function<ResourceLocation, T> defaultValueFactory;
-	private final Map<ResourceLocation, DefaultDataWrapper<T>> wrappers;
 	private final Map<ResourceLocation, DataReference<T>> references;
 	private BiMap<ResourceLocation, T> data;
 	protected final String folder;
@@ -39,7 +37,6 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 		this.idSetter = idSetter;
 		this.folder = folder;
 		this.data = ImmutableBiMap.of();
-		this.wrappers = new HashMap<>();
 		this.references = new HashMap<>();
 	}
 
@@ -52,7 +49,6 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	public void setData(@Nonnull Map<ResourceLocation, T> map) {
 		map.forEach((loc, value) -> idSetter.accept(value, loc));
 		data = ImmutableBiMap.copyOf(map);
-		this.wrappers.values().forEach(w -> w.set(this.get(w.getId())));
 		rebindReferences();
 		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), key);
 		MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(this));
@@ -76,16 +72,6 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 			return value;
 		}
 		return defaultValueFactory.apply(id);
-	}
-
-	@Override
-	public @Nonnull IDataWrapper<T> getWrapper(@Nonnull ResourceLocation id) {
-		return this.wrappers.computeIfAbsent(id, i -> {
-			DefaultDataWrapper<T> wrapper = new DefaultDataWrapper<>(id);
-			
-			wrapper.set(this.get(id));
-			return wrapper;
-		});
 	}
 
 	@Override

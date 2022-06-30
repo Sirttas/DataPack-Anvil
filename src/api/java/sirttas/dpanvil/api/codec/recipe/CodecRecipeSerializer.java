@@ -6,13 +6,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
 import javax.annotation.Nonnull;
 import java.util.function.BiConsumer;
 
-public class CodecRecipeSerializer<T extends Recipe<?>> extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<T> {
+public class CodecRecipeSerializer<T extends Recipe<?>> implements RecipeSerializer<T> {
 
 	private final Codec<T> codec;
 	private final BiConsumer<T, ResourceLocation> idSetter;

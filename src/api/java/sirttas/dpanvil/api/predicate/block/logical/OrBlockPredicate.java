@@ -4,8 +4,6 @@ import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
-import net.minecraftforge.registries.ObjectHolder;
-import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
@@ -18,7 +16,6 @@ import java.util.stream.Stream;
 public final class OrBlockPredicate extends AbstractListBlockPredicate {
 
 	public static final String NAME = "or";
-	@ObjectHolder(DataPackAnvilApi.MODID + ":" + NAME) public static final BlockPosPredicateType<OrBlockPredicate> TYPE = null;
 	public static final Codec<OrBlockPredicate> CODEC = codec(OrBlockPredicate::new);
 
 	public OrBlockPredicate(IBlockPosPredicate... predicates) {
@@ -36,7 +33,7 @@ public final class OrBlockPredicate extends AbstractListBlockPredicate {
 
 	@Override
 	public BlockPosPredicateType<OrBlockPredicate> getType() {
-		return TYPE;
+		return BlockPosPredicateType.OR.get();
 	}
 
 	@Override
