@@ -25,6 +25,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.minecraft.server.packs.resources.PreparableReloadListener.PreparationBarrier;
+
 @SuppressWarnings("unchecked")
 public class DataManagerWrapper implements PreparableReloadListener {
 
