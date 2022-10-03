@@ -203,7 +203,7 @@ if (use_modmaven || use_elemental_craft_repo) {
 def curseforge_key = System.getenv("CURSEFORGE_KEY") ?: project.findProperty("curseforge_key")
 def modrinth_token = System.getenv("MODRINTH_TOKEN") ?: project.findProperty("modrinth_token")
 def changeLog
-
+def releaseVersions = List.of(project.getProperty("release_versions").split(","))
 
 if (curseforge_key != null || modrinth_token != null) {
 	def generatedChangelog = ""
@@ -239,7 +239,7 @@ if (curseforge_key != null) {
 			changelog = changeLog
 			releaseType = "${release_type}"
 			mainArtifact(jar) { }
-			addGameVersion "${minecraft_version}"
+			releaseVersions.each { v -> addGameVersion(v) }
 		}
 	}
 }
@@ -253,7 +253,7 @@ if (modrinth_token != null) {
 		versionNumber = project.version
 		versionType = "${release_type}"
 		uploadFile = jar
-		gameVersions = ["${minecraft_version}"]
+		gameVersions = releaseVersions
 		loaders = ["forge"]
 		changelog = changeLog
 	}

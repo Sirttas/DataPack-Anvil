@@ -4,7 +4,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.DataPackAnvil;
-import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
@@ -40,16 +39,22 @@ public class DataManagerMessage<T> {
 				data.put(buf.readResourceLocation(), serializer.read(buf));
 			}
 		} catch (Exception e) {
-			DataPackAnvilApi.LOGGER.error(() -> "Error while decoding network packet for DataManger " + key, e);
+			throw new IllegalStateException("Error while decoding network packet for DataManger " + key, e);
 		}
 	}
 
 	public void encode(FriendlyByteBuf buf) {
 		buf.writeInt(data.size());
-		data.forEach((loc, prop) -> {
+		data.forEach((loc, prop) -> encodeSingleData(buf, loc, prop));
+	}
+
+	private void encodeSingleData(FriendlyByteBuf buf, ResourceLocation loc, T prop) {
+		try {
 			buf.writeResourceLocation(loc);
 			serializer.write(prop, buf);
-		});
+		} catch (Exception e) {
+			throw new IllegalStateException("Error while encoding network packet for DataManger " + key + ", " + loc + " has invalid data", e);
+		}
 	}
 
 	public void process() {

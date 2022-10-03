@@ -16,6 +16,7 @@ import sirttas.dpanvil.api.DPAnvilNames;
 
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 @SuppressWarnings({"deprecation"})
 public class Codecs {
@@ -25,6 +26,7 @@ public class Codecs {
 	public static final Codec<Enchantment> ENCHANTMENT = Registry.ENCHANTMENT.byNameCodec();
 	public static final Codec<Attribute> ATTRIBUTE = Registry.ATTRIBUTE.byNameCodec();
 	public static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
+	public static final Codec<Pattern> PATTERN = Codec.STRING.xmap(Pattern::compile, Pattern::pattern);
 	public static final Codec<EquipmentSlot> EQUIPMENT_SLOT_TYPE = Codec.STRING.xmap(EquipmentSlot::byName, EquipmentSlot::getName);
 
 	/**

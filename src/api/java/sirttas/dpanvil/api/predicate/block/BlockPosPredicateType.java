@@ -8,6 +8,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.ApiStatus;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.ICodecProvider;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
@@ -48,7 +49,7 @@ public record BlockPosPredicateType<T extends IBlockPosPredicate>(Codec<T> codec
 	/**
 	 * For internal use only.
 	 */
-	@Deprecated
+	@ApiStatus.Internal
 	public static void register(IEventBus bus) {
 		DEFERRED_REGISTRY.register(bus);
 	}

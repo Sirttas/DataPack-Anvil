@@ -15,11 +15,14 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapDecoder;
 import com.mojang.serialization.MapEncoder;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraftforge.common.util.Lazy;
@@ -27,6 +30,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryManager;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -35,8 +39,14 @@ import java.util.stream.Collectors;
 
 public class CodecHelper {
 
+	private static final Map<DynamicOps<?>, RegistryOps<?>> REGISTRY_OPS = new Reference2ObjectOpenHashMap<>();
+
 	private CodecHelper() {}
-	
+
+	public static synchronized  <T> RegistryOps<T> getRegistryOps(DynamicOps<T> ops) {
+		return (RegistryOps<T>) REGISTRY_OPS.computeIfAbsent(ops, o -> RegistryOps.create(o, RegistryAccess.builtinCopy()));
+	}
+
 	/**
 	 * Get a codec for a {@link IForgeRegistry}
 	 * 
@@ -108,7 +118,7 @@ public class CodecHelper {
 	}
 
 	public static <T> T decode(Decoder<T> decoder, JsonElement json) {
-		return decode(decoder, JsonOps.INSTANCE, json);
+		return decode(decoder, getRegistryOps(JsonOps.INSTANCE), json);
 	}
 
 	public static <T> T decode(Decoder<T> decoder, FriendlyByteBuf buf) {
@@ -116,7 +126,7 @@ public class CodecHelper {
 	}
 
 	public static <T> T decode(Decoder<T> decoder, Tag nbt) {
-		return decode(decoder, NbtOps.INSTANCE, nbt);
+		return decode(decoder, getRegistryOps(NbtOps.INSTANCE), nbt);
 	}
 
 	public static <T, U> T decode(Decoder<T> decoder, DynamicOps<U> ops, U input) {
@@ -124,7 +134,8 @@ public class CodecHelper {
 	}
 
 	public static <T> void encode(Encoder<T> encoder, T data, FriendlyByteBuf buf) {
-		Tag nbt = handleResult(encoder.encode(data, NbtOps.INSTANCE, NbtOps.INSTANCE.empty()));
+		var ops = getRegistryOps(NbtOps.INSTANCE);
+		Tag nbt = handleResult(encoder.encode(data, ops, ops.empty()));
 
 		if (nbt instanceof CompoundTag compoundTag) {
 			buf.writeNbt(compoundTag);
@@ -134,7 +145,7 @@ public class CodecHelper {
 	}
 
 	public static <T> JsonElement encode(Encoder<T> encoder, T data) {
-		return encode(encoder, JsonOps.INSTANCE, data);
+		return encode(encoder, getRegistryOps(JsonOps.INSTANCE), data);
 	}
 
 	public static <T, U> U encode(Encoder<T> encoder, DynamicOps<U> ops, T data) {

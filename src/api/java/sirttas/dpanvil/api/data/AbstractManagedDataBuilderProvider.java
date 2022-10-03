@@ -2,10 +2,16 @@ package sirttas.dpanvil.api.data;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Encoder;
+import com.mojang.serialization.JsonOps;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
 import javax.annotation.Nonnull;
@@ -17,11 +23,11 @@ import java.util.function.Function;
 public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractManagedDataProvider<T> {
 
 	private final Function<B, JsonElement> builder;
-
 	private final Map<ResourceLocation, B> data;
+	private static final RegistryOps<JsonElement> REGISTRY_OPS = RegistryOps.create(JsonOps.INSTANCE, RegistryAccess.builtinCopy());
 
 	protected AbstractManagedDataBuilderProvider(DataGenerator generator, IDataManager<T> manager, Encoder<B> encoder) {
-		this(generator, manager, b -> CodecHelper.encode(encoder, b));
+		this(generator, manager, b -> CodecHelper.encode(encoder, REGISTRY_OPS, b));
 	}
 
 	protected AbstractManagedDataBuilderProvider(DataGenerator generator, IDataManager<T> manager, Function<B, JsonElement> builder) {
@@ -41,12 +47,12 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 
 	protected abstract void collectBuilders();
 
-	protected void add(ResourceKey<T> key, B element) { // TODO 1.19 return element
-		add(key.location(), element);
+	protected B add(ResourceKey<T> key, B element) {
+		return add(key.location(), element);
 	}
 
-	protected void add(ResourceLocation id, B element) { // TODO 1.19 return element
-		data.compute(id, (k, v) -> {
+	protected B add(ResourceLocation id, B element) {
+		return data.compute(id, (k, v) -> {
 			if (v != null) {
 				throw new IllegalStateException("Duplicate id: " + id + ", manager: " + manager);
 			}
@@ -60,7 +66,20 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 	}
 
 	protected void save(CachedOutput cache, B element, ResourceLocation id) throws IOException {
-		save(cache, builder.apply(element), id);
+		try {
+			save(cache, builder.apply(element), id);
+		} catch (Exception e) {
+			throw new IllegalStateException("Error saving data: " + id + ", manager: " + manager, e);
+		}
+	}
+
+	@Nonnull
+	protected <U> Registry<U> getRegistry(ResourceKey<? extends Registry<U>> registry) {
+		return REGISTRY_OPS.registry(registry).orElseThrow(() -> new IllegalStateException("Registry " + registry + " not found"));
+	}
+
+	public <U> HolderSet<U> createHolderSet(TagKey<U> tag) {
+		return getRegistry(tag.registry()).getOrCreateTag(tag);
 	}
 
 }
