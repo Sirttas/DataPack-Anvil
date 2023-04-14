@@ -12,6 +12,6 @@ description='''A library mod to create datapack driven mods.'''
 [[dependencies.dpanvil]]
     modId="forge"
     mandatory=true
-    versionRange="[43.1.30,)"
+    versionRange="[43.2.3,)"
     ordering="NONE"
     side="BOTH"

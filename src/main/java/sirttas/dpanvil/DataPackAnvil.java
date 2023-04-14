@@ -11,6 +11,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.api.data.remap.RemapKeys;
 import sirttas.dpanvil.api.event.DataPackReloadCompleteEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
@@ -45,6 +46,7 @@ public class DataPackAnvil {
 	}
 
 	private void processIMC(InterModProcessEvent event) {
+		WRAPPER.putManagerFromIMC(() -> new DataManagerIMC<>(DataPackAnvilApi.REMAP_KEYS_MANAGER_KEY, DataPackAnvilApi.REMAP_KEYS_MANAGER).withCodec(RemapKeys.CODEC));
 		event.getIMCStream(DataManagerIMC.METHOD::equals).forEach(message -> WRAPPER.putManagerFromIMC(message.messageSupplier()));
 	}
 

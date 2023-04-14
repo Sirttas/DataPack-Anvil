@@ -49,15 +49,15 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 	/**
 	 * The {@link Class} used to define the type of managed data
-	 * 
+	 *
 	 * @return The {@link Class} used to define the type of managed data
 	 */
 	@Nonnull
 	Class<T> getContentType();
-	
+
 	/**
 	 * The folder where the data are found in the datapack
-	 * 
+	 *
 	 * @return The folder where the data are found in the datapack
 	 */
 	@Nonnull
@@ -86,7 +86,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 	/**
 	 * Retrieve the {@link Map} of data handled by this manager. it may be immutable
-	 * 
+	 *
 	 * @return a map of the data
 	 * @see #setData(Map)
 	 * @see ImmutableMap
@@ -97,12 +97,11 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	/**
 	 * Set the {@link Map} of data handled by this manager. It will be changed to an
 	 * {@link ImmutableMap} and post a {@link DataManagerReloadEvent}
-	 * 
+	 *
 	 * @param map the new data {@link Map}
 	 * @see #getData()
 	 */
 	void setData(@Nonnull Map<ResourceLocation, T> map);
-
 
 	/**
 	 * Get a {@link Holder} that wrap a value contained in this manager.
@@ -114,10 +113,10 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	default Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
 		return Holder.direct(get(key.location()));
 	}
-	
+
 	/**
 	 * Get data mapped by the id
-	 * 
+	 *
 	 * @param id A {@link ResourceLocation} that map a data
 	 * @return The corresponding data
 	 */
@@ -128,7 +127,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 	/**
 	 * Get data mapped by the id or a default value
-	 * 
+	 *
 	 * @param id           A {@link ResourceLocation} that map a data
 	 * @param defaultValue the default value
 	 * @return The corresponding data or the default value
@@ -140,7 +139,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 	/**
 	 * Get an {@link Optional} of a data mapped by the id
-	 * 
+	 *
 	 * @param id A {@link ResourceLocation} that map a data
 	 * @return an {@link Optional} of the corresponding data or an empty {@link Optional}
 	 */
@@ -148,10 +147,10 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	default Optional<T> getOptional(@Nonnull ResourceLocation id) {
 		return Optional.ofNullable(get(id));
 	}
-	
+
 	/**
 	 * Get the ID for a value
-	 * 
+	 *
 	 * @param value the value to search
 	 * @return the id used for this value
 	 */
@@ -162,7 +161,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 	/**
 	 * get a list of {@link T} corresponding to each of the ids in a collection
-	 * 
+	 *
 	 * @param ids the ids to use
 	 * @return the list of corresponding data
 	 */
@@ -191,13 +190,12 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	default <U> DataResult<U> encode(final T input, final DynamicOps<U> ops, final U prefix) {
 		return ResourceLocation.CODEC.encode(getId(input), ops, prefix);
     }
-	
+
 	@Override
 	default <U> Stream<U> keys(DynamicOps<U> dynOps) {
 		return getData().keySet().stream().map(id -> dynOps.createString(id.toString()));
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	@Nonnull
 	static <T> Builder<T> builder(@Nonnull Class<T> type, @Nonnull String folder) {
 		return DataPackAnvilApi.service().createDataManagerBuilder(type, folder);
@@ -212,9 +210,9 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 		}
 
 		Builder<T> withDefault(Function<ResourceLocation, T> factory);
-		
+
 		<R> Builder<T> merged(Function<Stream<R>, T> merger, Function<JsonElement, R> rawParser);
-		
+
 		default <R> Builder<T> merged(Function<Stream<R>, T> merger, Decoder<R> rawDecoder) {
 			return this.merged(merger, json -> CodecHelper.decode(rawDecoder, json));
 		}
@@ -222,7 +220,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 		default Builder<T> merged(Function<Stream<T>, T> merger) {
 			return this.merged(merger, (Function<JsonElement, T>) null);
 		}
-		
+
 		IDataManager<T> build();
 	}
 }

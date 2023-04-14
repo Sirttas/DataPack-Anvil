@@ -14,6 +14,7 @@ import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
 import javax.annotation.Nonnull;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -27,6 +28,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	private final Function<ResourceLocation, T> defaultValueFactory;
 	private final Map<ResourceLocation, DataReference<T>> references;
 	private BiMap<ResourceLocation, T> data;
+	private Map<ResourceLocation, T> remapedData;
 	protected final String folder;
 	protected final BiConsumer<T, ResourceLocation> idSetter;
 	protected ResourceKey<IDataManager<T>> key;
@@ -38,6 +40,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 		this.folder = folder;
 		this.data = ImmutableBiMap.of();
 		this.references = new HashMap<>();
+		this.remapedData = Collections.emptyMap();
 	}
 
 	@Override
@@ -48,7 +51,22 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	@Override
 	public void setData(@Nonnull Map<ResourceLocation, T> map) {
 		map.forEach((loc, value) -> idSetter.accept(value, loc));
+		if (this != DataPackAnvilApi.REMAP_KEYS_MANAGER) {
+			var remap = new HashMap<ResourceLocation, T>();
+
+			DataPackAnvilApi.REMAP_KEYS_MANAGER.get(this.key.location()).keys().forEach((k, v) -> {
+				var value = map.get(v);
+
+				if (value != null) {
+					remap.put(k, value);
+				}
+			});
+			remapedData = Map.copyOf(remap);
+		} else {
+			remapedData = Collections.emptyMap();
+		}
 		data = ImmutableBiMap.copyOf(map);
+
 		rebindReferences();
 		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), key);
 		MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(this));
@@ -68,6 +86,11 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	public T get(@Nonnull ResourceLocation id) {
 		T value = data.get(id);
 
+		if (value != null) {
+			return value;
+		}
+
+		value = remapedData.get(id);
 		if (value != null) {
 			return value;
 		}

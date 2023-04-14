@@ -5,6 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sirttas.dpanvil.api.data.IDataManager;
+import sirttas.dpanvil.api.data.remap.RemapKeys;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -16,8 +18,14 @@ public class DataPackAnvilApi {
 	public static final ResourceLocation ID_NONE = new ResourceLocation(MODID, "none");
 	public static final ResourceLocation DATA_MANAGER_ROOT = new ResourceLocation(MODID, "data_managers");
 
+	public static final ResourceKey<IDataManager<RemapKeys>> REMAP_KEYS_MANAGER_KEY = IDataManager.createManagerKey(new ResourceLocation(MODID, RemapKeys.NAME));
+	public static final IDataManager<RemapKeys> REMAP_KEYS_MANAGER = IDataManager.builder(RemapKeys.class, RemapKeys.FOLDER)
+			.merged(RemapKeys::merge)
+			.withDefault(RemapKeys.EMPTY)
+			.build();
+
 	private static IDataPackAnvilService service;
-	
+
 	private DataPackAnvilApi() {}
 
 	public static synchronized IDataPackAnvilService service() {
