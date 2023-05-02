@@ -1,10 +1,13 @@
 package sirttas.dpanvil.api.predicate.block;
 
-import java.util.function.Predicate;
-
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.state.BlockState;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 public interface IBlockStatePredicate extends IBlockPosPredicate {
 
@@ -15,7 +18,7 @@ public interface IBlockStatePredicate extends IBlockPosPredicate {
 	}
 
 	@Override
-	default boolean test(LevelReader world, BlockPos pos) {
-		return test(world.getBlockState(pos));
+	default boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
+		return test(level.getBlockState(pos));
 	}
 }

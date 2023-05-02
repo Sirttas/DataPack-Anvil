@@ -111,7 +111,18 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 */
 	@Nonnull
 	default Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
-		return Holder.direct(get(key.location()));
+		return Holder.direct(get(key));
+	}
+
+	/**
+	 * Get data mapped by the id
+	 *
+	 * @param key A {@link ResourceKey<T>} that map a data
+	 * @return The corresponding data
+	 */
+	@Nullable
+	default T get(@Nonnull ResourceKey<T> key) {
+		return getData().get(key.location());
 	}
 
 	/**

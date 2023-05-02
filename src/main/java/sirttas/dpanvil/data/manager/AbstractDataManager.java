@@ -100,7 +100,9 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	@Override
 	@Nonnull
 	public  Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
-		return this.references.computeIfAbsent(key.location(), i -> new DataReference<>(this, key, this.get(i)));
+		synchronized (this.references) {
+			return this.references.computeIfAbsent(key.location(), i -> new DataReference<>(this, key, this.get(i)));
+		}
 	}
 	
 	@Override
@@ -113,11 +115,13 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	}
 
 	private void rebindReferences() {
-		this.references.values().forEach(r -> {
-			var l = r.key().location();
+		synchronized (this.references) {
+			this.references.values().forEach(r -> {
+				var l = r.key().location();
 
-			r.bind(createKey(l), this.get(l));
-		});
+				r.bind(createKey(l), this.get(l));
+			});
+		}
 	}
 
 	@Nonnull

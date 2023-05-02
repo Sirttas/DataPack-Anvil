@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.InterModComms;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
@@ -24,11 +23,6 @@ public class DataManagerIMC<T> {
 	private Function<FriendlyByteBuf, T> readPacket;
 	private BiConsumer<FriendlyByteBuf, T> writePacket;
 
-	@Deprecated(since = "1.18.2-3.3.3", forRemoval = true)
-	public DataManagerIMC(ResourceLocation id, IDataManager<T> manager) {
-		this(IDataManager.createManagerKey(id), manager);
-	}
-
 	public DataManagerIMC(ResourceKey<IDataManager<T>> key, IDataManager<T> manager) {
 		this.key = key;
 		this.manager = manager;
@@ -36,11 +30,6 @@ public class DataManagerIMC<T> {
 
 	public ResourceKey<IDataManager<T>> getKey() {
 		return key;
-	}
-
-	@Deprecated(since = "1.18.2-3.3.3", forRemoval = true)
-	public ResourceLocation getId() {
-		return key.location();
 	}
 
 	public IDataManager<T> getManager() {

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tags.TagKey;
@@ -20,20 +21,29 @@ import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockStatePredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockTagPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
+import sirttas.dpanvil.api.predicate.block.world.CacheBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.BiPredicate;
 
 public interface IBlockPosPredicate {
 
 	Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec);
-	
-	boolean test(LevelReader world, BlockPos pos);
+
+	@Deprecated(since = "1.19.2-4.3.3", forRemoval = true)
+	default boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos) { // TODO remove in 1.20
+		return test(level, pos, null);
+	}
+
+	boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction);
 
 	BlockPosPredicateType<? extends IBlockPosPredicate> getType();
 
-	default BiPredicate<LevelReader, BlockPos> asBlockPosPredicate() {
+	@Deprecated(since = "1.19.2-4.3.3", forRemoval = true)
+	default BiPredicate<LevelReader, BlockPos> asBlockPosPredicate() { // TODO remove in 1.20
 		return this::test;
 	}
 
@@ -58,7 +68,15 @@ public interface IBlockPosPredicate {
     default IBlockPosPredicate offset(Vec3i offset) {
         return new OffsetBlockPredicate(this, offset);
     }
-	
+
+	default IBlockPosPredicate offset(int x, int y, int z) {
+		return offset(new BlockPos(x, y, z));
+	}
+
+	default IBlockPosPredicate cache() {
+		return new CacheBlockPredicate(this);
+	}
+
 	static IBlockPosPredicate any() {
 		return AnyBlockPredicate.get();
 	}

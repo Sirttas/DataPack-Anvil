@@ -2,6 +2,7 @@ package sirttas.dpanvil.api.data.remap;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Encoder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 
@@ -40,6 +41,10 @@ public record RemapKeys(Map<ResourceLocation, ResourceLocation> keys) {
         public Builder add(ResourceLocation key, ResourceLocation value) {
             keys.put(key, value);
             return this;
+        }
+
+        public Builder add(ResourceLocation key, ResourceKey<?> value) {
+            return add(key, value.location());
         }
 
         public Builder addAll(Map<ResourceLocation, ResourceLocation> keys) {

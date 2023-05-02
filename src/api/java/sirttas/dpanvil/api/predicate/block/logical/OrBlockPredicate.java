@@ -3,12 +3,15 @@ package sirttas.dpanvil.api.predicate.block.logical;
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelReader;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -27,8 +30,8 @@ public final class OrBlockPredicate extends AbstractListBlockPredicate {
 	}
 
 	@Override
-	public boolean test(LevelReader world, BlockPos pos) {
-		return predicates.stream().anyMatch(predicate -> predicate.test(world, pos));
+	public boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
+		return predicates.stream().anyMatch(predicate -> predicate.test(level, pos, direction));
 	}
 
 	@Override

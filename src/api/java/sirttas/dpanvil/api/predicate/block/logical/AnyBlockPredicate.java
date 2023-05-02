@@ -2,9 +2,13 @@ package sirttas.dpanvil.api.predicate.block.logical;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelReader;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class AnyBlockPredicate implements IBlockPosPredicate {
 
@@ -15,7 +19,7 @@ public final class AnyBlockPredicate implements IBlockPosPredicate {
 	private AnyBlockPredicate() {}
 
 	@Override
-	public boolean test(LevelReader world, BlockPos pos) {
+	public boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
 		return true;
 	}
 

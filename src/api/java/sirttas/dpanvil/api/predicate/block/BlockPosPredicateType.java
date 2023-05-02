@@ -20,6 +20,7 @@ import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockStatePredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockTagPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
+import sirttas.dpanvil.api.predicate.block.world.CacheBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 
 import java.util.function.Supplier;
@@ -41,6 +42,7 @@ public record BlockPosPredicateType<T extends IBlockPosPredicate>(Codec<T> codec
 	public static final RegistryObject<BlockPosPredicateType<MatchBlockTagPredicate>> MATCH_TAG = register(MatchBlockTagPredicate.CODEC, MatchBlockTagPredicate.NAME);
 	public static final RegistryObject<BlockPosPredicateType<MatchBlockStatePredicate>> MATCH_STATE = register(MatchBlockStatePredicate.CODEC, MatchBlockStatePredicate.NAME);
 	public static final RegistryObject<BlockPosPredicateType<OffsetBlockPredicate>> OFFSET = register(OffsetBlockPredicate.CODEC, OffsetBlockPredicate.NAME);
+	public static final RegistryObject<BlockPosPredicateType<CacheBlockPredicate>> CACHE = register(CacheBlockPredicate.CODEC, CacheBlockPredicate.NAME);
 
 	private static <T extends IBlockPosPredicate> RegistryObject<BlockPosPredicateType<T>> register(Codec<T> codec, String name) {
 		return DEFERRED_REGISTRY.register(name, () -> new BlockPosPredicateType<>(codec));

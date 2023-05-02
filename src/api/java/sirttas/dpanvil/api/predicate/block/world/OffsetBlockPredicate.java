@@ -3,6 +3,7 @@ package sirttas.dpanvil.api.predicate.block.world;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelReader;
 import sirttas.dpanvil.api.DPAnvilNames;
@@ -10,6 +11,9 @@ import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.NoneBlockPredicate;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public record OffsetBlockPredicate(
 		IBlockPosPredicate predicate,
@@ -23,8 +27,8 @@ public record OffsetBlockPredicate(
 	).apply(builder, OffsetBlockPredicate::new));
 
 	@Override
-	public boolean test(LevelReader world, BlockPos pos) {
-		return predicate.test(world, pos.offset(offset));
+	public boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
+		return predicate.test(level, pos.offset(offset), direction);
 	}
 
 	@Override

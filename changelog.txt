@@ -1,3 +1,11 @@
+1.19.2-4.4.0:
+
+- added a getter that takes a ResourceKey in IDataManager
+- added a new block pos predicate that chache block entity for subsequent predicates
+- IBlockPosPredicate is now side aware
+- fix a crash when accessing data during lading
+
+
 1.19.2-4.3.2:
 
 - added remap key data manager
