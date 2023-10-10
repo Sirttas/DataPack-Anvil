@@ -1,9 +1,11 @@
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
+
 plugins {
     id 'java'
     id 'eclipse'
 	id 'maven-publish'
 	id "org.sonarqube" version "${sonar_version}"
-	id "com.matthewprenger.cursegradle" version '1.4.+'
+	id 'net.darkhax.curseforgegradle' version '1.1.16'
 	id "com.modrinth.minotaur" version "2.+"
 	id 'net.neoforged.gradle' version '6.0.+'
 	id 'org.parchmentmc.librarian.forgegradle' version '1.+'
@@ -92,7 +94,7 @@ repositories {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${forge_version}"
+    minecraft "net.neoforged:forge:${forge_version}"
 }
 
 jar {
@@ -218,18 +220,17 @@ if (curseforge_key != null || modrinth_token != null) {
 	changeLog = generatedChangelog
 }
 
+
 if (curseforge_key != null) {
-	curseforge {
-		apiKey = curseforge_key
-	
-		project {
-			id = '432817'
-			changelog = changeLog
+	tasks.register("curseforge", TaskPublishCurseForge, { task ->
+		apiToken = curseforge_key
+
+		task.upload(432817, jar) { main ->
 			releaseType = "${release_type}"
-			mainArtifact(jar) { }
+			changelog = changeLog
 			releaseVersions.each { v -> addGameVersion(v) }
 		}
-	}
+	})
 }
 
 
