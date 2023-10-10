@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.data.DataManagerWrapper;
+import sirttas.dpanvil.data.TagListener;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 
 import java.io.BufferedReader;
@@ -30,7 +31,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 	}
 
 	@Override
-	protected @NotNull Map<ResourceLocation, JsonElement> prepare(ResourceManager resourceManager, @NotNull ProfilerFiller profilerIn) {
+	protected @NotNull Map<ResourceLocation, JsonElement> prepare(ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
 		Map<ResourceLocation, JsonElement> map = Maps.newHashMap();
 		int i = this.folder.length() + 1;
 
@@ -40,7 +41,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 			ResourceLocation resourceId = new ResourceLocation(resourceLocation.getNamespace(), path.substring(i, path.length() - 5));
 
 
-			try (InputStream inputstream = entry.getValue().open()){
+			try (InputStream inputstream = entry.getValue().open()) {
 				Reader reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8));
 				JsonElement jsonelement = GsonHelper.fromJson(GSON, reader, JsonElement.class);
 
@@ -58,20 +59,26 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 
 	
 	@Override
-	protected void apply(@NotNull Map<ResourceLocation, JsonElement> objects, @NotNull ResourceManager resourceManagerIn, @NotNull ProfilerFiller profilerIn) {
-		try {
-			Map<ResourceLocation, T> map = Maps.newHashMap();
-			IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
-	
-			objects.forEach((loc, jsonObject) -> {
-				T value = serializer.read(jsonObject);
-			
-				idSetter.accept(value, loc);
-				map.put(loc, value);
-			});
-			setData(map);
-		} catch (Exception e) {
-			DataManagerWrapper.logManagerException(key, e);
-		}
+	protected void apply(@NotNull Map<ResourceLocation, JsonElement> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
+		TagListener.listen(() -> {
+			try {
+				Map<ResourceLocation, T> map = Maps.newHashMap();
+				IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
+
+				objects.forEach((loc, jsonObject) -> {
+					try {
+						T value = serializer.read(jsonObject);
+
+						idSetter.accept(value, loc);
+						map.put(loc, value);
+					} catch (Exception e) {
+						throw new RuntimeException("Failed to load data file " + loc, e);
+					}
+				});
+				setData(map);
+			} catch (Exception e) {
+				DataManagerWrapper.logManagerException(key, e);
+			}
+		});
 	}
 }

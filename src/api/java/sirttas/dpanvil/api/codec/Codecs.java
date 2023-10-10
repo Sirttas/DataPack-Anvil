@@ -5,15 +5,21 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.AABB;
 import sirttas.dpanvil.api.DPAnvilNames;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -21,10 +27,10 @@ import java.util.regex.Pattern;
 @SuppressWarnings({"deprecation"})
 public class Codecs {
 
-	public static final Codec<Block> BLOCK = Registry.BLOCK.byNameCodec();
-	public static final Codec<Item> ITEM = Registry.ITEM.byNameCodec();
-	public static final Codec<Enchantment> ENCHANTMENT = Registry.ENCHANTMENT.byNameCodec();
-	public static final Codec<Attribute> ATTRIBUTE = Registry.ATTRIBUTE.byNameCodec();
+	public static final Codec<Block> BLOCK = BuiltInRegistries.BLOCK.byNameCodec();
+	public static final Codec<Item> ITEM = BuiltInRegistries.ITEM.byNameCodec();
+	public static final Codec<Enchantment> ENCHANTMENT = BuiltInRegistries.ENCHANTMENT.byNameCodec();
+	public static final Codec<Attribute> ATTRIBUTE = BuiltInRegistries.ATTRIBUTE.byNameCodec();
 	public static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
 	public static final Codec<Pattern> PATTERN = Codec.STRING.xmap(Pattern::compile, Pattern::pattern);
 	public static final Codec<EquipmentSlot> EQUIPMENT_SLOT_TYPE = Codec.STRING.xmap(EquipmentSlot::byName, EquipmentSlot::getName);
@@ -36,7 +42,7 @@ public class Codecs {
 		if (s.startsWith("#")) {
 			return DataResult.success(Integer.parseInt(s.substring(1), 16));
 		}
-		return DataResult.error("Couldn't parse color: '" + s + '\'');
+		return DataResult.error(() -> "Couldn't parse color: '" + s + '\'');
 	}, i -> String.format("#%06X", i));
 	
 	/**
@@ -59,7 +65,7 @@ public class Codecs {
 			case "addition" -> DataResult.success(AttributeModifier.Operation.ADDITION);
 			case "multiply_base" -> DataResult.success(AttributeModifier.Operation.MULTIPLY_BASE);
 			case "multiply_total" -> DataResult.success(AttributeModifier.Operation.MULTIPLY_TOTAL);
-			default -> DataResult.error("Couldn't parse AttributeModifier Operation: '" + s + '\'');
+			default -> DataResult.error(() -> "Couldn't parse AttributeModifier Operation: '" + s + '\'');
 		}, o -> switch (o) {
 			case MULTIPLY_BASE -> "multiply_base";
 			case MULTIPLY_TOTAL -> "multiply_total";
@@ -73,6 +79,16 @@ public class Codecs {
 	).apply(builder, AttributeModifier::new));
 	
 	public static final Codec<Multimap<Attribute, AttributeModifier>> ATTRIBUTE_MULTIMAP = CodecHelper.multiMapCodec(ATTRIBUTE, ATTRIBUTE_MODIFIER);
-	
+
+	public static final Codec<AABB> AABB = Codec.DOUBLE.listOf().comapFlatMap(
+			list -> Util.fixedSize(list, 6).map(doubles -> new AABB(doubles.get(0), doubles.get(1), doubles.get(2), doubles.get(3), doubles.get(4), doubles.get(5))),
+			aabb -> List.of(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ)
+	);
+
+	public static <T> Codec<ResourceKey<T>> keyCodec(ResourceKey<Registry<T>> registryKey) {
+		return ResourceLocation.CODEC.xmap(l -> ResourceKey.create(registryKey, l), ResourceKey::location);
+	}
+
 	private Codecs() {}
+
 }

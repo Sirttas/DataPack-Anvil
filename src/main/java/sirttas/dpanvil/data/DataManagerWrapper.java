@@ -3,7 +3,12 @@ package sirttas.dpanvil.data;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -30,11 +35,23 @@ public class DataManagerWrapper implements PreparableReloadListener {
 
 	private final Map<ResourceKey<IDataManager<?>>, IDataManager<?>> managers = Maps.newHashMap();
 	private final Map<ResourceKey<IDataManager<?>>, IJsonDataSerializer<?>> serializers = Maps.newHashMap();
+	private final Map<DynamicOps<?>, RegistryOps<?>> registryOps = new Reference2ObjectOpenHashMap<>();
+
+	private RegistryAccess registry = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 
 	public static <T> void logManagerException(ResourceKey<? super IDataManager<T>> key, Throwable e) {
 		if (e != null) {
 			DataPackAnvilApi.LOGGER.error(() -> "Exception while loading data for manager " + key + ":", e);
 		}
+	}
+
+	public void setRegistry(RegistryAccess registry) {
+		this.registry = registry;
+		this.registryOps.clear();
+	}
+
+	public synchronized <T> RegistryOps<T> getRegistryOps(DynamicOps<T> ops) {
+		return (RegistryOps<T>) registryOps.computeIfAbsent(ops, o -> RegistryOps.create(o, registry));
 	}
 
 	public <T, M extends IDataManager<T>> M getManager(ResourceKey<? super IDataManager<T>> key) {
@@ -114,18 +131,17 @@ public class DataManagerWrapper implements PreparableReloadListener {
 	}
 
 	@Override
-	public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier stage, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller preparationsProfiler, @NotNull ProfilerFiller reloadProfiler, @NotNull Executor backgroundExecutor,
-												   @NotNull Executor gameExecutor) {
-		if (ModLoader.isLoadingStateValid() && !managers.isEmpty()) {
-			CompletableFuture<Void> completableFuture = CompletableFuture.allOf(managers.entrySet().stream()
-							.map(entry -> {
-									IDataManager<?> manager = entry.getValue();
-									return manager.reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
-											.handle(handleManagerException(entry.getKey()));
-								}).toArray(CompletableFuture[]::new));
-			return completableFuture.thenRun(this::postLoad);
+	public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier stage, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller preparationsProfiler, @NotNull ProfilerFiller reloadProfiler, @NotNull Executor backgroundExecutor, @NotNull Executor gameExecutor) {
+		if (!ModLoader.isLoadingStateValid() || managers.isEmpty()) {
+			return CompletableFuture.allOf();
 		}
-		return CompletableFuture.allOf();
+		return CompletableFuture.runAsync(registryOps::clear, backgroundExecutor)
+				.thenComposeAsync(v -> CompletableFuture.allOf(managers.entrySet().stream()
+						.map(entry -> entry.getValue().reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
+								.handle(handleManagerException(entry.getKey())))
+						.toArray(CompletableFuture[]::new)), backgroundExecutor)
+				.thenCompose(stage::wait)
+				.thenRunAsync(() -> TagListener.listen(this::postLoad), gameExecutor);
 	}
 
 	private void postLoad() {

@@ -19,7 +19,7 @@ public class MessageHelper {
 	private MessageHelper() {}
 	
 	public static <T> void sendToPlayer(ServerPlayer serverPlayer, T message) {
-		MessageHandler.CHANNEL.sendTo(message, serverPlayer.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+		MessageHandler.CHANNEL.sendTo(message, serverPlayer.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
 	}
 
 	public static <T> void sendToRemotePlayer(ServerPlayer serverPlayer, T message) {

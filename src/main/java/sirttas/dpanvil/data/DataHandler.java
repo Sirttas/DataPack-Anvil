@@ -1,5 +1,6 @@
 package sirttas.dpanvil.data;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RecipesUpdatedEvent;
@@ -20,21 +21,23 @@ import java.util.Map;
 public class DataHandler {
 
 	private static RecipeManager recipeManager = null;
+	private static RegistryAccess registry = null;
 	private static final Map<Class<? extends Event>, Boolean> map = new HashMap<>();
 	
 	static {
 		map.put(RecipesUpdatedEvent.class, false);
-		addEvent(TagsUpdatedEvent.class);
+		map.put(TagsUpdatedEvent.class, false);
 		map.put(DataPackReloadCompleteEvent.class, false);
 	}
 
 	private DataHandler() {}
-	
-	public static void addEvent(Class<? extends Event> eventType) {
-		map.put(eventType, false);
-		MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, eventType, e -> process(eventType));
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public static void onTagsUpdated(TagsUpdatedEvent event) {
+		registry = event.getRegistryAccess();
+		process(event.getClass());
 	}
-	
+
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onRecipesUpdate(RecipesUpdatedEvent event) {
 		recipeManager = event.getRecipeManager();
@@ -48,7 +51,7 @@ public class DataHandler {
 	private static void process(Class<? extends Event> eventType) {
 		map.put(eventType, true);
 		if (map.values().stream().allMatch(b -> b)) {
-			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(recipeManager, DataPackAnvil.WRAPPER.getDataManagers()));
+			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(recipeManager, DataPackAnvil.WRAPPER.getDataManagers(), registry));
 			recipeManager = null;
 			map.replaceAll((k, v) -> false);
 		}

@@ -208,9 +208,17 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	}
 
 	@Nonnull
+	static <T> Builder<T> builder(@Nonnull Class<T> type, @Nonnull ResourceKey<IDataManager<T>> key) {
+		var location = key.location();
+
+		return builder(type, location.getNamespace() + "/" + location.getPath());
+	}
+
+	@Nonnull
 	static <T> Builder<T> builder(@Nonnull Class<T> type, @Nonnull String folder) {
 		return DataPackAnvilApi.service().createDataManagerBuilder(type, folder);
 	}
+
 
 	interface Builder<T> {
 

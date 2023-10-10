@@ -27,25 +27,15 @@ import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.BiPredicate;
 
 public interface IBlockPosPredicate {
 
 	Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec);
 
-	@Deprecated(since = "1.19.2-4.3.3", forRemoval = true)
-	default boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos) { // TODO remove in 1.20
-		return test(level, pos, null);
-	}
 
 	boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction);
 
 	BlockPosPredicateType<? extends IBlockPosPredicate> getType();
-
-	@Deprecated(since = "1.19.2-4.3.3", forRemoval = true)
-	default BiPredicate<LevelReader, BlockPos> asBlockPosPredicate() { // TODO remove in 1.20
-		return this::test;
-	}
 
 	default IBlockPosPredicate or(IBlockPosPredicate... predicates) {
 		List<IBlockPosPredicate> list = Lists.newArrayList(predicates);

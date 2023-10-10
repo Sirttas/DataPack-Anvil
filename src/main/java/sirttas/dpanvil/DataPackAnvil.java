@@ -63,10 +63,11 @@ public class DataPackAnvil {
 	}
 	
 	private static void onReloadCompleted(MinecraftServer server) {
-		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers()));
+		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers(), server.registryAccess()));
 	}
 
 	private void addReloadListeners(AddReloadListenerEvent event) {
+		WRAPPER.setRegistry(event.getRegistryAccess().freeze());
 		if (!WRAPPER.getDataManagers().isEmpty()) {
 			event.addListener(WRAPPER);
 		}

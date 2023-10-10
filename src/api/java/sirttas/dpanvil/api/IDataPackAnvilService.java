@@ -8,5 +8,4 @@ public interface IDataPackAnvilService {
 
     @Nonnull
     <T> IDataManager.Builder<T> createDataManagerBuilder(@Nonnull Class<T> type, @Nonnull String folder);
-
 }

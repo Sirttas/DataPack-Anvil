@@ -10,6 +10,7 @@ import sirttas.dpanvil.api.data.remap.RemapKeys;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ServiceLoader;
 
 public class DataPackAnvilApi {
 
@@ -30,13 +31,17 @@ public class DataPackAnvilApi {
 
 	public static synchronized IDataPackAnvilService service() {
 		if (service == null) {
-			try {
-				Constructor<?> constructor = Class.forName("sirttas.dpanvil.DataPackAnvilService", true, DataPackAnvilApi.class.getClassLoader()).getDeclaredConstructor();
+				ServiceLoader<IDataPackAnvilService> loader = ServiceLoader.load(IDataPackAnvilService.class);
 
-				service = (IDataPackAnvilService) constructor.newInstance();
-			} catch (Exception e) {
-				throw new IllegalStateException("Couldn't get constructor", e);
-			}
+				service = loader.findFirst().orElseGet(() -> {
+					try {
+						Constructor<?> constructor = Class.forName("sirttas.dpanvil.DataPackAnvilService", true, DataPackAnvilApi.class.getClassLoader()).getDeclaredConstructor();
+
+						return (IDataPackAnvilService) constructor.newInstance();
+					} catch (Exception e) {
+						throw new IllegalStateException("Couldn't get constructor", e);
+					}
+				});
 		}
 		return service;
 	}
@@ -44,7 +49,7 @@ public class DataPackAnvilApi {
 	@SuppressWarnings("unchecked")
 	public static <T> ResourceKey<T> createResourceKey(ResourceLocation dataManagerId, ResourceLocation id) {
 		try {
-			return (ResourceKey<T>) ObfuscationReflectionHelper.findMethod(ResourceKey.class, "m_135790_", ResourceLocation.class, ResourceLocation.class).invoke(null, dataManagerId, id);
+			return (ResourceKey<T>) ObfuscationReflectionHelper.findMethod(ResourceKey.class, "m_135790_" /* create */, ResourceLocation.class, ResourceLocation.class).invoke(null, dataManagerId, id);
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new IllegalStateException("Reflection error", e);
 		}

@@ -18,6 +18,7 @@ import com.mojang.serialization.MapEncoder;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
@@ -43,8 +44,8 @@ public class CodecHelper {
 
 	private CodecHelper() {}
 
-	public static synchronized  <T> RegistryOps<T> getRegistryOps(DynamicOps<T> ops) {
-		return (RegistryOps<T>) REGISTRY_OPS.computeIfAbsent(ops, o -> RegistryOps.create(o, RegistryAccess.builtinCopy()));
+	public static synchronized <T> RegistryOps<T> getRegistryOps(DynamicOps<T> ops) {
+		return (RegistryOps<T>) REGISTRY_OPS.computeIfAbsent(ops, o -> RegistryOps.create(o, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)));
 	}
 
 	/**
@@ -134,7 +135,9 @@ public class CodecHelper {
 	}
 
 	public static <T> void encode(Encoder<T> encoder, T data, FriendlyByteBuf buf) {
-		var ops = getRegistryOps(NbtOps.INSTANCE);
+		encode(encoder, getRegistryOps(NbtOps.INSTANCE), data, buf);
+	}
+	public static <T> void encode(Encoder<T> encoder, DynamicOps<Tag> ops, T data, FriendlyByteBuf buf) {
 		Tag nbt = handleResult(encoder.encode(data, ops, ops.empty()));
 
 		if (nbt instanceof CompoundTag compoundTag) {

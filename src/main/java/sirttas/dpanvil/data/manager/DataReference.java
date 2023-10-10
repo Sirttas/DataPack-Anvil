@@ -2,10 +2,12 @@ package sirttas.dpanvil.data.manager;
 
 import com.mojang.datafixers.util.Either;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderOwner;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.data.IDataManager;
 
 import javax.annotation.Nonnull;
@@ -70,11 +72,6 @@ public class DataReference<T> implements Holder<T> {
     }
 
     @Override
-    public boolean isValidInRegistry(@Nonnull Registry<T> registry) {
-        return false;
-    }
-
-    @Override
     @Nonnull
     public Either<ResourceKey<T>, T> unwrap() {
         return Either.left(this.key());
@@ -90,6 +87,11 @@ public class DataReference<T> implements Holder<T> {
     @Nonnull
     public Holder.Kind kind() {
         return Holder.Kind.REFERENCE;
+    }
+
+    @Override
+    public boolean canSerializeIn(@Nonnull HolderOwner<T> owner) {
+        return true;
     }
 
     @Override
