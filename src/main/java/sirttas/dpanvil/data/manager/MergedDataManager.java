@@ -15,7 +15,7 @@ import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.data.DataManagerWrapper;
-import sirttas.dpanvil.data.TagListener;
+import sirttas.dpanvil.registry.RegistryListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void apply(@NotNull Map<ResourceLocation, List<JsonElement>> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
-		TagListener.listen(() -> {
+		RegistryListener.getInstance().listen(r -> {
 			try {
 				Map<ResourceLocation, T> map = Maps.newHashMap();
 				Function<JsonElement, R> parser = rawParser != null ? rawParser : json -> (R) DataPackAnvil.WRAPPER.getSerializer(key).read(json);

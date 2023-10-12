@@ -7,6 +7,7 @@ import net.minecraftforge.network.NetworkEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.data.DataHandler;
+import sirttas.dpanvil.registry.RegistryListener;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class ReloadDataMessage {
 
-	private final List<DataManagerMessage<?>> messages;
+	private final List<DataManagerMessage<?, ?>> messages;
 
 	public ReloadDataMessage() {
 		messages = Lists.newArrayList();
@@ -32,7 +33,7 @@ public class ReloadDataMessage {
 		int size = buf.readInt();
 
 		for (int i = 0; i < size; i++) {
-			DataManagerMessage<?> managerMessage = new DataManagerMessage<>(buf.readResourceLocation());
+			DataManagerMessage<?, ?> managerMessage = new DataManagerMessage<>(buf.readResourceLocation());
 			
 			managerMessage.decode(buf);
 			message.messages.add(managerMessage);
@@ -42,7 +43,7 @@ public class ReloadDataMessage {
 
 	public void encode(FriendlyByteBuf buf) {
 		buf.writeInt(messages.size());
-		for (DataManagerMessage<?> message : messages) {
+		for (DataManagerMessage<?, ?> message : messages) {
 			buf.writeResourceLocation(message.getId());
 			message.encode(buf);
 		}
@@ -50,8 +51,10 @@ public class ReloadDataMessage {
 	}
 
 	public void handle(Supplier<NetworkEvent.Context> ctx) {
-		ctx.get().enqueueWork(() -> messages.forEach(DataManagerMessage::process));
-		DataHandler.onDPAnvilUpdate();
+		ctx.get().enqueueWork(() -> RegistryListener.getInstance().listen(r -> {
+			messages.forEach(DataManagerMessage::process);
+			DataHandler.onDPAnvilUpdate();
+		}));
 		ctx.get().setPacketHandled(true);
 	}
 }

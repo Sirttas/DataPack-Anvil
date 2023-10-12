@@ -35,6 +35,9 @@ public class DataPackAnvil {
 		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::serverStarted);
 		MinecraftForge.EVENT_BUS.addListener(this::syncDataManagers);
 		MinecraftForge.EVENT_BUS.addListener(this::addReloadListeners);
+
+		// Preload the service
+		DataPackAnvilApi.service();
 	}
 
 	private void setup(FMLCommonSetupEvent event) {
@@ -67,7 +70,6 @@ public class DataPackAnvil {
 	}
 
 	private void addReloadListeners(AddReloadListenerEvent event) {
-		WRAPPER.setRegistry(event.getRegistryAccess().freeze());
 		if (!WRAPPER.getDataManagers().isEmpty()) {
 			event.addListener(WRAPPER);
 		}

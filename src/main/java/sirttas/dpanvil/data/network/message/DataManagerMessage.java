@@ -11,12 +11,13 @@ import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DataManagerMessage<T> {
+public class DataManagerMessage<T, I> {
 
 	private final ResourceKey<IDataManager<T>> key;
 	private final IDataManager<T> manager;
-	private final IJsonDataSerializer<T> serializer;
-	private Map<ResourceLocation, T> data;
+	private final IJsonDataSerializer<T, I> serializer;
+	private final Map<ResourceLocation, T> data;
+	private Map<ResourceLocation, I> intermediateData;
 
 	public DataManagerMessage(ResourceLocation id) {
 		this(IDataManager.createManagerKey(id));
@@ -27,16 +28,17 @@ public class DataManagerMessage<T> {
 		this.key = (ResourceKey<IDataManager<T>>) key;
 		this.manager = DataPackAnvil.WRAPPER.getManager(key);
 		this.serializer = DataPackAnvil.WRAPPER.getSerializer(key);
-		this.data = manager.getData();
+		this.data = new HashMap<>(manager.getData());
+		this.intermediateData = new HashMap<>();
 	}
 
 	public void decode(FriendlyByteBuf buf) {
 		try {
 			int mapSize = buf.readInt();
 
-			data = new HashMap<>(mapSize);
+			intermediateData = new HashMap<>(mapSize);
 			for (int i = 0; i < mapSize; i++) {
-				data.put(buf.readResourceLocation(), serializer.read(buf));
+				intermediateData.put(buf.readResourceLocation(), serializer.read(buf));
 			}
 		} catch (Exception e) {
 			throw new IllegalStateException("Error while decoding network packet for DataManger " + key, e);
@@ -59,6 +61,10 @@ public class DataManagerMessage<T> {
 
 	public void process() {
 		try {
+			data.clear();
+			for (Map.Entry<ResourceLocation, I> entry : intermediateData.entrySet()) {
+				data.put(entry.getKey(), serializer.read(entry.getValue()));
+			}
 			manager.setData(data);
 		} catch (Exception e) {
 			DataManagerWrapper.logManagerException(key, e);

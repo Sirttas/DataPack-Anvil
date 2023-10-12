@@ -34,6 +34,7 @@ public class DataPackAnvilApi {
 				ServiceLoader<IDataPackAnvilService> loader = ServiceLoader.load(IDataPackAnvilService.class);
 
 				service = loader.findFirst().orElseGet(() -> {
+					LOGGER.warn("Couldn't find service, using default");
 					try {
 						Constructor<?> constructor = Class.forName("sirttas.dpanvil.DataPackAnvilService", true, DataPackAnvilApi.class.getClassLoader()).getDeclaredConstructor();
 

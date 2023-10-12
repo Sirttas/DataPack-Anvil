@@ -243,7 +243,7 @@ if (modrinth_token != null) {
 		versionType = "${release_type}"
 		uploadFile = jar
 		gameVersions = releaseVersions
-		loaders = ["forge"]
+		loaders.addAll("neoforge", "forge")
 		changelog = changeLog
 	}
 }

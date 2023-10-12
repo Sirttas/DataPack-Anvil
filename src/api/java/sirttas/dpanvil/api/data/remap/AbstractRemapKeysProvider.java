@@ -1,7 +1,6 @@
 package sirttas.dpanvil.api.data.remap;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import sirttas.dpanvil.api.DataPackAnvilApi;

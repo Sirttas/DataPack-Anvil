@@ -10,8 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.data.DataManagerWrapper;
-import sirttas.dpanvil.data.TagListener;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
+import sirttas.dpanvil.registry.RegistryListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -60,10 +60,10 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 	
 	@Override
 	protected void apply(@NotNull Map<ResourceLocation, JsonElement> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
-		TagListener.listen(() -> {
+		RegistryListener.getInstance().listen(r -> {
 			try {
 				Map<ResourceLocation, T> map = Maps.newHashMap();
-				IJsonDataSerializer<T> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
+				IJsonDataSerializer<T, ?> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
 
 				objects.forEach((loc, jsonObject) -> {
 					try {
