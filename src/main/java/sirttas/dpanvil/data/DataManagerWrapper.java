@@ -7,12 +7,11 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.fml.ModLoader;
+import net.neoforged.fml.ModLoader;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
-import sirttas.dpanvil.data.manager.AbstractDataManager;
 import sirttas.dpanvil.data.serializer.CodecJsonDataSerializer;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 import sirttas.dpanvil.registry.RegistryListener;
@@ -65,15 +64,11 @@ public class DataManagerWrapper implements PreparableReloadListener {
 
 	public <T> void putManagerFromIMC(Supplier<?> supplier) {
 		DataManagerIMC<T> message = (DataManagerIMC<T>) supplier.get();
-		var key = message.getKey();
-		ResourceKey<IDataManager<?>> castedKey = this.cast(key);
 		IDataManager<T> manager = message.getManager();
+		ResourceKey<IDataManager<?>> key = this.cast(message.getKey());
 
-		serializers.put(castedKey, buildSerializer(message));
-		managers.put(castedKey, manager);
-		if (manager instanceof AbstractDataManager) {
-			((AbstractDataManager<T, ?>) manager).setKey(key);
-		}
+		serializers.put(key, buildSerializer(message));
+		managers.put(key, manager);
 	}
 	
 	private <T> IJsonDataSerializer<T, ?> buildSerializer(DataManagerIMC<T> message) {
@@ -87,8 +82,7 @@ public class DataManagerWrapper implements PreparableReloadListener {
 				if (readJson != null) {
 					return readJson.apply(json);
 				}
-				throw new IllegalStateException("trying to read json without the proper serialization tools for manager : "
-						+ message.getKey() + " makes sure you provide a correct json serializer to it.");
+				throw new IllegalStateException("trying to read json without the proper serialization tools for manager : " + message.getKey() + " makes sure you provide a correct json serializer to it.");
 			}
 
 			@Override

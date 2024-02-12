@@ -16,7 +16,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapDecoder;
 import com.mojang.serialization.MapEncoder;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -24,18 +23,12 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.RegistryOps;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryManager;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CodecHelper {
@@ -48,20 +41,6 @@ public class CodecHelper {
 		return (RegistryOps<T>) REGISTRY_OPS.computeIfAbsent(ops, o -> RegistryOps.create(o, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)));
 	}
 
-	/**
-	 * Get a codec for a {@link IForgeRegistry}
-	 * 
-	 * @param <T>     the type of data inside the registry
-	 * @param supplier a {@link Supplier} for the {@link IForgeRegistry}
-	 * @return a Codec
-	 */
-	public static <T> Codec<T> getRegistryCodec(Supplier<IForgeRegistry<T>> supplier) {
-		return ExtraCodecs.lazyInitializedCodec(Lazy.of(() -> supplier.get().getCodec()));
-	}
-
-	public static <T> Codec<T> getRegistryCodec(ResourceKey<Registry<T>> key) {
-		return getRegistryCodec(() -> RegistryManager.ACTIVE.getRegistry(key));
-	}
 
 	public static <K, V> Codec<Multimap<K, V>> multiMapCodec(Codec<K> keyCodec, Codec<V> valueCodec) {
 		return Codec.unboundedMap(keyCodec, valueCodec.listOf()).xmap(map -> {

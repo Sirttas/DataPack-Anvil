@@ -1,37 +1,66 @@
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
 
 plugins {
-    id 'java'
-    id 'eclipse'
+	id 'java-library'
+	id 'eclipse'
+	id 'idea'
 	id 'maven-publish'
+	id 'net.neoforged.gradle.userdev' version "${neogradle_version}"
+
 	id "org.sonarqube" version "${sonar_version}"
 	id 'net.darkhax.curseforgegradle' version '1.1.16'
 	id "com.modrinth.minotaur" version "2.+"
-	id 'net.neoforged.gradle' version '6.0.+'
-	id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
 version = project.hasProperty('tag_version') ? "${minecraft_version}-${tag_version}" : "${dpanvil_version}"
 group = 'sirttas.dpanvil'
-archivesBaseName = 'dpanvil'
 
-println('Building DataPack Anvil: ' + project.version)
+repositories {
+	mavenCentral()
+	maven { url "https://repo.elementalcraft.org/public" }
+}
+
+base {
+	archivesName = 'dpanvil'
+}
+
+logger.info('Building DataPack Anvil: ' + project.version)
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 sourceSets {
-    api {
-        java {
-            srcDir 'src/api/java'
-        }
-    }
-    main {
-    	resources {
-    		srcDir 'src/generated/resources'
+	api {
+		java {
+			srcDir 'src/api/java'
+		}
+	}
+	main {
+		resources {
+			srcDir 'src/generated/resources'
 		}
 		compileClasspath += api.output
-        runtimeClasspath += api.output
+		runtimeClasspath += api.output
+	}
+}
+
+runs {
+	configureEach {
+		systemProperty 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+		systemProperty 'forge.logging.console.level', 'debug'
+		systemProperty 'fml.earlyprogresswindow', 'false'
+		systemProperty 'mixin.debug.verbose', 'true'
+		systemProperty 'mixin.env.remapRefMap', 'true'
+
+		modSource sourceSets.main
+	}
+
+	client {
+		systemProperty 'forge.enabledGameTestNamespaces', 'dpanvil'
+	}
+
+	server {
+		systemProperty 'forge.enabledGameTestNamespaces', 'dpanvil'
+		programArgument '--nogui'
 	}
 }
 
@@ -52,49 +81,27 @@ configurations {
     apiRuntimeOnly.extendsFrom(runtimeOnly)
 }
 
-minecraft {
-    mappings channel: "${mappings_channel}", version: "${mappings_version}"
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            property 'fml.earlyprogresswindow', 'false'
-            property 'mixin.debug.verbose', 'true'
-            property 'mixin.env.remapRefMap', 'true'
-
-            mods {
-                dpanvil {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run-server')
-
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            property 'mixin.debug.verbose', 'true'
-            property 'mixin.env.remapRefMap', 'true'
-
-            mods {
-                dpanvil {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
-}
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
-    minecraft "net.neoforged:forge:${forge_version}"
+	implementation "net.neoforged:neoforge:${neo_version}"
+}
+
+
+tasks.withType(ProcessResources).configureEach {
+	var replaceProperties = [
+			minecraft_version: minecraft_version,
+			minecraft_version_range: minecraft_version_range,
+			neo_version: neo_version,
+			neo_version_range: neo_version_range,
+			loader_version_range: loader_version_range,
+			pack_format_number: pack_format_number,
+
+			dpanvil_version: dpanvil_version,
+	]
+	inputs.properties replaceProperties
+
+	filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+		expand replaceProperties
+	}
 }
 
 jar {
@@ -112,13 +119,11 @@ jar {
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
         ])
     }
-    afterEvaluate {finalizedBy('reobfJar') }
 }
 
 task apiJar(type: Jar) {
     archiveClassifier = "api"
     from sourceSets.api.output
-    afterEvaluate {finalizedBy('reobfJar') }
 }
 
 task sourcesJar(type: Jar) {
@@ -233,8 +238,6 @@ if (curseforge_key != null) {
 	})
 }
 
-
-
 if (modrinth_token != null) {
 	modrinth {
 		token = modrinth_token
@@ -243,7 +246,11 @@ if (modrinth_token != null) {
 		versionType = "${release_type}"
 		uploadFile = jar
 		gameVersions = releaseVersions
-		loaders.addAll("neoforge", "forge")
+		loaders.addAll("neoforge")
 		changelog = changeLog
 	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
 }

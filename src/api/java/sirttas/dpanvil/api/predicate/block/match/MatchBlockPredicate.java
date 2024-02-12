@@ -2,10 +2,10 @@ package sirttas.dpanvil.api.predicate.block.match;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.codec.Codecs;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
@@ -15,7 +15,7 @@ public record MatchBlockPredicate(
 
 	public static final String NAME = "block";
 	public static final Codec<MatchBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-			Codecs.BLOCK.fieldOf(DPAnvilNames.BLOCK).forGetter(MatchBlockPredicate::block)
+			BuiltInRegistries.BLOCK.byNameCodec().fieldOf(DPAnvilNames.BLOCK).forGetter(MatchBlockPredicate::block)
 	).apply(builder, MatchBlockPredicate::new));
 
 

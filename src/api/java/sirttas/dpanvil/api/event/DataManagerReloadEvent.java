@@ -1,6 +1,6 @@
 package sirttas.dpanvil.api.event;
 
-import net.minecraftforge.eventbus.api.GenericEvent;
+import net.neoforged.bus.api.GenericEvent;
 import sirttas.dpanvil.api.data.IDataManager;
 
 public class DataManagerReloadEvent<T> extends GenericEvent<T> {

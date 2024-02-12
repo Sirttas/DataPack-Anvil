@@ -30,7 +30,7 @@ import java.util.List;
 
 public interface IBlockPosPredicate {
 
-	Codec<IBlockPosPredicate> CODEC = CodecHelper.getRegistryCodec(BlockPosPredicateType.REGISTRY).dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec);
+	Codec<IBlockPosPredicate> CODEC = BlockPosPredicateType.REGISTRY.byNameCodec().dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec);
 
 
 	boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction);

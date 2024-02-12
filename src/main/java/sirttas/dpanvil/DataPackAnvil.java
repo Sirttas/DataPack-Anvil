@@ -1,47 +1,38 @@
 package sirttas.dpanvil;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.OnDatapackSyncEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.remap.RemapKeys;
 import sirttas.dpanvil.api.event.DataPackReloadCompleteEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.data.DataManagerWrapper;
-import sirttas.dpanvil.data.network.message.MessageHandler;
-import sirttas.dpanvil.data.network.message.MessageHelper;
-import sirttas.dpanvil.data.network.message.ReloadDataMessage;
+import sirttas.dpanvil.data.network.payload.PayloadHelper;
+import sirttas.dpanvil.data.network.payload.ReloadDataPayload;
 
 @Mod(DataPackAnvilApi.MODID)
 public class DataPackAnvil {
 	
 	public static final DataManagerWrapper WRAPPER = new DataManagerWrapper();
 	
-	public DataPackAnvil() {
-		var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-
+	public DataPackAnvil(IEventBus modBus) {
 		BlockPosPredicateType.register(modBus);
 
-		modBus.addListener(this::setup);
 		modBus.addListener(this::processIMC);
-		MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::serverStarted);
-		MinecraftForge.EVENT_BUS.addListener(this::syncDataManagers);
-		MinecraftForge.EVENT_BUS.addListener(this::addReloadListeners);
+		NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::serverStarted);
+		NeoForge.EVENT_BUS.addListener(this::syncDataManagers);
+		NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
 
 		// Preload the service
 		DataPackAnvilApi.service();
-	}
-
-	private void setup(FMLCommonSetupEvent event) {
-		MessageHandler.setup();
 	}
 
 	private void serverStarted(ServerStartedEvent event) {
@@ -49,24 +40,21 @@ public class DataPackAnvil {
 	}
 
 	private void processIMC(InterModProcessEvent event) {
-		WRAPPER.putManagerFromIMC(() -> new DataManagerIMC<>(DataPackAnvilApi.REMAP_KEYS_MANAGER_KEY, DataPackAnvilApi.REMAP_KEYS_MANAGER).withCodec(RemapKeys.CODEC));
+		WRAPPER.putManagerFromIMC(() -> new DataManagerIMC<>(DataPackAnvilApi.REMAP_KEYS_MANAGER).withCodec(RemapKeys.CODEC));
 		event.getIMCStream(DataManagerIMC.METHOD::equals).forEach(message -> WRAPPER.putManagerFromIMC(message.messageSupplier()));
 	}
 
 	private void syncDataManagers(OnDatapackSyncEvent event) {
-		var message = new ReloadDataMessage(DataPackAnvil.WRAPPER.ids());
-		var player = event.getPlayer();
-
-		if (player != null) {
-			MessageHelper.sendToRemotePlayer(player, message);
-		} else {
-			MessageHelper.sendToAllRemotePlayers(message);
-			onReloadCompleted(event.getPlayerList().getServer());
+		if (event.getPlayer() != null) {
+			return;
 		}
+
+		PayloadHelper.sendToAllRemotePlayers(new ReloadDataPayload(DataPackAnvil.WRAPPER.ids()));
+		onReloadCompleted(event.getPlayerList().getServer());
 	}
 	
 	private static void onReloadCompleted(MinecraftServer server) {
-		MinecraftForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers(), server.registryAccess()));
+		NeoForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers(), server.registryAccess()));
 	}
 
 	private void addReloadListeners(AddReloadListenerEvent event) {

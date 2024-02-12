@@ -2,14 +2,14 @@ package sirttas.dpanvil.data;
 
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RecipesUpdatedEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.client.event.RecipesUpdatedEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.event.DataPackReloadCompleteEvent;
@@ -51,7 +51,7 @@ public class DataHandler {
 	private static void process(Class<? extends Event> eventType) {
 		map.put(eventType, true);
 		if (map.values().stream().allMatch(b -> b)) {
-			MinecraftForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(recipeManager, DataPackAnvil.WRAPPER.getDataManagers(), registry));
+			NeoForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(recipeManager, DataPackAnvil.WRAPPER.getDataManagers(), registry));
 			recipeManager = null;
 			map.replaceAll((k, v) -> false);
 		}

@@ -3,10 +3,10 @@ package sirttas.dpanvil.api.predicate.block.match;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import sirttas.dpanvil.api.DPAnvilNames;
-import sirttas.dpanvil.api.codec.Codecs;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
@@ -17,7 +17,7 @@ public final class MatchBlocksPredicate implements IBlockStatePredicate {
 
 	public static final String NAME = "blocks";
 	public static final Codec<MatchBlocksPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-			Codecs.BLOCK.listOf().fieldOf(DPAnvilNames.BLOCKS).forGetter(MatchBlocksPredicate::getBlocks)
+			BuiltInRegistries.BLOCK.byNameCodec().listOf().fieldOf(DPAnvilNames.BLOCKS).forGetter(MatchBlocksPredicate::getBlocks)
 	).apply(builder, MatchBlocksPredicate::new));
 
 	private final List<Block> blocks;

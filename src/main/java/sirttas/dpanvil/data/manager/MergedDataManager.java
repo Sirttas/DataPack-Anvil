@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.registry.RegistryListener;
 
@@ -34,9 +36,9 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 	private final Function<Stream<R>, T> merger;
 	private final Function<JsonElement, R> rawParser;
 
-	public MergedDataManager(Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter, Function<Stream<R>, T> merger,
-			Function<JsonElement, R> rawParser) {
-		super(contentType, folder, defaultValueFactory, idSetter);
+	public MergedDataManager(ResourceKey<IDataManager<T>> key, Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter, Function<Stream<R>, T> merger,
+							 Function<JsonElement, R> rawParser) {
+		super(key, contentType, folder, defaultValueFactory, idSetter);
 		this.merger = merger;
 		this.rawParser = rawParser;
 	}

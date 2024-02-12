@@ -2,6 +2,7 @@ package sirttas.dpanvil.data.manager;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.GsonHelper;
@@ -9,6 +10,7 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 import sirttas.dpanvil.registry.RegistryListener;
@@ -26,8 +28,8 @@ import java.util.function.Function;
 
 public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 
-	public SimpleDataManager(Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter) {
-		super(contentType, folder, defaultValueFactory, idSetter);
+	public SimpleDataManager(ResourceKey<IDataManager<T>> key, Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter) {
+		super(key, contentType, folder, defaultValueFactory, idSetter);
 	}
 
 	@Override

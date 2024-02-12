@@ -13,7 +13,6 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraftforge.common.ForgeHooks;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
 import javax.annotation.Nonnull;
@@ -92,6 +91,6 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 	}
 
 	public <U> HolderSet.Named<U> createHolderSet(TagKey<U> tag) {
-		return ForgeHooks.wrapRegistryLookup(getRegistry(tag.registry())).getOrThrow(tag);
+		return HolderSet.emptyNamed(getRegistry(tag.registry()), tag);
 	}
 }

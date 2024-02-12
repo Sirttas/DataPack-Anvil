@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Encoder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import sirttas.dpanvil.api.DataPackAnvilApi;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,7 +13,7 @@ import java.util.stream.Stream;
 
 public record RemapKeys(Map<ResourceLocation, ResourceLocation> keys) {
     public static final String NAME = "remap_keys";
-    public static final String FOLDER = DataPackAnvilApi.MODID + "/" + NAME;
+
     public static final RemapKeys EMPTY = new RemapKeys(Collections.emptyMap());
 
     public static final Codec<RemapKeys> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, ResourceLocation.CODEC).xmap(RemapKeys::new, RemapKeys::keys);

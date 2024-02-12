@@ -4,11 +4,11 @@ import com.mojang.serialization.DynamicOps;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.RegistryOps;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class RegistryListener {
     	return INSTANCE;
     }
 
-    public void listen(Consumer<RegistryAccess> listener) {
+    public synchronized void listen(Consumer<RegistryAccess> listener) {
         if (registry != null) {
             listener.accept(registry);
         } else {
@@ -48,17 +48,25 @@ public class RegistryListener {
         return (RegistryOps<T>) registryOps.computeIfAbsent(ops, o -> RegistryOps.create(o, registry));
     }
 
+    private synchronized void clear() {
+        registry = null;
+        registryOps.clear();
+    }
+
+    private synchronized void runListeners(RegistryAccess registryAccess) {
+        registry = registryAccess;
+        registryOps.clear();
+        listeners.forEach(l -> l.accept(registry));
+        listeners.clear();
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void addReloadListeners(AddReloadListenerEvent event) {
-        INSTANCE.registry = null;
-        INSTANCE.registryOps.clear();
+        INSTANCE.clear();
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onTagsUpdated(TagsUpdatedEvent event) {
-        INSTANCE.registry = event.getRegistryAccess().freeze();
-        INSTANCE.registryOps.clear();
-        INSTANCE.listeners.forEach(l -> l.accept(INSTANCE.registry));
-        INSTANCE.listeners.clear();
+        INSTANCE.runListeners(event.getRegistryAccess().freeze());
     }
 }

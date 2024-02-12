@@ -2,7 +2,7 @@ package sirttas.dpanvil.api;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sirttas.dpanvil.api.data.IDataManager;
@@ -20,7 +20,7 @@ public class DataPackAnvilApi {
 	public static final ResourceLocation DATA_MANAGER_ROOT = new ResourceLocation(MODID, "data_managers");
 
 	public static final ResourceKey<IDataManager<RemapKeys>> REMAP_KEYS_MANAGER_KEY = IDataManager.createManagerKey(new ResourceLocation(MODID, RemapKeys.NAME));
-	public static final IDataManager<RemapKeys> REMAP_KEYS_MANAGER = IDataManager.builder(RemapKeys.class, RemapKeys.FOLDER)
+	public static final IDataManager<RemapKeys> REMAP_KEYS_MANAGER = IDataManager.builder(RemapKeys.class, REMAP_KEYS_MANAGER_KEY)
 			.merged(RemapKeys::merge)
 			.withDefault(RemapKeys.EMPTY)
 			.build();
@@ -50,7 +50,7 @@ public class DataPackAnvilApi {
 	@SuppressWarnings("unchecked")
 	public static <T> ResourceKey<T> createResourceKey(ResourceLocation dataManagerId, ResourceLocation id) {
 		try {
-			return (ResourceKey<T>) ObfuscationReflectionHelper.findMethod(ResourceKey.class, "m_135790_" /* create */, ResourceLocation.class, ResourceLocation.class).invoke(null, dataManagerId, id);
+			return (ResourceKey<T>) ObfuscationReflectionHelper.findMethod(ResourceKey.class, "create", ResourceLocation.class, ResourceLocation.class).invoke(null, dataManagerId, id);
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new IllegalStateException("Reflection error", e);
 		}

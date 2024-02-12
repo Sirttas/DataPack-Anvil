@@ -3,7 +3,7 @@ package sirttas.dpanvil.api.event;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 import sirttas.dpanvil.api.data.IDataManager;
 
 import java.util.Map;

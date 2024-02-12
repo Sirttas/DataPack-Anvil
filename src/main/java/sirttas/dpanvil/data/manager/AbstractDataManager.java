@@ -8,7 +8,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
@@ -26,14 +26,15 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	
 	private final Class<T> contentType;
 	private final Function<ResourceLocation, T> defaultValueFactory;
-	private final Map<ResourceLocation, DataReference<T>> references;
+	private final Map<ResourceLocation, Holder.Reference<T>> references;
 	private BiMap<ResourceLocation, T> data;
 	private Map<ResourceLocation, T> remapedData;
 	protected final String folder;
 	protected final BiConsumer<T, ResourceLocation> idSetter;
-	protected ResourceKey<IDataManager<T>> key;
+	protected final ResourceKey<IDataManager<T>> key;
 	
-	protected AbstractDataManager(Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter) {
+	protected AbstractDataManager(ResourceKey<IDataManager<T>> key, Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter) {
+		this.key = key;
 		this.contentType = contentType;
 		this.defaultValueFactory = defaultValueFactory;
 		this.idSetter = idSetter;
@@ -46,6 +47,11 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	@Override
 	public @Nonnull Map<ResourceLocation, T> getData() {
 		return data;
+	}
+
+	@Override
+	public ResourceKey<IDataManager<T>> getKey() {
+		return key;
 	}
 
 	@Override
@@ -69,7 +75,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 
 		rebindReferences();
 		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), key);
-		MinecraftForge.EVENT_BUS.post(new DataManagerReloadEvent<>(this));
+		NeoForge.EVENT_BUS.post(new DataManagerReloadEvent<>(this));
 	}
 
 	@Override
@@ -101,26 +107,31 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	@Nonnull
 	public  Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
 		synchronized (this.references) {
-			return this.references.computeIfAbsent(key.location(), i -> new DataReference<>(this, key, this.get(i)));
+			return this.references.computeIfAbsent(key.location(), i -> {
+				var reference = Holder.Reference.createStandAlone(this, key);
+
+				if (data.containsKey(i)) {
+					reference.bindValue(data.get(i));
+				}
+				return reference;
+			});
 		}
+	}
+
+	@Override
+	@Nonnull
+	public  Holder<T> getOrCreateHolder(@Nonnull ResourceLocation key) {
+		return getOrCreateHolder(createKey(key));
 	}
 	
 	@Override
 	public @Nonnull String getFolder() {
 		return folder;
 	}
-	
-	public void setKey(ResourceKey<IDataManager<T>> key) {
-		this.key = key;
-	}
 
 	private void rebindReferences() {
 		synchronized (this.references) {
-			this.references.values().forEach(r -> {
-				var l = r.key().location();
-
-				r.bind(createKey(l), this.get(l));
-			});
+			this.references.values().forEach(r -> r.bindValue(this.get(r.key().location())));
 		}
 	}
 
