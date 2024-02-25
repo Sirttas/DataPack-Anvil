@@ -10,6 +10,7 @@ import org.apache.commons.lang3.function.Consumers;
 import org.jetbrains.annotations.ApiStatus;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.ICodecProvider;
+import sirttas.dpanvil.api.predicate.block.direction.FacingBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.NoneBlockPredicate;
@@ -40,6 +41,7 @@ public record BlockPosPredicateType<T extends IBlockPosPredicate>(Codec<T> codec
 	public static final DeferredHolder<BlockPosPredicateType<?>, BlockPosPredicateType<MatchBlockStatePredicate>> MATCH_STATE = register(MatchBlockStatePredicate.CODEC, MatchBlockStatePredicate.NAME);
 	public static final DeferredHolder<BlockPosPredicateType<?>, BlockPosPredicateType<OffsetBlockPredicate>> OFFSET = register(OffsetBlockPredicate.CODEC, OffsetBlockPredicate.NAME);
 	public static final DeferredHolder<BlockPosPredicateType<?>, BlockPosPredicateType<CacheBlockPredicate>> CACHE = register(CacheBlockPredicate.CODEC, CacheBlockPredicate.NAME);
+	public static final DeferredHolder<BlockPosPredicateType<?>, BlockPosPredicateType<FacingBlockPredicate>> FACING = register(FacingBlockPredicate.CODEC, FacingBlockPredicate.NAME);
 
 	private static <T extends IBlockPosPredicate> DeferredHolder<BlockPosPredicateType<?>, BlockPosPredicateType<T>> register(Codec<T> codec, String name) {
 		return DEFERRED_REGISTRY.register(name, () -> new BlockPosPredicateType<>(codec));

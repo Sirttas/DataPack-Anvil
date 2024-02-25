@@ -32,7 +32,7 @@ public final class MatchBlocksPredicate implements IBlockStatePredicate {
 
 	@Override
 	public boolean test(BlockState state) {
-		return blocks.contains(state.getBlock());
+		return blocks.stream().anyMatch(state::is);
 	}
 
 	public List<Block> getBlocks() {

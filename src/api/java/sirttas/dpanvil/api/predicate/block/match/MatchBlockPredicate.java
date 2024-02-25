@@ -21,7 +21,7 @@ public record MatchBlockPredicate(
 
 	@Override
 	public boolean test(BlockState state) {
-		return block == state.getBlock();
+		return state.is(block);
 	}
 
 	@Override
