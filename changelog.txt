@@ -1,3 +1,8 @@
+5.1.2:
+
+- moved version naming to semver
+
+
 1.20.4-5.1.1:
 
 - added facing block predicate

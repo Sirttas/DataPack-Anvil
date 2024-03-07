@@ -8,11 +8,11 @@ plugins {
 	id 'net.neoforged.gradle.userdev' version "${neogradle_version}"
 
 	id "org.sonarqube" version "${sonar_version}"
-	id 'net.darkhax.curseforgegradle' version '1.1.16'
+	id 'net.darkhax.curseforgegradle' version '1.1.+'
 	id "com.modrinth.minotaur" version "2.+"
 }
 
-version = project.hasProperty('tag_version') ? "${minecraft_version}-${tag_version}" : "${dpanvil_version}"
+version = project.hasProperty('tag_version') ? "${tag_version}" : "${dpanvil_version}"
 group = 'sirttas.dpanvil'
 
 repositories {
