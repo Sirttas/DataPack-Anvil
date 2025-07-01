@@ -28,8 +28,11 @@ import java.util.function.Function;
 
 public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 
-	public SimpleDataManager(ResourceKey<IDataManager<T>> key, Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter) {
+	private final boolean hasInheritance;
+
+	public SimpleDataManager(ResourceKey<IDataManager<T>> key, Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter, boolean hasInheritance) {
 		super(key, contentType, folder, defaultValueFactory, idSetter);
+		this.hasInheritance = hasInheritance;
 	}
 
 	@Override
@@ -40,7 +43,7 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 		for (var entry : resourceManager.listResources(this.folder, file -> file.getPath().endsWith(".json")).entrySet()) {
 			var resourceLocation = entry.getKey();
 			String path = resourceLocation.getPath();
-			ResourceLocation resourceId = new ResourceLocation(resourceLocation.getNamespace(), path.substring(i, path.length() - 5));
+			ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), path.substring(i, path.length() - 5));
 
 
 			try (InputStream inputstream = entry.getValue().open()) {
@@ -56,13 +59,15 @@ public class SimpleDataManager<T> extends AbstractDataManager<T, JsonElement> {
 				DataPackAnvilApi.LOGGER.error("Couldn't parse data file {} from {}", resourceId, resourceLocation, e);
 			}
 		}
+		if (this.hasInheritance) {
+			return new InheritanceResolver(map).resolve();
+		}
 		return map;
 	}
 
-	
 	@Override
 	protected void apply(@NotNull Map<ResourceLocation, JsonElement> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
-		RegistryListener.getInstance().listen(r -> {
+		RegistryListener.getInstance().listen(r -> { // FIXME use ContextAwareReloadListener
 			try {
 				Map<ResourceLocation, T> map = Maps.newHashMap();
 				IJsonDataSerializer<T, ?> serializer = DataPackAnvil.WRAPPER.getSerializer(key);

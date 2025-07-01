@@ -5,11 +5,24 @@ plugins {
 	id 'eclipse'
 	id 'idea'
 	id 'maven-publish'
-	id 'net.neoforged.gradle.userdev' version "${neogradle_version}"
+	id 'net.neoforged.moddev' version '2.0.+'
 
 	id "org.sonarqube" version "${sonar_version}"
 	id 'net.darkhax.curseforgegradle' version '1.1.+'
 	id "com.modrinth.minotaur" version "2.+"
+}
+
+eclipse {
+	classpath {
+		downloadSources = true
+		downloadJavadoc = true
+	}
+}
+idea {
+	module {
+		downloadSources = true
+		downloadJavadoc = true
+	}
 }
 
 version = project.hasProperty('tag_version') ? "${tag_version}" : "${dpanvil_version}"
@@ -26,7 +39,7 @@ base {
 
 logger.info('Building DataPack Anvil: ' + project.version)
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of("${java_version}")
 
 sourceSets {
 	api {
@@ -38,55 +51,63 @@ sourceSets {
 		resources {
 			srcDir 'src/generated/resources'
 		}
-		compileClasspath += api.output
-		runtimeClasspath += api.output
 	}
 }
 
-runs {
-	configureEach {
-		systemProperty 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-		systemProperty 'forge.logging.console.level', 'debug'
-		systemProperty 'fml.earlyprogresswindow', 'false'
-		systemProperty 'mixin.debug.verbose', 'true'
-		systemProperty 'mixin.env.remapRefMap', 'true'
+neoForge {
+	version = project.neo_version
 
-		modSource sourceSets.main
+	addModdingDependenciesTo(sourceSets.api)
+
+	parchment {
+		mappingsVersion = project.parchment_mappings_version
+		minecraftVersion = project.parchment_minecraft_version
 	}
 
-	client {
-		systemProperty 'forge.enabledGameTestNamespaces', 'dpanvil'
+	accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
+
+	runs {
+		configureEach {
+			systemProperty 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+			systemProperty 'forge.logging.console.level', 'debug'
+			systemProperty 'fml.earlyprogresswindow', 'false'
+			systemProperty 'mixin.debug.verbose', 'true'
+			systemProperty 'mixin.env.remapRefMap', 'true'
+
+			logLevel = org.slf4j.event.Level.DEBUG
+		}
+
+		client {
+			client()
+
+			systemProperty 'forge.enabledGameTestNamespaces', 'dpanvil'
+		}
+
+		server {
+			server()
+
+			programArgument '--nogui'
+			systemProperty 'forge.enabledGameTestNamespaces', 'dpanvil'
+		}
 	}
 
-	server {
-		systemProperty 'forge.enabledGameTestNamespaces', 'dpanvil'
-		programArgument '--nogui'
-	}
-}
-
-ext.updateSourceSetMapping = { sourceSet ->
-	if (project.hasProperty('UPDATE_MAPPINGS')) {
-		extractRangeMap.sources += sourceSet.java.srcDirs
-		applyRangeMap.sources += sourceSet.java.srcDirs
-		sourceSet.java.srcDirs.each { src -> 
-			extractMappedNew.addTarget(src) 
+	mods {
+		dpanvil {
+			sourceSet(sourceSets.api)
+			sourceSet(sourceSets.main)
 		}
 	}
 }
 
 configurations {
-	apiCompile.extendsFrom(compile)
-    apiImplementation.extendsFrom(implementation)
-    apiCompileOnly.extendsFrom(compileOnly)
-    apiRuntimeOnly.extendsFrom(runtimeOnly)
+	runtimeClasspath.extendsFrom(localRuntime)
 }
 
 dependencies {
-	implementation "net.neoforged:neoforge:${neo_version}"
+	implementation sourceSets.api.output
 }
 
-
-tasks.withType(ProcessResources).configureEach {
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
 	var replaceProperties = [
 			minecraft_version: minecraft_version,
 			minecraft_version_range: minecraft_version_range,
@@ -98,11 +119,13 @@ tasks.withType(ProcessResources).configureEach {
 			dpanvil_version: dpanvil_version,
 	]
 	inputs.properties replaceProperties
-
-	filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
-		expand replaceProperties
-	}
+	expand replaceProperties
+	from "src/main/templates"
+	into "build/generated/sources/modMetadata"
 }
+
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
 
 jar {
 	from sourceSets.api.output
@@ -135,9 +158,6 @@ task sourcesJar(type: Jar) {
 
 build.dependsOn tasks.apiJar
 build.dependsOn tasks.sourcesJar
-
-updateSourceSetMapping(sourceSets.api)
-
 
 sonarqube {
 	properties {
@@ -205,7 +225,7 @@ if (curseforge_key != null || modrinth_token != null) {
 	def changeStart = false
 	def changeEnd = false
 
-	println('Changelog:')
+	logger.info('Changelog:')
 
 	file('changelog.txt').withReader { reader ->
 		def line
@@ -217,7 +237,7 @@ if (curseforge_key != null || modrinth_token != null) {
 				changeEnd = true
 			}
 			if (changeStart && !changeEnd) {
-				println(line)
+				logger.info(line)
 				generatedChangelog += line + '\n'
 			}
 		}

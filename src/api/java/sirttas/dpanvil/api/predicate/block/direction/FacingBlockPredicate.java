@@ -1,6 +1,6 @@
 package sirttas.dpanvil.api.predicate.block.direction;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +21,7 @@ public enum FacingBlockPredicate implements IBlockPosPredicate {
 
     public static final String NAME = "facing";
 
-    public static final Codec<FacingBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+    public static final MapCodec<FacingBlockPredicate> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             Direction.CODEC.fieldOf("direction").forGetter(f -> f.direction)
     ).apply(builder, d -> switch (d) {
         case DOWN -> DOWN;

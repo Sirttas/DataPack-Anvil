@@ -1,7 +1,7 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
@@ -15,8 +15,8 @@ public abstract class AbstractListBlockPredicate implements IBlockPosPredicate {
 
 	protected final List<IBlockPosPredicate> predicates;
 
-	protected static <T extends AbstractListBlockPredicate> Codec<T> codec(Function<List<IBlockPosPredicate>, T> builder) {
-		return RecordCodecBuilder.create(codecBuilder -> codecBuilder.group(
+	protected static <T extends AbstractListBlockPredicate> MapCodec<T> codec(Function<List<IBlockPosPredicate>, T> builder) {
+		return RecordCodecBuilder.mapCodec(codecBuilder -> codecBuilder.group(
 				CODEC.listOf().fieldOf(DPAnvilNames.VALUES).forGetter(AbstractListBlockPredicate::getPredicates)
 		).apply(codecBuilder, builder));
 	}

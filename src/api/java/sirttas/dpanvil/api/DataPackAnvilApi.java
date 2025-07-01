@@ -10,16 +10,19 @@ import sirttas.dpanvil.api.data.remap.RemapKeys;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ServiceLoader;
 
 public class DataPackAnvilApi {
 
+	private static final Method CREATE_RESOURCE_KEY = ObfuscationReflectionHelper.findMethod(ResourceKey.class, "create", ResourceLocation.class, ResourceLocation.class);
+
 	public static final String MODID = "dpanvil";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
-	public static final ResourceLocation ID_NONE = new ResourceLocation(MODID, "none");
-	public static final ResourceLocation DATA_MANAGER_ROOT = new ResourceLocation(MODID, "data_managers");
+	public static final ResourceLocation ID_NONE = createRL("none");
+	public static final ResourceLocation DATA_MANAGER_ROOT = createRL("data_managers");
 
-	public static final ResourceKey<IDataManager<RemapKeys>> REMAP_KEYS_MANAGER_KEY = IDataManager.createManagerKey(new ResourceLocation(MODID, RemapKeys.NAME));
+	public static final ResourceKey<IDataManager<RemapKeys>> REMAP_KEYS_MANAGER_KEY = IDataManager.createManagerKey(createRL(RemapKeys.NAME));
 	public static final IDataManager<RemapKeys> REMAP_KEYS_MANAGER = IDataManager.builder(RemapKeys.class, REMAP_KEYS_MANAGER_KEY)
 			.merged(RemapKeys::merge)
 			.withDefault(RemapKeys.EMPTY)
@@ -50,7 +53,7 @@ public class DataPackAnvilApi {
 	@SuppressWarnings("unchecked")
 	public static <T> ResourceKey<T> createResourceKey(ResourceLocation dataManagerId, ResourceLocation id) {
 		try {
-			return (ResourceKey<T>) ObfuscationReflectionHelper.findMethod(ResourceKey.class, "create", ResourceLocation.class, ResourceLocation.class).invoke(null, dataManagerId, id);
+			return (ResourceKey<T>) CREATE_RESOURCE_KEY.invoke(null, dataManagerId, id);
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new IllegalStateException("Reflection error", e);
 		}
@@ -58,8 +61,9 @@ public class DataPackAnvilApi {
 
 	public static ResourceLocation createRL(String name) {
 		if (name.contains(":")) {
-			return new ResourceLocation(name);
+			return ResourceLocation.parse(name);
 		}
-		return new ResourceLocation(DataPackAnvilApi.MODID, name);
+		return ResourceLocation.fromNamespaceAndPath(MODID, name);
 	}
+
 }

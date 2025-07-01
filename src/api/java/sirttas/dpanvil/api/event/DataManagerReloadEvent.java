@@ -1,18 +1,22 @@
 package sirttas.dpanvil.api.event;
 
-import net.neoforged.bus.api.GenericEvent;
+import net.minecraft.resources.ResourceKey;
+import net.neoforged.bus.api.Event;
 import sirttas.dpanvil.api.data.IDataManager;
 
-public class DataManagerReloadEvent<T> extends GenericEvent<T> {
+public class DataManagerReloadEvent extends Event {
 
-	private final IDataManager<T> dataManager;
+	private final IDataManager<?> dataManager;
 
-	public DataManagerReloadEvent(IDataManager<T> dataManager) {
-		super(dataManager.getContentType());
+	public DataManagerReloadEvent(IDataManager<?> dataManager) {
 		this.dataManager = dataManager;
 	}
 
-	public IDataManager<T> getDataManager() {
-		return dataManager;
+	public <T> IDataManager<T> getDataManager() {
+		return (IDataManager<T>) dataManager;
+	}
+
+	public <T> boolean isFor(ResourceKey<IDataManager<T>> key) {
+		return dataManager.getKey().equals(key);
 	}
 }

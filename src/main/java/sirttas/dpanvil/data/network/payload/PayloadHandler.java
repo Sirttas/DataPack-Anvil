@@ -2,12 +2,12 @@ package sirttas.dpanvil.data.network.payload;
 
 
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.network.event.OnGameConfigurationEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 
-@Mod.EventBusSubscriber(modid = DataPackAnvilApi.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = DataPackAnvilApi.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class PayloadHandler {
 
 	private static final String PROTOCOL_VERSION = "1";
@@ -15,15 +15,14 @@ public class PayloadHandler {
 	private PayloadHandler() {}
 
 	@SubscribeEvent
-	public static void register(final RegisterPayloadHandlerEvent event) {
+	public static void register(final RegisterPayloadHandlersEvent event) {
 		var registrar = event.registrar(DataPackAnvilApi.MODID).versioned(PROTOCOL_VERSION);
 
- 		registrar.configuration(ReloadDataPayload.ID, ReloadDataPayload::new, ReloadDataPayload::handle);
- 		registrar.play(ReloadDataPayload.ID, ReloadDataPayload::new, ReloadDataPayload::handle);
+ 		registrar.commonToClient(ReloadDataPayload.TYPE, ReloadDataPayload.STREAM_CODEC, ReloadDataPayload::handle);
 	}
 
 	@SubscribeEvent
-	public static void onGameConfiguration(OnGameConfigurationEvent event) {
+	public static void onGameConfiguration(RegisterConfigurationTasksEvent event) {
 		event.register(new ReloadDataTask(event.getListener()));
 
 	}

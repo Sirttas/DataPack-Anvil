@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.fml.ModLoader;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
@@ -113,7 +112,7 @@ public class DataManagerWrapper implements PreparableReloadListener {
 
 	@Override
 	public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier stage, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller preparationsProfiler, @NotNull ProfilerFiller reloadProfiler, @NotNull Executor backgroundExecutor, @NotNull Executor gameExecutor) {
-		if (!ModLoader.isLoadingStateValid() || managers.isEmpty()) {
+		if (managers.isEmpty()) {
 			return CompletableFuture.allOf();
 		}
 		return CompletableFuture.runAsync(() -> CompletableFuture.allOf(managers.entrySet().stream()
@@ -125,7 +124,7 @@ public class DataManagerWrapper implements PreparableReloadListener {
 	}
 
 	private void postLoad() {
-		DataPackAnvilApi.LOGGER.debug("DataManagers loading compleat: {}", () -> {
+		DataPackAnvilApi.LOGGER.debug("DataManagers loading complete: {}", () -> {
 			StringBuilder logBuilder = new StringBuilder();
 
 			this.managers.forEach((managerId, manager) -> {

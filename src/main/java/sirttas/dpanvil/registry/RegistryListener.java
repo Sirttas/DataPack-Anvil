@@ -6,7 +6,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.RegistryOps;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @SuppressWarnings("unchecked")
-@Mod.EventBusSubscriber(modid = DataPackAnvilApi.MODID)
+@EventBusSubscriber(modid = DataPackAnvilApi.MODID)
 public class RegistryListener {
 
     private final List<Consumer<RegistryAccess>> listeners = new ArrayList<>();
@@ -45,7 +45,7 @@ public class RegistryListener {
         if (registry == null) {
             throw new IllegalStateException("Registry not initialized yet!");
         }
-        return (RegistryOps<T>) registryOps.computeIfAbsent(ops, o -> RegistryOps.create(o, registry));
+        return (RegistryOps<T>) registryOps.computeIfAbsent(ops, o -> registry.createSerializationContext(o));
     }
 
     private synchronized void clear() {

@@ -9,7 +9,6 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -47,7 +46,7 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 			collectBuilders(resolvedRegistries);
 
 			var list = new ArrayList<CompletableFuture<?>>(data.size());
-			var ops = RegistryOps.create(JsonOps.INSTANCE, resolvedRegistries);
+			var ops = resolvedRegistries.createSerializationContext(JsonOps.INSTANCE);
 
 			for (Map.Entry<ResourceLocation, B> entry : data.entrySet()) {
 				list.add(save(cache, ops, entry.getValue(), entry.getKey()));
@@ -91,6 +90,6 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 	}
 
 	public <U> HolderSet.Named<U> createHolderSet(TagKey<U> tag) {
-		return HolderSet.emptyNamed(getRegistry(tag.registry()), tag);
+		return getRegistry(tag.registry()).getOrThrow(tag);
 	}
 }

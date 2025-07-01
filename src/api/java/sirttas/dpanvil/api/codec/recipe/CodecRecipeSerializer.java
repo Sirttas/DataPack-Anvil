@@ -1,34 +1,41 @@
 package sirttas.dpanvil.api.codec.recipe;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
 import javax.annotation.Nonnull;
 
+@Deprecated
 public class CodecRecipeSerializer<T extends Recipe<?>> implements RecipeSerializer<T> {
 
-	private final Codec<T> codec;
+	private final MapCodec<T> codec;
+	private final StreamCodec<RegistryFriendlyByteBuf, T> streamCodec;
 
-	public CodecRecipeSerializer(Codec<T> codec) {
+	public CodecRecipeSerializer(MapCodec<T> codec) {
 		this.codec = codec;
+		this.streamCodec = StreamCodec.of(this::toNetwork, this::fromNetwork);
 	}
 
 	@Override
-	public @NotNull Codec<T> codec() {
+	public @NotNull MapCodec<T> codec() {
 		return codec;
 	}
 
 	@Override
-	public @Nullable T fromNetwork(@NotNull FriendlyByteBuf buffer) {
+	public @NotNull StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
+		return streamCodec;
+	}
+
+	public T fromNetwork(@NotNull FriendlyByteBuf buffer) {
 		return CodecHelper.decode(codec, buffer);
 	}
 
-	@Override
 	public void toNetwork(@Nonnull FriendlyByteBuf buffer, @Nonnull T recipe) {
 		CodecHelper.encode(codec, recipe, buffer);
 	}

@@ -27,7 +27,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	private final Class<T> contentType;
 	private final Function<ResourceLocation, T> defaultValueFactory;
 	private final Map<ResourceLocation, Holder.Reference<T>> references;
-	private BiMap<ResourceLocation, T> data;
+	private Map<ResourceLocation, T> data;
 	private Map<ResourceLocation, T> remapedData;
 	protected final String folder;
 	protected final BiConsumer<T, ResourceLocation> idSetter;
@@ -71,11 +71,16 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 		} else {
 			remapedData = Collections.emptyMap();
 		}
-		data = ImmutableBiMap.copyOf(map);
+		try {
+			data = ImmutableBiMap.copyOf(map);
+		} catch (IllegalArgumentException e) {
+			DataPackAnvilApi.LOGGER.warn("Manager {} has duplicate values ({}), by key search will be slower and may be inconsistent", () -> key, e::getMessage);
+			data = Map.copyOf(map);
+		}
 
 		rebindReferences();
 		DataPackAnvilApi.LOGGER.info("Loaded {} {}", data.size(), key);
-		NeoForge.EVENT_BUS.post(new DataManagerReloadEvent<>(this));
+		NeoForge.EVENT_BUS.post(new DataManagerReloadEvent(this));
 	}
 
 	@Override
@@ -85,7 +90,15 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 
 	@Override
 	public @Nonnull ResourceLocation getId(final T value) {
-		return data.inverse().getOrDefault(value, DataPackAnvilApi.ID_NONE);
+		if (data instanceof BiMap) {
+			return ((BiMap<ResourceLocation, T>) data).inverse().getOrDefault(value, DataPackAnvilApi.ID_NONE);
+		}
+		for (var entry : data.entrySet()) {
+			if (entry.getValue().equals(value)) {
+				return entry.getKey();
+			}
+		}
+		return DataPackAnvilApi.ID_NONE;
 	}
 
 	@Override
@@ -105,7 +118,7 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 
 	@Override
 	@Nonnull
-	public  Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
+	public Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
 		synchronized (this.references) {
 			return this.references.computeIfAbsent(key.location(), i -> {
 				var reference = Holder.Reference.createStandAlone(this, key);
@@ -120,18 +133,25 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 
 	@Override
 	@Nonnull
-	public  Holder<T> getOrCreateHolder(@Nonnull ResourceLocation key) {
+	public Holder<T> getOrCreateHolder(@Nonnull ResourceLocation key) {
 		return getOrCreateHolder(createKey(key));
 	}
-	
+
 	@Override
 	public @Nonnull String getFolder() {
 		return folder;
 	}
 
+	@SuppressWarnings("DataFlowIssue")
 	private void rebindReferences() {
 		synchronized (this.references) {
-			this.references.values().forEach(r -> r.bindValue(this.get(r.key().location())));
+			this.references.values().forEach(r -> {
+				r.bindValue(this.get(r.key().location()));
+				if (!r.isBound()) {
+					DataPackAnvilApi.LOGGER.warn("Failed to bind reference {} for {}", r.key().location(), key);
+				}
+			});
+
 		}
 	}
 

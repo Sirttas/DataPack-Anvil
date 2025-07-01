@@ -1,12 +1,13 @@
 package sirttas.dpanvil.api.predicate.block.world;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -26,7 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -38,6 +39,7 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTickAccess;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
@@ -54,7 +56,7 @@ public record CacheBlockPredicate(
 ) implements IBlockPosPredicate {
 
     public static final String NAME = "cache";
-    public static final Codec<CacheBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+    public static final MapCodec<CacheBlockPredicate> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             IBlockPosPredicate.CODEC.fieldOf(DPAnvilNames.VALUE).forGetter(CacheBlockPredicate::predicate)
     ).apply(builder, CacheBlockPredicate::new));
 
@@ -66,6 +68,12 @@ public record CacheBlockPredicate(
     @Override
     public BlockPosPredicateType<CacheBlockPredicate> getType() {
         return BlockPosPredicateType.CACHE.get();
+    }
+
+    @Override
+    @Nonnull
+    public List<Component> getTooltip() {
+        return predicate.getTooltip();
     }
 
     private static class CacheLevel implements ServerLevelAccessor {
@@ -147,8 +155,8 @@ public record CacheBlockPredicate(
         }
 
         @Override
-        public void gameEvent(@Nonnull GameEvent event, @Nonnull Vec3 position, @Nonnull GameEvent.Context context) {
-            level.gameEvent(event, position, context);
+        public void gameEvent(@NotNull Holder<GameEvent> holder, @NotNull Vec3 vec3, @NotNull GameEvent.Context context) {
+            level.gameEvent(holder, vec3, context);
         }
 
         @Nonnull
@@ -218,8 +226,8 @@ public record CacheBlockPredicate(
 
         @Nullable
         @Override
-        public ChunkAccess getChunk(int pX, int pZ, @Nonnull ChunkStatus requiredStatus, boolean pNonnull) {
-            return level.getChunk(pX, pZ, requiredStatus, pNonnull);
+        public ChunkAccess getChunk(int i, int i1, @NotNull ChunkStatus chunkStatus, boolean b) {
+            return level.getChunk(i, i1, chunkStatus, b);
         }
 
         @Override

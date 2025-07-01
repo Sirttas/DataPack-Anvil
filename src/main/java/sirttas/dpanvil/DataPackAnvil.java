@@ -15,7 +15,7 @@ import sirttas.dpanvil.api.event.DataPackReloadCompleteEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.data.DataManagerWrapper;
-import sirttas.dpanvil.data.network.payload.PayloadHelper;
+import sirttas.dpanvil.data.network.payload.DPAnvilPacketDistributor;
 import sirttas.dpanvil.data.network.payload.ReloadDataPayload;
 
 @Mod(DataPackAnvilApi.MODID)
@@ -49,7 +49,7 @@ public class DataPackAnvil {
 			return;
 		}
 
-		PayloadHelper.sendToAllRemotePlayers(new ReloadDataPayload(DataPackAnvil.WRAPPER.ids()));
+		DPAnvilPacketDistributor.sendToAllRemotePlayers(new ReloadDataPayload(DataPackAnvil.WRAPPER.ids()));
 		onReloadCompleted(event.getPlayerList().getServer());
 	}
 	

@@ -51,7 +51,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 		for (var entry : resourceManager.listResourceStacks(this.folder, file -> file.getPath().endsWith(".json")).entrySet()) {
 			var resourceLocation = entry.getKey();
 			String path = resourceLocation.getPath();
-			ResourceLocation resourceId = new ResourceLocation(resourceLocation.getNamespace(), path.substring(i, path.length() - 5));
+			ResourceLocation resourceId = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), path.substring(i, path.length() - 5));
 			List<JsonElement> list = Lists.newArrayList();
 
 			for (Resource resource : entry.getValue()) {
@@ -83,7 +83,7 @@ public class MergedDataManager<R, T> extends AbstractDataManager<T, List<JsonEle
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void apply(@NotNull Map<ResourceLocation, List<JsonElement>> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
-		RegistryListener.getInstance().listen(r -> {
+		RegistryListener.getInstance().listen(r -> { // FIXME use ContextAwareReloadListener
 			try {
 				Map<ResourceLocation, T> map = Maps.newHashMap();
 				Function<JsonElement, R> parser = rawParser != null ? rawParser : json -> (R) DataPackAnvil.WRAPPER.getSerializer(key).read(json);

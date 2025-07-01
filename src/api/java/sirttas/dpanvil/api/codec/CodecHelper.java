@@ -5,16 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.DataResult.PartialResult;
-import com.mojang.serialization.Decoder;
-import com.mojang.serialization.DynamicOps;
-import com.mojang.serialization.Encoder;
-import com.mojang.serialization.JsonOps;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.MapDecoder;
-import com.mojang.serialization.MapEncoder;
+import com.mojang.serialization.*;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,7 +29,7 @@ public class CodecHelper {
 	private CodecHelper() {}
 
 	public static synchronized <T> RegistryOps<T> getRegistryOps(DynamicOps<T> ops) {
-		return (RegistryOps<T>) REGISTRY_OPS.computeIfAbsent(ops, o -> RegistryOps.create(o, RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY)));
+		return (RegistryOps<T>) REGISTRY_OPS.computeIfAbsent(ops, o -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY).createSerializationContext(o));
 	}
 
 
@@ -97,25 +88,66 @@ public class CodecHelper {
 		};
 	}
 
+	public static <T> T decode(MapDecoder<T> decoder, JsonElement json) {
+		return decode(decoder.decoder(), json);
+	}
+
 	public static <T> T decode(Decoder<T> decoder, JsonElement json) {
 		return decode(decoder, getRegistryOps(JsonOps.INSTANCE), json);
+	}
+
+	public static <T> T decode(MapDecoder<T> decoder, FriendlyByteBuf buf) {
+		return decode(decoder.decoder(), buf);
 	}
 
 	public static <T> T decode(Decoder<T> decoder, FriendlyByteBuf buf) {
 		return decode(decoder, buf.readNbt());
 	}
 
+	public static <T> T decode(MapDecoder<T> decoder, Tag nbt) {
+		return decode(decoder.decoder(), nbt);
+	}
+
 	public static <T> T decode(Decoder<T> decoder, Tag nbt) {
 		return decode(decoder, getRegistryOps(NbtOps.INSTANCE), nbt);
+	}
+
+	public static <T, U> T decode(MapDecoder<T> decoder, DynamicOps<U> ops, U input) {
+		return decode(decoder.decoder(), ops, input);
 	}
 
 	public static <T, U> T decode(Decoder<T> decoder, DynamicOps<U> ops, U input) {
 		return handleResult(decoder.decode(ops, input)).getFirst();
 	}
 
+	public static <T> JsonElement encode(MapEncoder<T> encoder, T data) {
+		return encode(encoder.encoder(), data);
+	}
+
+	public static <T> JsonElement encode(Encoder<T> encoder, T data) {
+		return encode(encoder, getRegistryOps(JsonOps.INSTANCE), data);
+	}
+
+	public static <T, U> U encode(MapEncoder<T> encoder, DynamicOps<U> ops, T data) {
+		return encode(encoder.encoder(), ops, data);
+	}
+
+	public static <T, U> U encode(Encoder<T> encoder, DynamicOps<U> ops, T data) {
+		return handleResult(encoder.encode(data, ops, ops.empty()));
+	}
+
+	public static <T> void encode(MapEncoder<T> encoder, T data, FriendlyByteBuf buf) {
+		encode(encoder.encoder(), data, buf);
+	}
+
 	public static <T> void encode(Encoder<T> encoder, T data, FriendlyByteBuf buf) {
 		encode(encoder, getRegistryOps(NbtOps.INSTANCE), data, buf);
 	}
+
+	public static <T> void encode(MapEncoder<T> encoder, DynamicOps<Tag> ops, T data, FriendlyByteBuf buf) {
+		encode(encoder.encoder(), ops, data, buf);
+	}
+
 	public static <T> void encode(Encoder<T> encoder, DynamicOps<Tag> ops, T data, FriendlyByteBuf buf) {
 		Tag nbt = handleResult(encoder.encode(data, ops, ops.empty()));
 
@@ -124,14 +156,6 @@ public class CodecHelper {
 		} else {
 			throw new IllegalStateException("Couldn't get a CompoundNBT from the encoder: " + encoder);
 		}
-	}
-
-	public static <T> JsonElement encode(Encoder<T> encoder, T data) {
-		return encode(encoder, getRegistryOps(JsonOps.INSTANCE), data);
-	}
-
-	public static <T, U> U encode(Encoder<T> encoder, DynamicOps<U> ops, T data) {
-		return handleResult(encoder.encode(data, ops, ops.empty()));
 	}
 
 	/**
@@ -143,6 +167,8 @@ public class CodecHelper {
 	 */
 	public static <T> T handleResult(DataResult<T> result) {
 		return result.resultOrPartial(DataPackAnvilApi.LOGGER::warn)
-				.orElseThrow(() -> new IllegalStateException(result.error().map(PartialResult::message).orElse("Error while decoding data, no error message found...")));
+				.orElseThrow(() -> new IllegalStateException(result.error()
+						.map(DataResult.Error::message)
+						.orElse("Error while decoding data, no error message found...")));
 	}
 }

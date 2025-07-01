@@ -1,0 +1,12 @@
+{
+    "tooltip.dpanvil.predicate.none": "Never",
+    "tooltip.dpanvil.predicate.any": "Always",
+    "tooltip.dpanvil.predicate.or": "Any of:",
+    "tooltip.dpanvil.predicate.and": "All of:",
+    "tooltip.dpanvil.predicate.not": "Not:",
+    "tooltip.dpanvil.predicate.tag": "In tag: %s",
+    "tooltip.dpanvil.predicate.prefix.include": " ├── %s",
+    "tooltip.dpanvil.predicate.prefix.exclude": " │   %s",
+    "tooltip.dpanvil.predicate.prefix.last":    " └── %s",
+    "tooltip.dpanvil.predicate.prefix.blank":   "     %s"
+}

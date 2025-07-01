@@ -1,9 +1,11 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelReader;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicateTooltipHelper;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
@@ -16,7 +18,7 @@ import java.util.stream.Stream;
 public final class AndBlockPredicate extends AbstractListBlockPredicate {
 
 	public static final String NAME = "and";
-	public static final Codec<AndBlockPredicate> CODEC = codec(AndBlockPredicate::new);
+	public static final MapCodec<AndBlockPredicate> CODEC = codec(AndBlockPredicate::new);
 
 	public AndBlockPredicate(IBlockPosPredicate... predicates) {
 		this(Arrays.asList(predicates));
@@ -52,8 +54,14 @@ public final class AndBlockPredicate extends AbstractListBlockPredicate {
 		if (simplified.isEmpty() || simplified.stream().anyMatch(NoneBlockPredicate.class::isInstance)) {
 			return IBlockPosPredicate.none();
 		} else if (simplified.size() == 1) {
-			return simplified.get(0);
+			return simplified.getFirst();
 		}
 		return new AndBlockPredicate(simplified);
+	}
+
+	@Override
+	@Nonnull
+	public List<Component> getTooltip() {
+		return BlockPosPredicateTooltipHelper.and(predicates, IBlockPosPredicate::getTooltip);
 	}
 }

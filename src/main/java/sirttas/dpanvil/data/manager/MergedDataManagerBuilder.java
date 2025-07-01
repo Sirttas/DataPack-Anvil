@@ -19,7 +19,11 @@ public class MergedDataManagerBuilder<R, T> extends AbstractBuilder<T> {
 		this.rawParser = rawParser;
 		this.folder = source.folder;
 	}
-	
+
+	public IDataManager.Builder<T> withInheritance() {
+		throw new UnsupportedOperationException("Inheritance is not supported for merged data managers.");
+	}
+
 	@Override
 	public IDataManager<T> build() {
 		return new MergedDataManager<>(key, type, folder, defaultValueFactory, idSetter, merger, rawParser);

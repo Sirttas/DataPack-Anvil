@@ -1,8 +1,9 @@
 package sirttas.dpanvil.api.predicate.block.match;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
@@ -11,25 +12,20 @@ import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
-public final class MatchBlockTagPredicate implements IBlockStatePredicate {
+import javax.annotation.Nonnull;
+import java.util.List;
+
+public record MatchBlockTagPredicate(
+		TagKey<Block> tag
+) implements IBlockStatePredicate {
 
 	public static final String NAME = "tag";
-	public static final Codec<MatchBlockTagPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-			TagKey.codec(Registries.BLOCK).fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::getTag)
+	public static final MapCodec<MatchBlockTagPredicate> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+			TagKey.codec(Registries.BLOCK).fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::tag)
 	).apply(builder, MatchBlockTagPredicate::new));
-
-	private final TagKey<Block> tag;
 
 	public MatchBlockTagPredicate(ResourceLocation tagName) {
 		this(TagKey.create(Registries.BLOCK, tagName));
-	}
-
-	public MatchBlockTagPredicate(TagKey<Block> tag) {
-		this.tag = tag;
-	}
-
-	public TagKey<Block> getTag() {
-		return tag;
 	}
 
 	@Override
@@ -42,4 +38,9 @@ public final class MatchBlockTagPredicate implements IBlockStatePredicate {
 		return BlockPosPredicateType.MATCH_TAG.get();
 	}
 
+	@Override
+	@Nonnull
+	public List<Component> getTooltip() {
+		return List.of(Component.translatable("tooltip.dpanvil.predicate.tag", Component.literal(tag.location().toString())));
+	}
 }

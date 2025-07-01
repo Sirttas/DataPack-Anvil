@@ -1,20 +1,22 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelReader;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 public final class NoneBlockPredicate implements IBlockPosPredicate {
 
 	public static final String NAME = "none";
 	private static final NoneBlockPredicate INSTANCE = new NoneBlockPredicate();
-	public static final Codec<NoneBlockPredicate> CODEC = Codec.unit(INSTANCE);
+	public static final MapCodec<NoneBlockPredicate> CODEC = MapCodec.unit(INSTANCE);
 
 	private NoneBlockPredicate() {
 	}
@@ -41,5 +43,11 @@ public final class NoneBlockPredicate implements IBlockPosPredicate {
 	
 	public static IBlockPosPredicate get() {
 		return INSTANCE;
+	}
+
+	@Override
+	@Nonnull
+	public List<Component> getTooltip() {
+		return List.of(Component.translatable("tooltip.dpanvil.predicate.none"));
 	}
 }

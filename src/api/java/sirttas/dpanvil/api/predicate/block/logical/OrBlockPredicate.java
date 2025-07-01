@@ -1,10 +1,12 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
 import com.google.common.collect.Lists;
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelReader;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicateTooltipHelper;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.match.MatchBlockPredicate;
@@ -19,7 +21,7 @@ import java.util.stream.Stream;
 public final class OrBlockPredicate extends AbstractListBlockPredicate {
 
 	public static final String NAME = "or";
-	public static final Codec<OrBlockPredicate> CODEC = codec(OrBlockPredicate::new);
+	public static final MapCodec<OrBlockPredicate> CODEC = codec(OrBlockPredicate::new);
 
 	public OrBlockPredicate(IBlockPosPredicate... predicates) {
 		this(Arrays.asList(predicates));
@@ -57,12 +59,18 @@ public final class OrBlockPredicate extends AbstractListBlockPredicate {
 		} else if (simplified.stream().anyMatch(AnyBlockPredicate.class::isInstance)) {
 			return IBlockPosPredicate.any();
 		} else if (simplified.size() == 1) {
-			return simplified.get(0);
+			return simplified.getFirst();
 		} else if (simplified.stream().allMatch(p -> p instanceof MatchBlockPredicate || p instanceof MatchBlocksPredicate)) {
 			return new MatchBlocksPredicate(simplified.stream()
-					.flatMap(p -> p instanceof MatchBlockPredicate matchBlockPredicate ? Stream.of(matchBlockPredicate.block()) : ((MatchBlocksPredicate) p).getBlocks().stream())
+					.flatMap(p -> p instanceof MatchBlockPredicate matchBlockPredicate ? Stream.of(matchBlockPredicate.block()) : ((MatchBlocksPredicate) p).blocks().stream())
 					.toList()).simplify();
 		}
 		return new OrBlockPredicate(simplified);
+	}
+
+	@Override
+	@Nonnull
+	public List<Component> getTooltip() {
+		return BlockPosPredicateTooltipHelper.or(predicates, IBlockPosPredicate::getTooltip);
 	}
 }

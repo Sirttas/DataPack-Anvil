@@ -2,12 +2,11 @@ package sirttas.dpanvil.data.network.payload;
 
 import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.handling.ConfigurationPayloadContext;
-import net.neoforged.neoforge.network.handling.ISynchronizedWorkHandler;
-import net.neoforged.neoforge.network.handling.PlayPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -28,7 +27,8 @@ public record ReloadDataPayload(
 		List<SubPayload<?, ?>> messages
 ) implements CustomPacketPayload {
 
-	public static final ResourceLocation ID = DataPackAnvilApi.createRL("reload_data");
+	public static final CustomPacketPayload.Type<ReloadDataPayload> TYPE = PayloadHelper.createType("reload_data");
+	public static final StreamCodec<FriendlyByteBuf, ReloadDataPayload> STREAM_CODEC = StreamCodec.of((b, p) -> p.write(b), ReloadDataPayload::new);
 
 	public ReloadDataPayload(Collection<ResourceKey<IDataManager<?>>> managers) {
 		this(managers.stream()
@@ -48,7 +48,6 @@ public record ReloadDataPayload(
 		}));
 	}
 
-	@Override
 	public void write(FriendlyByteBuf buf) {
 		buf.writeInt(messages.size());
 		for (SubPayload<?, ?> message : messages) {
@@ -57,24 +56,16 @@ public record ReloadDataPayload(
 		DataPackAnvilApi.LOGGER.debug("Sending DataPack Anvil packet with size: {} bytes", buf::writerIndex);
 	}
 
-	@Override
-	public @NotNull ResourceLocation id() {
-		return ID;
-	}
-
-	public void handle(PlayPayloadContext ctx) {
-		handle(ctx.workHandler());
-	}
-
-	public void handle(ConfigurationPayloadContext ctx) {
-		handle(ctx.workHandler());
-	}
-
-	private void handle(ISynchronizedWorkHandler workHandler) {
-		workHandler.execute(() -> RegistryListener.getInstance().listen(r -> {
+	public void handle(IPayloadContext ctx) {
+		ctx.enqueueWork(() -> RegistryListener.getInstance().listen(r -> {
 			messages.forEach(SubPayload::handle);
 			DataHandler.onDPAnvilUpdate();
 		}));
+	}
+
+	@Override
+	public @NotNull Type<ReloadDataPayload> type() {
+		return TYPE;
 	}
 
 	private record SubPayload<T, I>(
@@ -89,7 +80,7 @@ public record ReloadDataPayload(
 			return create(IDataManager.createManagerKey(buf.readResourceLocation()), (k, s) -> {
 				try {
 					var mapSize = buf.readInt();
-					var data = new HashMap<ResourceLocation, I>(mapSize);
+					var data = HashMap.<ResourceLocation, I>newHashMap(mapSize);
 
 					for (int i = 0; i < mapSize; i++) {
 						data.put(buf.readResourceLocation(), s.read(buf));

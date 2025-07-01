@@ -17,6 +17,7 @@ public class DPAnvilNames {
     public static final String OFFSET = "offset";
 	public static final String OPERATION = "operation";
 	public static final String GOM_LOADER_TYPE = "gom_loader_type";
+	public static final String PARENT = "parent";
 
     private DPAnvilNames() {}
 	

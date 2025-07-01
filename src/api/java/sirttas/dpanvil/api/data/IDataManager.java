@@ -10,10 +10,14 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
@@ -134,14 +138,15 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 		return Holder.direct(get(key));
 	}
 
-	@Nonnull
-	default Codec<Holder<T>> holderCodec() {
-		return ResourceLocation.CODEC.xmap(this::getOrCreateHolder, h -> {
-			if (h instanceof Holder.Reference<T> r) {
-				return r.key().location();
-			}
-			return getId(h.value());
-		});
+	/**
+	 * Get a {@link Stream} containing {@link Holder} that wrap a value contained in this manager.
+	 *
+	 * @return A {@link Stream} of {@link Holder}
+	 */
+	default Stream<Holder<T>> holders() {
+		return getData().keySet().stream()
+				.map(this::getOrCreateHolder)
+				.filter(Holder::isBound);
 	}
 
 	/**
@@ -197,7 +202,23 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 */
 	@Nonnull
 	default ResourceLocation getId(final @Nullable T value) {
-		return getData().entrySet().stream().filter(e -> e.getValue().equals(value)).map(Entry::getKey).findAny().orElse(DataPackAnvilApi.ID_NONE);
+		return getData().entrySet().stream()
+				.filter(e -> e.getValue().equals(value)).map(Entry::getKey)
+				.findAny()
+				.orElse(DataPackAnvilApi.ID_NONE);
+	}
+
+	/**
+	 * Get the ID for an holder
+	 *
+	 * @param holder the holder to search
+	 * @return the id used for this holder
+	 */
+	default @NotNull ResourceLocation getId(Holder<T> holder) {
+		if (holder instanceof Holder.Reference<T> r) {
+			return r.key().location();
+		}
+		return getId(holder.value());
 	}
 
 	/**
@@ -238,6 +259,22 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	}
 
 	@Nonnull
+	default DeferredHolder<DataComponentType<?>, DataComponentType<Holder<T>>> registerComponentType(@Nonnull DeferredRegister<DataComponentType<?>> deferredRegister) {
+		var registryNamespace = deferredRegister.getNamespace();
+		var location = getKey().location();
+		var managerNamespace = location.getNamespace();
+
+		if (!registryNamespace.equals(managerNamespace)) {
+			throw new IllegalArgumentException("The deferred register namespace (" + registryNamespace + ") must be the same as the manager namespace (" + managerNamespace + ").");
+		}
+		return deferredRegister.register(location.getPath(), () -> DataComponentType.<Holder<T>>builder()
+				.persistent(ResourceLocation.CODEC.xmap(this::getOrCreateHolder, this::getId))
+				.networkSynchronized(ResourceLocation.STREAM_CODEC.map(this::getOrCreateHolder, this::getId))
+				.cacheEncoding()
+				.build());
+	}
+
+	@Nonnull
 	static <T> Builder<T> builder(@Nonnull Class<T> type, @Nonnull ResourceKey<IDataManager<T>> key) {
 		return DataPackAnvilApi.service().createDataManagerBuilder(type, key);
 	}
@@ -254,7 +291,10 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 		Builder<T> withDefault(Function<ResourceLocation, T> factory);
 
+		Builder<T> withInheritance();
+
 		<R> Builder<T> merged(Function<Stream<R>, T> merger, Function<JsonElement, R> rawParser);
+
 
 		default <R> Builder<T> merged(Function<Stream<R>, T> merger, Decoder<R> rawDecoder) {
 			return this.merged(merger, json -> CodecHelper.decode(rawDecoder, json));

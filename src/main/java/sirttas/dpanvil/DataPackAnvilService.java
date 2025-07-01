@@ -1,8 +1,12 @@
 package sirttas.dpanvil;
 
+import com.mojang.serialization.Codec;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.IDataPackAnvilService;
 import sirttas.dpanvil.api.data.IDataManager;
+import sirttas.dpanvil.data.manager.DataFileCodec;
 import sirttas.dpanvil.data.manager.SimpleDataManagerBuilder;
 
 import javax.annotation.Nonnull;
@@ -12,5 +16,11 @@ public class DataPackAnvilService implements IDataPackAnvilService {
     @Override
     public <T> IDataManager.Builder<T> createDataManagerBuilder(@Nonnull Class<T> type, @Nonnull ResourceKey<IDataManager<T>> key) {
         return new SimpleDataManagerBuilder<>(type, key);
+    }
+
+    @NotNull
+    @Override
+    public <E> Codec<Holder<E>> holderCodec(ResourceKey<? extends IDataManager<E>> managerKey, Codec<E> elementCodec, boolean allowInline) {
+        return new DataFileCodec<>(managerKey, elementCodec, allowInline);
     }
 }

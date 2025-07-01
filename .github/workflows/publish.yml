@@ -35,4 +35,6 @@ jobs:
           ELEMENTAL_CRAFT_REPO_PASSWORD: ${{ secrets.ELEMENTAL_CRAFT_REPO_PASSWORD }}
           CURSEFORGE_KEY: ${{ secrets.CURSEFORGE_KEY }}
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-        run: ./gradlew publish curseforge modrinth -Ptag_version=${{ steps.get_tag_version.outputs.TAG_VERSION }} --info --stacktrace
+        run: |
+          cp settings.gradle.example settings.gradle
+          ./gradlew publish curseforge modrinth -Ptag_version=${{ steps.get_tag_version.outputs.TAG_VERSION }} --info --stacktrace

@@ -1,23 +1,26 @@
 package sirttas.dpanvil.api.predicate.block.logical;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelReader;
 import sirttas.dpanvil.api.DPAnvilNames;
+import sirttas.dpanvil.api.predicate.block.BlockPosPredicateTooltipHelper;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 public record NotBlockPredicate(
 		IBlockPosPredicate predicate
 ) implements IBlockPosPredicate {
 
 	public static final String NAME = "not";
-	public static final Codec<NotBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+	public static final MapCodec<NotBlockPredicate> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
 			IBlockPosPredicate.CODEC.fieldOf(DPAnvilNames.VALUE).forGetter(NotBlockPredicate::predicate)
 	).apply(builder, NotBlockPredicate::new));
 
@@ -48,5 +51,11 @@ public record NotBlockPredicate(
 			return IBlockPosPredicate.any();
 		}
 		return IBlockPosPredicate.super.simplify();
+	}
+
+	@Override
+	@Nonnull
+	public List<Component> getTooltip() {
+		return BlockPosPredicateTooltipHelper.not(predicate, IBlockPosPredicate::getTooltip);
 	}
 }

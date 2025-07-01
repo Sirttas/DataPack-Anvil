@@ -1,17 +1,15 @@
 package sirttas.dpanvil.api.predicate.block;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.NoneBlockPredicate;
@@ -98,25 +96,12 @@ public interface IBlockPosPredicate {
 		return new MatchBlockStatePredicate(state);
 	}
 	
-	default JsonElement write() {
-		return CodecHelper.encode(CODEC, this);
-	}
-
-	default void write(FriendlyByteBuf buf) {
-		CodecHelper.encode(CODEC, this, buf);
-	}
-	
-	static IBlockPosPredicate read(JsonElement json) {
-		IBlockPosPredicate value = CodecHelper.decode(CODEC, json);
-		
-		return value != null ? value.simplify() : null;
-	}
-
-	static IBlockPosPredicate read(FriendlyByteBuf buf) {
-		return CodecHelper.decode(CODEC, buf);
-	}
-	
 	default IBlockPosPredicate simplify() {
 		return this;
+	}
+
+	@Nonnull
+	default List<Component> getTooltip() {
+		return List.of();
 	}
 }

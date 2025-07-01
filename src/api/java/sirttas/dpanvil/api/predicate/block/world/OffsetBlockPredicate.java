@@ -1,6 +1,6 @@
 package sirttas.dpanvil.api.predicate.block.world;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +21,7 @@ public record OffsetBlockPredicate(
 ) implements IBlockPosPredicate {
 
 	public static final String NAME = "offset";
-	public static final Codec<OffsetBlockPredicate> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+	public static final MapCodec<OffsetBlockPredicate> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
 			IBlockPosPredicate.CODEC.fieldOf(DPAnvilNames.VALUE).forGetter(OffsetBlockPredicate::predicate),
 			Vec3i.CODEC.fieldOf(DPAnvilNames.OFFSET).forGetter(OffsetBlockPredicate::offset)
 	).apply(builder, OffsetBlockPredicate::new));
