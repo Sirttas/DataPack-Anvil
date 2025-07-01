@@ -36,4 +36,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cp settings.gradle.example settings.gradle
-          ./gradlew build sonarqube --info --stacktrace
+          ./gradlew build test --info --stacktrace
