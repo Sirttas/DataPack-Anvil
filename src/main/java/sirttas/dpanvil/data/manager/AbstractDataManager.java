@@ -120,12 +120,10 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 	@Nonnull
 	public Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
 		synchronized (this.references) {
-			return this.references.computeIfAbsent(key.location(), i -> {
+			return this.references.computeIfAbsent(key.location(), resourceLocation -> {
 				var reference = Holder.Reference.createStandAlone(this, key);
 
-				if (data.containsKey(i)) {
-					reference.bindValue(data.get(i));
-				}
+				bindReference(reference, resourceLocation);
 				return reference;
 			});
 		}
@@ -142,16 +140,23 @@ public abstract class AbstractDataManager<T, U> extends SimplePreparableReloadLi
 		return folder;
 	}
 
-	@SuppressWarnings("DataFlowIssue")
 	private void rebindReferences() {
 		synchronized (this.references) {
-			this.references.values().forEach(r -> {
-				r.bindValue(this.get(r.key().location()));
-				if (!r.isBound()) {
-					DataPackAnvilApi.LOGGER.warn("Failed to bind reference {} for {}", r.key().location(), key);
-				}
-			});
+			this.references.values().forEach(r -> bindReference(r, r.key().location()));
 
+		}
+	}
+
+	private void bindReference(Holder.Reference<T> reference, ResourceLocation resourceLocation) {
+		var value = this.get(resourceLocation);
+
+		if (value == null) {
+			DataPackAnvilApi.LOGGER.warn("No value found for reference {} in manager {}", resourceLocation, key);
+			return;
+		}
+		reference.bindValue(value);
+		if (!reference.isBound()) {
+			DataPackAnvilApi.LOGGER.warn("Failed to bind reference {} for manager {}", resourceLocation, key);
 		}
 	}
 

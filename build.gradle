@@ -242,6 +242,7 @@ if (curseforge_key != null) {
 
 		task.upload(432817, jar) { main ->
 			releaseType = "${release_type}"
+			addModLoader('NeoForge')
 			changelog = changeLog
 			releaseVersions.each { v -> addGameVersion(v) }
 		}
