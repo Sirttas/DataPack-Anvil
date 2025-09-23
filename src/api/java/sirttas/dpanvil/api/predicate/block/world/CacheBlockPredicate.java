@@ -62,7 +62,11 @@ public record CacheBlockPredicate(
 
     @Override
     public boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
-        return predicate.test(level instanceof ServerLevelAccessor accessor ? new CacheLevel(accessor) : level, pos, direction);
+        return predicate.test(switch (level) {
+            case CacheLevel cacheLevel -> cacheLevel;
+            case ServerLevelAccessor serverLevelAccessor -> new CacheLevel(serverLevelAccessor);
+            default -> level;
+        }, pos, direction);
     }
 
     @Override

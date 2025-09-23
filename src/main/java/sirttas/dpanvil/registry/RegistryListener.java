@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("unchecked")
 @EventBusSubscriber(modid = DataPackAnvilApi.MODID)
+@Deprecated
 public class RegistryListener {
 
     private final List<Consumer<RegistryAccess>> listeners = new ArrayList<>();

@@ -1,5 +1,6 @@
 package sirttas.dpanvil.data.manager;
 
+import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -43,7 +44,7 @@ public class DataFileCodec<E> implements Codec<Holder<E>> {
         if (opt.isEmpty()) {
             return !this.allowInline
                     ? DataResult.error(() -> "Inline definitions not allowed here")
-                    : this.elementCodec.decode(ops, input).map(p -> p.mapFirst(Holder::direct));
+                    : decodeFromElementCodec(manager, ops, input);
         }
 
         var pair = opt.get();
@@ -51,6 +52,14 @@ public class DataFileCodec<E> implements Codec<Holder<E>> {
         var result = DataResult.success(manager.getOrCreateHolder(resourcekey));
 
         return result.map(v -> Pair.of(v, pair.getSecond())).setLifecycle(Lifecycle.stable());
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> DataResult<Pair<Holder<E>, T>> decodeFromElementCodec(IDataManager<E> manager, DynamicOps<T> ops, T input) {
+        if (manager instanceof DataManager<E> dataManager && input instanceof JsonElement element) {
+            input = (T) dataManager.preprocess(element);
+        }
+        return this.elementCodec.decode(ops, input).map(p -> p.mapFirst(Holder::direct));
     }
 
     @Override

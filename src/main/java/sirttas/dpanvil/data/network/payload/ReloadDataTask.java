@@ -5,12 +5,12 @@ import net.minecraft.network.protocol.configuration.ServerConfigurationPacketLis
 import net.neoforged.neoforge.network.configuration.ICustomConfigurationTask;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
-import sirttas.dpanvil.api.DataPackAnvilApi;
+import sirttas.dpanvil.api.DPAnvilNames;
 
 import java.util.function.Consumer;
 
 public record ReloadDataTask(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
-    public static final Type TYPE = new Type(DataPackAnvilApi.createRL("reload_data_task"));
+    public static final Type TYPE = new Type(DPAnvilNames.ResourceLocations.create("reload_data_task"));
 
     @Override
     public void run(Consumer<CustomPacketPayload> sender) {

@@ -2,12 +2,16 @@ package sirttas.dpanvil.data;
 
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.resource.ContextAwareReloadListener;
 import org.jetbrains.annotations.NotNull;
+import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
@@ -23,7 +27,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 @SuppressWarnings("unchecked")
-public class DataManagerWrapper implements PreparableReloadListener {
+public class DataManagerWrapper extends ContextAwareReloadListener implements PreparableReloadListener {
 
 	private final Map<ResourceKey<IDataManager<?>>, IDataManager<?>> managers = Maps.newHashMap();
 	private final Map<ResourceKey<IDataManager<?>>, IJsonDataSerializer<?, ?>> serializers = Maps.newHashMap();
@@ -50,7 +54,7 @@ public class DataManagerWrapper implements PreparableReloadListener {
 				.filter(e -> e.getValue().equals(manager))
 				.map(e -> this.<ResourceKey<IDataManager<T>>>cast(e.getKey()))
 				.findAny()
-				.orElseGet(() -> IDataManager.createManagerKey(DataPackAnvilApi.ID_NONE));
+				.orElseGet(() -> IDataManager.createManagerKey(DPAnvilNames.ResourceLocations.NONE));
 	}
 
 	private <T> T cast(Object key) {
@@ -108,6 +112,15 @@ public class DataManagerWrapper implements PreparableReloadListener {
 
 	public Map<ResourceKey<IDataManager<?>>, IDataManager<?>> getDataManagers() {
 		return managers;
+	}
+
+	@Override
+	public void injectContext(@NotNull ICondition.IContext context, @NotNull HolderLookup.Provider registryLookup) {
+		managers.values().forEach(m -> {
+			if (m instanceof ContextAwareReloadListener listener) {
+				listener.injectContext(context, registryLookup);
+			}
+		});
 	}
 
 	@Override
