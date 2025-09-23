@@ -1,11 +1,9 @@
 package sirttas.dpanvil.api.data;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Decoder;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Keyable;
 import net.minecraft.core.Holder;
@@ -18,8 +16,9 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
+import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
-import sirttas.dpanvil.api.codec.CodecHelper;
+import sirttas.dpanvil.api.data.preprocessor.DataPreprocessor;
 import sirttas.dpanvil.api.event.DataManagerReloadEvent;
 
 import javax.annotation.Nonnull;
@@ -88,7 +87,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 	@Nonnull
 	static <T> ResourceKey<IDataManager<T>> createManagerKey(@Nonnull ResourceLocation pLocation) {
-		return DataPackAnvilApi.createResourceKey(DataPackAnvilApi.DATA_MANAGER_ROOT, pLocation);
+		return DataPackAnvilApi.createResourceKey(DPAnvilNames.ResourceLocations.DATA_MANAGER_ROOT, pLocation);
 	}
 
 	@Nonnull
@@ -205,7 +204,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 		return getData().entrySet().stream()
 				.filter(e -> e.getValue().equals(value)).map(Entry::getKey)
 				.findAny()
-				.orElse(DataPackAnvilApi.ID_NONE);
+				.orElse(DPAnvilNames.ResourceLocations.NONE);
 	}
 
 	/**
@@ -281,29 +280,23 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 	interface Builder<T> {
 
-		Builder<T> withIdSetter(BiConsumer<T, ResourceLocation> idSetter);
-
-		default Builder<T> withDefault(T defaultValue) {
-			return withDefault(id -> defaultValue);
-		}
+		Builder<T> idSetter(BiConsumer<T, ResourceLocation> idSetter);
 
 		Builder<T> folder(String folder);
 
 		Builder<T> withDefault(Function<ResourceLocation, T> factory);
 
-		Builder<T> withInheritance();
-
-		<R> Builder<T> merged(Function<Stream<R>, T> merger, Function<JsonElement, R> rawParser);
-
-
-		default <R> Builder<T> merged(Function<Stream<R>, T> merger, Decoder<R> rawDecoder) {
-			return this.merged(merger, json -> CodecHelper.decode(rawDecoder, json));
+		default Builder<T> withDefault(T defaultValue) {
+			return withDefault(id -> defaultValue);
 		}
 
-		default Builder<T> merged(Function<Stream<T>, T> merger) {
-			return this.merged(merger, (Function<JsonElement, T>) null);
+		Builder<T> preprocessor(DataPreprocessor preprocessor);
+
+		default Builder<T> defaultPreprocessors() {
+			return this;
 		}
 
 		IDataManager<T> build();
+
 	}
 }

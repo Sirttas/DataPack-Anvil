@@ -8,6 +8,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.commons.lang3.function.Consumers;
 import org.jetbrains.annotations.ApiStatus;
+import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.predicate.block.direction.FacingBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
@@ -24,7 +25,7 @@ import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 
 public record BlockPosPredicateType<T extends IBlockPosPredicate>(MapCodec<T> codec) {
 
-	public static final ResourceKey<Registry<BlockPosPredicateType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(DataPackAnvilApi.createRL("block_pos_predicate"));
+	public static final ResourceKey<Registry<BlockPosPredicateType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(DPAnvilNames.ResourceLocations.create("block_pos_predicate"));
 	private static final DeferredRegister<BlockPosPredicateType<?>> DEFERRED_REGISTRY = DeferredRegister.create(REGISTRY_KEY, DataPackAnvilApi.MODID);
 
 	public static final Registry<BlockPosPredicateType<?>> REGISTRY = DEFERRED_REGISTRY.makeRegistry(Consumers.nop());

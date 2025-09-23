@@ -8,8 +8,6 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public record RemapKeys(Map<ResourceLocation, ResourceLocation> keys) {
     public static final String NAME = "remap_keys";
@@ -17,12 +15,6 @@ public record RemapKeys(Map<ResourceLocation, ResourceLocation> keys) {
     public static final RemapKeys EMPTY = new RemapKeys(Collections.emptyMap());
 
     public static final Codec<RemapKeys> CODEC = Codec.unboundedMap(ResourceLocation.CODEC, ResourceLocation.CODEC).xmap(RemapKeys::new, RemapKeys::keys);
-
-    public static RemapKeys merge(Stream<RemapKeys> keys) {
-        return new RemapKeys(keys
-                .<Map.Entry<ResourceLocation, ResourceLocation>>mapMulti((r, downstream) -> r.keys().forEach((k, v) -> downstream.accept(Map.entry(k, v))))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v2)));
-    }
 
     public static Builder builder() {
         return new Builder();

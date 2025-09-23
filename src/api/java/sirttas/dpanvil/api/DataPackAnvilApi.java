@@ -6,6 +6,7 @@ import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sirttas.dpanvil.api.data.IDataManager;
+import sirttas.dpanvil.api.data.preprocessor.MergeDataPreprocessor;
 import sirttas.dpanvil.api.data.remap.RemapKeys;
 
 import java.lang.reflect.Constructor;
@@ -19,12 +20,11 @@ public class DataPackAnvilApi {
 
 	public static final String MODID = "dpanvil";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
-	public static final ResourceLocation ID_NONE = createRL("none");
-	public static final ResourceLocation DATA_MANAGER_ROOT = createRL("data_managers");
 
-	public static final ResourceKey<IDataManager<RemapKeys>> REMAP_KEYS_MANAGER_KEY = IDataManager.createManagerKey(createRL(RemapKeys.NAME));
+	public static final ResourceKey<IDataManager<RemapKeys>> REMAP_KEYS_MANAGER_KEY = IDataManager.createManagerKey(DPAnvilNames.ResourceLocations.create(RemapKeys.NAME));
 	public static final IDataManager<RemapKeys> REMAP_KEYS_MANAGER = IDataManager.builder(RemapKeys.class, REMAP_KEYS_MANAGER_KEY)
-			.merged(RemapKeys::merge)
+			.preprocessor(new MergeDataPreprocessor())
+			.defaultPreprocessors()
 			.withDefault(RemapKeys.EMPTY)
 			.build();
 
@@ -58,12 +58,4 @@ public class DataPackAnvilApi {
 			throw new IllegalStateException("Reflection error", e);
 		}
 	}
-
-	public static ResourceLocation createRL(String name) {
-		if (name.contains(":")) {
-			return ResourceLocation.parse(name);
-		}
-		return ResourceLocation.fromNamespaceAndPath(MODID, name);
-	}
-
 }
