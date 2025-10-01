@@ -50,6 +50,10 @@ public class DataPackAnvilApi {
 		return service;
 	}
 
+    public static <T> ResourceKey<T> createResourceKey(ResourceKey<IDataManager<T>> dataManagerId, ResourceLocation id) {
+        return createResourceKey(dataManagerId.location(), id);
+    }
+
 	@SuppressWarnings("unchecked")
 	public static <T> ResourceKey<T> createResourceKey(ResourceLocation dataManagerId, ResourceLocation id) {
 		try {
