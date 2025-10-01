@@ -71,7 +71,6 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 		});
 	}
 
-
 	protected CompletableFuture<?> save(CachedOutput cache, DynamicOps<JsonElement> ops, B element, ResourceKey<T> key) {
 		return save(cache, ops, element, key.location());
 	}

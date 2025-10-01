@@ -1,6 +1,7 @@
 package sirttas.dpanvil.api.data.preprocessor;
 
 import com.google.gson.JsonElement;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
@@ -8,6 +9,7 @@ import sirttas.dpanvil.api.json.merger.DeepJsonMerger;
 import sirttas.dpanvil.api.json.merger.JsonMerger;
 
 import java.util.List;
+import java.util.function.Function;
 
 public class InheritanceDataPreprocessor implements DataPreprocessor {
 
@@ -21,6 +23,10 @@ public class InheritanceDataPreprocessor implements DataPreprocessor {
 
     public InheritanceDataPreprocessor(JsonMerger jsonMerger) {
         this.jsonMerger = jsonMerger;
+    }
+
+    public static <O> RecordCodecBuilder<O, ResourceLocation> fieldOf(Function<O, ResourceLocation> getter) {
+        return ResourceLocation.CODEC.optionalFieldOf(PARENT_TAG_NAME, null).forGetter(getter);
     }
 
     @Override
