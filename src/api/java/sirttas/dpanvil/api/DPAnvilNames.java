@@ -26,7 +26,7 @@ public class DPAnvilNames {
 		public static final ResourceLocation DATA_MANAGER_ROOT = create("data_managers");
 		public static final ResourceLocation PARENT = create("parent");
 		public static final ResourceLocation REPLACE = create( "replace");
-		public static final ResourceLocation NEOFORGE_CONDITIONS = create("neoforge_conditions");
+		public static final ResourceLocation NEOFORGE_CONDITIONS = create("neoforge:conditions");
 
 		private ResourceLocations() {}
 
