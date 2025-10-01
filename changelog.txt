@@ -1,3 +1,4 @@
+6.1.0:
 - rework data managers to work using preprocessor to handle mixed sources
 - improved cache block predicate performances
 - remove logspam
