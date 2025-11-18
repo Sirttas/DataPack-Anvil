@@ -2,6 +2,7 @@ package sirttas.dpanvil.api.predicate.block;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -28,7 +29,14 @@ import java.util.List;
 
 public interface IBlockPosPredicate {
 
-	Codec<IBlockPosPredicate> CODEC = BlockPosPredicateType.REGISTRY.byNameCodec().dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec);
+	Codec<IBlockPosPredicate> CODEC = Util.make(() -> {
+        Codec<IBlockPosPredicate> value = BlockPosPredicateType.REGISTRY.byNameCodec().dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec);
+
+        if (value == null) {
+            throw new NullPointerException("IBlockPosPredicate CODEC could not be initialized");
+        }
+        return value;
+    });
 
 
 	boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction);
