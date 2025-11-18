@@ -1,3 +1,7 @@
+6.1.2
+- Explicite use of IBlockPosPredicate codec, this should fix a crash on startup (issue #14)
+
+
 6.1.1:
 - fix NeoForgeConditionsPreprocessor not correctly matching conditions
 
