@@ -17,7 +17,7 @@ public abstract class AbstractListBlockPredicate implements IBlockPosPredicate {
 
 	protected static <T extends AbstractListBlockPredicate> MapCodec<T> codec(Function<List<IBlockPosPredicate>, T> builder) {
 		return RecordCodecBuilder.mapCodec(codecBuilder -> codecBuilder.group(
-				CODEC.listOf().fieldOf(DPAnvilNames.VALUES).forGetter(AbstractListBlockPredicate::getPredicates)
+                IBlockPosPredicate.CODEC.listOf().fieldOf(DPAnvilNames.VALUES).forGetter(AbstractListBlockPredicate::getPredicates)
 		).apply(codecBuilder, builder));
 	}
 
