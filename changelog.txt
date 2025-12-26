@@ -1,3 +1,6 @@
+- fix a crash with block predicates loading
+
+
 6.1.2
 - Explicite use of IBlockPosPredicate codec, this should fix a crash on startup (issue #14)
 
