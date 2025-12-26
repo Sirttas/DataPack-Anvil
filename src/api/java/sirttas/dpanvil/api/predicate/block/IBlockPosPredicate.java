@@ -2,7 +2,6 @@ package sirttas.dpanvil.api.predicate.block;
 
 import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -11,6 +10,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import sirttas.dpanvil.api.codec.LazyCodec;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.NoneBlockPredicate;
@@ -29,15 +29,7 @@ import java.util.List;
 
 public interface IBlockPosPredicate {
 
-	Codec<IBlockPosPredicate> CODEC = Util.make(() -> {
-        Codec<IBlockPosPredicate> value = BlockPosPredicateType.REGISTRY.byNameCodec().dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec);
-
-        if (value == null) {
-            throw new NullPointerException("IBlockPosPredicate CODEC could not be initialized");
-        }
-        return value;
-    });
-
+	Codec<IBlockPosPredicate> CODEC = LazyCodec.of(() -> BlockPosPredicateType.REGISTRY.byNameCodec().dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec));
 
 	boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction);
 
