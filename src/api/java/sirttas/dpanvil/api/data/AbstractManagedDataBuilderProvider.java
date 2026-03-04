@@ -9,9 +9,10 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
 import javax.annotation.Nonnull;
@@ -24,7 +25,7 @@ import java.util.function.BiFunction;
 public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractManagedDataProvider<T> {
 
 	private final BiFunction<B, DynamicOps<JsonElement>, JsonElement> builder;
-	private final Map<ResourceLocation, B> data;
+	private final Map<Identifier, B> data;
 	private HolderLookup.Provider resolvedRegistries;
 
 	protected AbstractManagedDataBuilderProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries, IDataManager<T> manager, Encoder<B> encoder) {
@@ -48,7 +49,7 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 			var list = new ArrayList<CompletableFuture<?>>(data.size());
 			var ops = resolvedRegistries.createSerializationContext(JsonOps.INSTANCE);
 
-			for (Map.Entry<ResourceLocation, B> entry : data.entrySet()) {
+			for (Map.Entry<Identifier, B> entry : data.entrySet()) {
 				list.add(save(cache, ops, entry.getValue(), entry.getKey()));
 			}
 			data.clear();
@@ -58,11 +59,11 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 
 	protected abstract void collectBuilders(HolderLookup.Provider registries);
 
-	protected B add(ResourceKey<T> key, B element) {
-		return add(key.location(), element);
+	protected B add(ResourceKey<@NotNull T> key, B element) {
+		return add(key.identifier(), element);
 	}
 
-	protected B add(ResourceLocation id, B element) {
+	protected B add(Identifier id, B element) {
 		return data.compute(id, (k, v) -> {
 			if (v != null) {
 				throw new IllegalStateException("Duplicate id: " + id + ", manager: " + manager);
@@ -71,11 +72,11 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 		});
 	}
 
-	protected CompletableFuture<?> save(CachedOutput cache, DynamicOps<JsonElement> ops, B element, ResourceKey<T> key) {
-		return save(cache, ops, element, key.location());
+	protected CompletableFuture<?> save(CachedOutput cache, DynamicOps<JsonElement> ops, B element, ResourceKey<@NotNull T> key) {
+		return save(cache, ops, element, key.identifier());
 	}
 
-	protected CompletableFuture<?> save(CachedOutput cache, DynamicOps<JsonElement> ops, B element, ResourceLocation id) {
+	protected CompletableFuture<?> save(CachedOutput cache, DynamicOps<JsonElement> ops, B element, Identifier id) {
 		try {
 			return save(cache, builder.apply(element, ops), id);
 		} catch (Exception e) {
@@ -84,11 +85,11 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 	}
 
 	@Nonnull
-	protected <U> HolderLookup.RegistryLookup<U> getRegistry(ResourceKey<? extends Registry<U>> registry) {
+	protected <U> HolderLookup.RegistryLookup<@NotNull U> getRegistry(ResourceKey<? extends @NotNull Registry<@NotNull U>> registry) {
 		return resolvedRegistries.lookupOrThrow(registry);
 	}
 
-	public <U> HolderSet.Named<U> createHolderSet(TagKey<U> tag) {
+	public <U> HolderSet.Named<@NotNull U> createHolderSet(TagKey<@NotNull U> tag) {
 		return getRegistry(tag.registry()).getOrThrow(tag);
 	}
 }

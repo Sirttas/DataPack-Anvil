@@ -9,10 +9,10 @@ import com.mojang.serialization.Keyable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
@@ -39,24 +39,24 @@ import java.util.stream.Stream;
  * </p>
  * <p>
  * It is a {@link PreparableReloadListener} and will be automatically register
- * during {@link AddReloadListenerEvent}. <b>Don't add it yourself or it will
+ * during {@link AddServerReloadListenersEvent}. <b>Don't add it yourself or it will
  * break!</b>.
  * <p>
  * It can also be used as a codec but it will only serialize the resource
- * location. It cannot be used to read datapack or sychronize it's content, only
+  * location. It cannot be used to read datapack or sychronize its content, onlyly
  * help with NBT or network messages.
  * </p>
  * 
  * @param <T> the type of data the manager contains
  */
-public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Keyable, HolderOwner<T> {
+public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Keyable, HolderOwner<@NotNull T> {
 
 	/**
 	 * The key used to register the manager
 	 *
 	 * @return The key used to register the manager
 	 */
-	ResourceKey<IDataManager<T>> getKey();
+	ResourceKey<@NotNull IDataManager<T>> getKey();
 
 	/**
 	 * The {@link Class} used to define the type of managed data
@@ -75,24 +75,24 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	String getFolder();
 
 	/**
-	 * Create a {@link ResourceKey} from a {@link ResourceLocation}
+	 * Create a {@link ResourceKey} from a {@link Identifier}
 	 *
-	 * @param id the {@link ResourceLocation}
+	 * @param id the {@link Identifier}
 	 * @return The {@link ResourceKey} created
 	 */
 	@Nonnull
-	static <T> ResourceKey<T> createKey(@Nonnull ResourceKey<? super IDataManager<T>> managerKey, @Nonnull ResourceLocation id) {
-		return DataPackAnvilApi.createResourceKey(managerKey.location(), id);
+	static <T> ResourceKey<@NotNull T> createKey(@Nonnull ResourceKey<? super IDataManager<T>> managerKey, @Nonnull Identifier id) {
+		return DataPackAnvilApi.createResourceKey(managerKey.identifier(), id);
 	}
 
 	@Nonnull
-	static <T> ResourceKey<IDataManager<T>> createManagerKey(@Nonnull ResourceLocation pLocation) {
-		return DataPackAnvilApi.createResourceKey(DPAnvilNames.ResourceLocations.DATA_MANAGER_ROOT, pLocation);
+	static <T> ResourceKey<@NotNull IDataManager<T>> createManagerKey(@Nonnull Identifier pLocation) {
+		return DataPackAnvilApi.createResourceKey(DPAnvilNames.Identifiers.DATA_MANAGER_ROOT, pLocation);
 	}
 
 	@Nonnull
-	static <T> Codec<ResourceKey<T>> keyCodec(@Nonnull ResourceKey<? super IDataManager<T>> managerKey) {
-		return ResourceLocation.CODEC.xmap(l -> createKey(managerKey, l), ResourceKey::location);
+	static <T> Codec<ResourceKey<@NotNull T>> keyCodec(@Nonnull ResourceKey<? super IDataManager<T>> managerKey) {
+		return Identifier.CODEC.xmap(l -> createKey(managerKey, l), ResourceKey::identifier);
 	}
 
 	/**
@@ -103,7 +103,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @see ImmutableMap
 	 */
 	@Nonnull
-	Map<ResourceLocation, T> getData();
+	Map<Identifier, T> getData();
 
 	/**
 	 * Set the {@link Map} of data handled by this manager. It will be changed to an
@@ -112,7 +112,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @param map the new data {@link Map}
 	 * @see #getData()
 	 */
-	void setData(@Nonnull Map<ResourceLocation, T> map);
+	void setData(@Nonnull Map<Identifier, T> map);
 
 	/**
 	 * Get a {@link Holder} that wrap a value contained in this manager.
@@ -121,19 +121,19 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @return A {@link Holder}
 	 */
 	@Nonnull
-	default Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
-		return getOrCreateHolder(key.location());
+	default Holder<@NotNull T> getOrCreateHolder(@Nonnull ResourceKey<@NotNull T> key) {
+		return getOrCreateHolder(key.identifier());
 	}
 
 
 	/**
 	 * Get a {@link Holder} that wrap a value contained in this manager.
 	 *
-	 * @param key A {@link ResourceLocation} that map a data
+	 * @param key A {@link Identifier} that map a data
 	 * @return A {@link Holder}
 	 */
 	@Nonnull
-	default Holder<T> getOrCreateHolder(@Nonnull ResourceLocation key) {
+	default Holder<@NotNull T> getOrCreateHolder(@Nonnull Identifier key) {
 		return Holder.direct(get(key));
 	}
 
@@ -142,7 +142,7 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 *
 	 * @return A {@link Stream} of {@link Holder}
 	 */
-	default Stream<Holder<T>> holders() {
+	default Stream<Holder<@NotNull T>> holders() {
 		return getData().keySet().stream()
 				.map(this::getOrCreateHolder)
 				.filter(Holder::isBound);
@@ -155,41 +155,41 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @return The corresponding data
 	 */
 	@Nullable
-	default T get(@Nonnull ResourceKey<T> key) {
-		return getData().get(key.location());
+	default T get(@Nonnull ResourceKey<@NotNull T> key) {
+		return getData().get(key.identifier());
 	}
 
 	/**
 	 * Get data mapped by the id
 	 *
-	 * @param id A {@link ResourceLocation} that map a data
+	 * @param id A {@link Identifier} that map a data
 	 * @return The corresponding data
 	 */
 	@Nullable
-	default T get(@Nonnull ResourceLocation id) {
+	default T get(@Nonnull Identifier id) {
 		return getData().get(id);
 	}
 
 	/**
 	 * Get data mapped by the id or a default value
 	 *
-	 * @param id           A {@link ResourceLocation} that map a data
+	 * @param id           A {@link Identifier} that map a data
 	 * @param defaultValue the default value
 	 * @return The corresponding data or the default value
 	 */
 	@Nullable
-	default T getOrDefault(@Nonnull ResourceLocation id, @Nullable T defaultValue) {
+	default T getOrDefault(@Nonnull Identifier id, @Nullable T defaultValue) {
 		return getData().getOrDefault(id, defaultValue);
 	}
 
 	/**
 	 * Get an {@link Optional} of a data mapped by the id
 	 *
-	 * @param id A {@link ResourceLocation} that map a data
+	 * @param id A {@link Identifier} that map a data
 	 * @return an {@link Optional} of the corresponding data or an empty {@link Optional}
 	 */
 	@Nonnull
-	default Optional<T> getOptional(@Nonnull ResourceLocation id) {
+	default Optional<T> getOptional(@Nonnull Identifier id) {
 		return Optional.ofNullable(get(id));
 	}
 
@@ -200,11 +200,11 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @return the id used for this value
 	 */
 	@Nonnull
-	default ResourceLocation getId(final @Nullable T value) {
+	default Identifier getId(final @Nullable T value) {
 		return getData().entrySet().stream()
 				.filter(e -> e.getValue().equals(value)).map(Entry::getKey)
 				.findAny()
-				.orElse(DPAnvilNames.ResourceLocations.NONE);
+				.orElse(DPAnvilNames.Identifiers.NONE);
 	}
 
 	/**
@@ -213,9 +213,9 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @param holder the holder to search
 	 * @return the id used for this holder
 	 */
-	default @NotNull ResourceLocation getId(Holder<T> holder) {
-		if (holder instanceof Holder.Reference<T> r) {
-			return r.key().location();
+	default @NotNull Identifier getId(Holder<@NotNull T> holder) {
+		if (holder instanceof Holder.Reference<@NotNull T> r) {
+			return r.key().identifier();
 		}
 		return getId(holder.value());
 	}
@@ -227,14 +227,14 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	 * @return the list of corresponding data
 	 */
 	@Nonnull
-	default List<T> getAll(@Nonnull Collection<ResourceLocation> ids) {
+	default List<T> getAll(@Nonnull Collection<Identifier> ids) {
 		return ids.stream()
 				.map(this::get)
 				.filter(Objects::nonNull)
 				.toList();
 	}
 
-	default boolean hasId(@Nonnull ResourceLocation id) {
+	default boolean hasId(@Nonnull Identifier id) {
 		return getData().containsKey(id);
 	}
 
@@ -244,12 +244,12 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 
 	@Override
 	default <U> DataResult<Pair<T, U>> decode(final DynamicOps<U> ops, final U input) {
-		return ResourceLocation.CODEC.decode(ops, input).map(pair -> pair.mapFirst(this::get));
+		return Identifier.CODEC.decode(ops, input).map(pair -> pair.mapFirst(this::get));
 	}
 
 	@Override
 	default <U> DataResult<U> encode(final T input, final DynamicOps<U> ops, final U prefix) {
-		return ResourceLocation.CODEC.encode(getId(input), ops, prefix);
+		return Identifier.CODEC.encode(getId(input), ops, prefix);
     }
 
 	@Override
@@ -258,33 +258,33 @@ public interface IDataManager<T> extends PreparableReloadListener, Codec<T>, Key
 	}
 
 	@Nonnull
-	default DeferredHolder<DataComponentType<?>, DataComponentType<Holder<T>>> registerComponentType(@Nonnull DeferredRegister<DataComponentType<?>> deferredRegister) {
+	default DeferredHolder<@NotNull DataComponentType<?>, @NotNull DataComponentType<@NotNull Holder<@NotNull T>>> registerComponentType(@Nonnull DeferredRegister<@NotNull DataComponentType<?>> deferredRegister) {
 		var registryNamespace = deferredRegister.getNamespace();
-		var location = getKey().location();
+		var location = getKey().identifier();
 		var managerNamespace = location.getNamespace();
 
 		if (!registryNamespace.equals(managerNamespace)) {
 			throw new IllegalArgumentException("The deferred register namespace (" + registryNamespace + ") must be the same as the manager namespace (" + managerNamespace + ").");
 		}
-		return deferredRegister.register(location.getPath(), () -> DataComponentType.<Holder<T>>builder()
-				.persistent(ResourceLocation.CODEC.xmap(this::getOrCreateHolder, this::getId))
-				.networkSynchronized(ResourceLocation.STREAM_CODEC.map(this::getOrCreateHolder, this::getId))
+		return deferredRegister.register(location.getPath(), () -> DataComponentType.<Holder<@NotNull T>>builder()
+				.persistent(Identifier.CODEC.xmap(this::getOrCreateHolder, this::getId))
+				.networkSynchronized(Identifier.STREAM_CODEC.map(this::getOrCreateHolder, this::getId))
 				.cacheEncoding()
 				.build());
 	}
 
 	@Nonnull
-	static <T> Builder<T> builder(@Nonnull Class<T> type, @Nonnull ResourceKey<IDataManager<T>> key) {
+	static <T> Builder<T> builder(@Nonnull Class<T> type, @Nonnull ResourceKey<@NotNull IDataManager<T>> key) {
 		return DataPackAnvilApi.service().createDataManagerBuilder(type, key);
 	}
 
 	interface Builder<T> {
 
-		Builder<T> idSetter(BiConsumer<T, ResourceLocation> idSetter);
+		Builder<T> idSetter(BiConsumer<T, Identifier> idSetter);
 
 		Builder<T> folder(String folder);
 
-		Builder<T> withDefault(Function<ResourceLocation, T> factory);
+		Builder<T> withDefault(Function<Identifier, T> factory);
 
 		default Builder<T> withDefault(T defaultValue) {
 			return withDefault(id -> defaultValue);

@@ -2,7 +2,7 @@ package sirttas.dpanvil.api.data.preprocessor;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.json.merger.DeepJsonMerger;
@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 public class InheritanceDataPreprocessor implements DataPreprocessor {
 
-    private static final String PARENT_TAG_NAME = DPAnvilNames.ResourceLocations.PARENT.toString();
+    private static final String PARENT_TAG_NAME = DPAnvilNames.Identifiers.PARENT.toString();
 
     private final JsonMerger jsonMerger;
 
@@ -25,8 +25,8 @@ public class InheritanceDataPreprocessor implements DataPreprocessor {
         this.jsonMerger = jsonMerger;
     }
 
-    public static <O> RecordCodecBuilder<O, ResourceLocation> fieldOf(Function<O, ResourceLocation> getter) {
-        return ResourceLocation.CODEC.optionalFieldOf(PARENT_TAG_NAME, null).forGetter(getter);
+    public static <O> RecordCodecBuilder<O, Identifier> fieldOf(Function<O, Identifier> getter) {
+        return Identifier.CODEC.optionalFieldOf(PARENT_TAG_NAME, null).forGetter(getter);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class InheritanceDataPreprocessor implements DataPreprocessor {
         var jsonObject = element.getAsJsonObject();
 
         if (jsonObject.has(PARENT_TAG_NAME)) {
-            var parentId = ResourceLocation.parse(jsonObject.get(PARENT_TAG_NAME).getAsString());
+            var parentId = Identifier.parse(jsonObject.get(PARENT_TAG_NAME).getAsString());
             var parentElements = context.getProcessed(parentId).stream()
                     .filter(JsonElement::isJsonObject)
                     .map(JsonElement::getAsJsonObject)

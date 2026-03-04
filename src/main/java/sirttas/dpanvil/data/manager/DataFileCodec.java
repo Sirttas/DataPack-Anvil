@@ -7,8 +7,8 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.data.IDataManager;
 
@@ -26,7 +26,7 @@ public class DataFileCodec<E> implements Codec<Holder<E>> {
 
     public <T> DataResult<T> encode(Holder<E> holder, DynamicOps<T> ops, T prefix) {
         return holder.unwrap().map(
-                k -> ResourceLocation.CODEC.encode(k.location(), ops, prefix),
+                k -> Identifier.CODEC.encode(k.identifier(), ops, prefix),
                 e -> this.elementCodec.encode(e, ops, prefix)
         );
     }
@@ -39,7 +39,7 @@ public class DataFileCodec<E> implements Codec<Holder<E>> {
             return DataResult.error(() -> "DataManager does not exist: " + this.managerKey);
         }
 
-        var opt = ResourceLocation.CODEC.decode(ops, input).result();
+        var opt = Identifier.CODEC.decode(ops, input).result();
 
         if (opt.isEmpty()) {
             return !this.allowInline

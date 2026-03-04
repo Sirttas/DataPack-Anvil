@@ -6,9 +6,10 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.remap.RemapKeys;
 import sirttas.dpanvil.api.event.DataPackReloadCompleteEvent;
@@ -20,7 +21,7 @@ import sirttas.dpanvil.data.network.payload.ReloadDataPayload;
 
 @Mod(DataPackAnvilApi.MODID)
 public class DataPackAnvil {
-	
+
 	public static final DataManagerWrapper WRAPPER = new DataManagerWrapper();
 	
 	public DataPackAnvil(IEventBus modBus) {
@@ -57,9 +58,9 @@ public class DataPackAnvil {
 		NeoForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers(), server.registryAccess()));
 	}
 
-	private void addReloadListeners(AddReloadListenerEvent event) {
+	private void addReloadListeners(AddServerReloadListenersEvent event) {
 		if (!WRAPPER.getDataManagers().isEmpty()) {
-			event.addListener(WRAPPER);
+			event.addListener(DPAnvilNames.Identifiers.DATA_MANAGER_ROOT, WRAPPER);
 		}
 	}
 

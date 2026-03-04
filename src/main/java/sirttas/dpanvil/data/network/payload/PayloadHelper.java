@@ -8,6 +8,6 @@ public class PayloadHelper {
     private PayloadHelper() {}
 
     public static <T extends CustomPacketPayload> CustomPacketPayload.Type<T> createType(String name) {
-        return new CustomPacketPayload.Type<>(DPAnvilNames.ResourceLocations.create(name));
+        return new CustomPacketPayload.Type<>(DPAnvilNames.Identifiers.create(name));
     }
 }

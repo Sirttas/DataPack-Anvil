@@ -4,6 +4,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.neoforged.bus.api.Event;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.data.IDataManager;
 
 import java.util.Map;
@@ -11,10 +12,10 @@ import java.util.Map;
 public class DataPackReloadCompleteEvent extends Event {
 
 	private final RecipeManager recipeManager;
-	private final Map<ResourceKey<IDataManager<?>>, IDataManager<?>> dataManagers;
+	private final Map<ResourceKey<@NotNull IDataManager<?>>, IDataManager<?>> dataManagers;
 	private final RegistryAccess registry;
 
-	public DataPackReloadCompleteEvent(RecipeManager recipeManager, Map<ResourceKey<IDataManager<?>>, IDataManager<?>> dataManagers, RegistryAccess registry) {
+	public DataPackReloadCompleteEvent(RecipeManager recipeManager, Map<ResourceKey<@NotNull IDataManager<?>>, IDataManager<?>> dataManagers, RegistryAccess registry) {
 		this.recipeManager = recipeManager;
 		this.dataManagers = dataManagers;
 		this.registry = registry;
@@ -24,7 +25,7 @@ public class DataPackReloadCompleteEvent extends Event {
 		return recipeManager;
 	}
 
-	public Map<ResourceKey<IDataManager<?>>, IDataManager<?>> getDataManagers() {
+	public Map<ResourceKey<@NotNull IDataManager<?>>, IDataManager<?>> getDataManagers() {
 		return dataManagers;
 	}
 

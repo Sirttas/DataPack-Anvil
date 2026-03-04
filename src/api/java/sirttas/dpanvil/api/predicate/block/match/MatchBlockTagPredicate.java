@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,7 +24,7 @@ public record MatchBlockTagPredicate(
 			TagKey.codec(Registries.BLOCK).fieldOf(DPAnvilNames.TAG).forGetter(MatchBlockTagPredicate::tag)
 	).apply(builder, MatchBlockTagPredicate::new));
 
-	public MatchBlockTagPredicate(ResourceLocation tagName) {
+	public MatchBlockTagPredicate(Identifier tagName) {
 		this(TagKey.create(Registries.BLOCK, tagName));
 	}
 

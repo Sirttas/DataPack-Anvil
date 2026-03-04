@@ -4,8 +4,8 @@ import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
@@ -72,18 +72,18 @@ public record ReloadDataPayload(
 			ResourceKey<IDataManager<T>> key,
 			IDataManager<T> manager,
 			IJsonDataSerializer<T, I> serializer,
-			Map<ResourceLocation, T> data,
-			Map<ResourceLocation, I> intermediateData
+			Map<Identifier, T> data,
+			Map<Identifier, I> intermediateData
 	) {
 
 		public static <T, I> SubPayload<T, I> load(FriendlyByteBuf buf) {
-			return create(IDataManager.createManagerKey(buf.readResourceLocation()), (k, s) -> {
+			return create(IDataManager.createManagerKey(buf.readIdentifier()), (k, s) -> {
 				try {
 					var mapSize = buf.readInt();
-					var data = HashMap.<ResourceLocation, I>newHashMap(mapSize);
+					var data = HashMap.<Identifier, I>newHashMap(mapSize);
 
 					for (int i = 0; i < mapSize; i++) {
-						data.put(buf.readResourceLocation(), s.read(buf));
+						data.put(buf.readIdentifier(), s.read(buf));
 					}
 					return Map.copyOf(data);
 				} catch (Exception e) {
@@ -93,25 +93,25 @@ public record ReloadDataPayload(
 		}
 
 		@SuppressWarnings("unchecked")
-		public static <T, I> SubPayload<T, I> create(ResourceKey<? super IDataManager<T>> key, BiFunction<ResourceKey<IDataManager<T>>, IJsonDataSerializer<T, I>, Map<ResourceLocation, I>> dataBuilder) {
+		public static <T, I> SubPayload<T, I> create(ResourceKey<? super IDataManager<T>> key, BiFunction<ResourceKey<IDataManager<T>>, IJsonDataSerializer<T, I>, Map<Identifier, I>> dataBuilder) {
 			ResourceKey<IDataManager<T>> k = (ResourceKey<IDataManager<T>>) key;
 			IDataManager<T> manager = DataPackAnvil.WRAPPER.getManager(key);
 			IJsonDataSerializer<T, I> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
-			Map<ResourceLocation, T> data = Map.copyOf(manager.getData());
-			Map<ResourceLocation, I> intermediateData = dataBuilder.apply(k, serializer);
+			Map<Identifier, T> data = Map.copyOf(manager.getData());
+			Map<Identifier, I> intermediateData = dataBuilder.apply(k, serializer);
 
 			return new SubPayload<>(k, manager, serializer, data, intermediateData);
 		}
 
 		public void write(FriendlyByteBuf buf) {
-			buf.writeResourceLocation(key.location());
+			buf.writeIdentifier(key.identifier());
 			buf.writeInt(data.size());
 			data.forEach((loc, prop) -> encodeSingleData(buf, loc, prop));
 		}
 
-		private void encodeSingleData(FriendlyByteBuf buf, ResourceLocation loc, T prop) {
+		private void encodeSingleData(FriendlyByteBuf buf, Identifier loc, T prop) {
 			try {
-				buf.writeResourceLocation(loc);
+				buf.writeIdentifier(loc);
 				serializer.write(prop, buf);
 			} catch (Exception e) {
 				throw new IllegalStateException("Error while encoding network packet for DataManger " + key + ", " + loc + " has invalid data", e);
@@ -122,7 +122,7 @@ public record ReloadDataPayload(
 			try {
 				var newData = new HashMap<>(manager.getData());
 
-				for (Map.Entry<ResourceLocation, I> entry : intermediateData.entrySet()) {
+				for (Map.Entry<Identifier, I> entry : intermediateData.entrySet()) {
 					newData.put(entry.getKey(), serializer.read(entry.getValue()));
 				}
 				manager.setData(newData);

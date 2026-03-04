@@ -11,8 +11,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonParseException;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -44,22 +44,22 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceLocation, List<JsonElement>>> implements IDataManager<T> {
+public class DataManager<T> extends SimplePreparableReloadListener<Map<Identifier, List<JsonElement>>> implements IDataManager<T> {
 
 	private static final Gson GSON = new GsonBuilder().create();
 
 	private final Class<T> contentType;
-	private final Function<ResourceLocation, T> defaultValueFactory;
-	private final Map<ResourceLocation, Holder.Reference<T>> references;
+	private final Function<Identifier, T> defaultValueFactory;
+	private final Map<Identifier, Holder.Reference<T>> references;
 	private final String folder;
-	private final BiConsumer<T, ResourceLocation> idSetter;
+	private final BiConsumer<T, Identifier> idSetter;
 	private final ResourceKey<IDataManager<T>> key;
 	private final List<DataPreprocessor> preprocessors;
-	private Map<ResourceLocation, T> data;
-	private Map<ResourceLocation, T> remappedData;
+	private Map<Identifier, T> data;
+	private Map<Identifier, T> remappedData;
 	private PreprocessorContext preprocessorContext;
 
-	public DataManager(ResourceKey<IDataManager<T>> key, Class<T> contentType, String folder, Function<ResourceLocation, T> defaultValueFactory, BiConsumer<T, ResourceLocation> idSetter, List<DataPreprocessor> preprocessors) {
+	public DataManager(ResourceKey<IDataManager<T>> key, Class<T> contentType, String folder, Function<Identifier, T> defaultValueFactory, BiConsumer<T, Identifier> idSetter, List<DataPreprocessor> preprocessors) {
 		this.key = key;
 		this.contentType = contentType;
 		this.defaultValueFactory = defaultValueFactory;
@@ -70,13 +70,13 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 		this.remappedData = Collections.emptyMap();
 		this.preprocessors = preprocessors;
 		if (preprocessors.isEmpty()) {
-			DataPackAnvilApi.LOGGER.warn("No preprocessors provided for {}. This may lead to unexpected behavior.", key.location());
+			DataPackAnvilApi.LOGGER.warn("No preprocessors provided for {}. This may lead to unexpected behavior.", key.identifier());
 		}
 		this.preprocessorContext = new PreprocessorContext(Map.of());
 	}
 
 	@Override
-	public @Nonnull Map<ResourceLocation, T> getData() {
+	public @Nonnull Map<Identifier, T> getData() {
 		return data;
 	}
 
@@ -86,12 +86,12 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 	}
 
 	@Override
-	public void setData(@Nonnull Map<ResourceLocation, T> map) {
+	public void setData(@Nonnull Map<Identifier, T> map) {
 		map.forEach((loc, value) -> idSetter.accept(value, loc));
 		if (this != DataPackAnvilApi.REMAP_KEYS_MANAGER) {
-			var remap = new HashMap<ResourceLocation, T>();
+			var remap = new HashMap<Identifier, T>();
 
-			DataPackAnvilApi.REMAP_KEYS_MANAGER.get(this.key.location()).keys().forEach((k, v) -> {
+			DataPackAnvilApi.REMAP_KEYS_MANAGER.get(this.key.identifier()).keys().forEach((k, v) -> {
 				var value = map.get(v);
 
 				if (value != null) {
@@ -120,20 +120,20 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 	}
 
 	@Override
-	public @Nonnull ResourceLocation getId(final T value) {
+	public @Nonnull Identifier getId(final T value) {
 		if (data instanceof BiMap) {
-			return ((BiMap<ResourceLocation, T>) data).inverse().getOrDefault(value, DPAnvilNames.ResourceLocations.NONE);
+			return ((BiMap<Identifier, T>) data).inverse().getOrDefault(value, DPAnvilNames.Identifiers.NONE);
 		}
 		for (var entry : data.entrySet()) {
 			if (entry.getValue().equals(value)) {
 				return entry.getKey();
 			}
 		}
-		return DPAnvilNames.ResourceLocations.NONE;
+		return DPAnvilNames.Identifiers.NONE;
 	}
 
 	@Override
-	public T get(@Nonnull ResourceLocation id) {
+	public T get(@Nonnull Identifier id) {
 		T value = data.get(id);
 
 		if (value != null) {
@@ -151,10 +151,10 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 	@Nonnull
 	public Holder<T> getOrCreateHolder(@Nonnull ResourceKey<T> key) {
 		synchronized (this.references) {
-			return this.references.computeIfAbsent(key.location(), resourceLocation -> {
+			return this.references.computeIfAbsent(key.identifier(), Identifier -> {
 				var reference = Holder.Reference.createStandAlone(this, key);
 
-				bindReference(reference, resourceLocation);
+				bindReference(reference, Identifier);
 				return reference;
 			});
 		}
@@ -162,7 +162,7 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 
 	@Override
 	@Nonnull
-	public Holder<T> getOrCreateHolder(@Nonnull ResourceLocation key) {
+	public Holder<T> getOrCreateHolder(@Nonnull Identifier key) {
 		return getOrCreateHolder(createKey(key));
 	}
 
@@ -173,25 +173,25 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 
 	private void rebindReferences() {
 		synchronized (this.references) {
-			this.references.values().forEach(r -> bindReference(r, r.key().location()));
+			this.references.values().forEach(r -> bindReference(r, r.key().identifier()));
 		}
 	}
 
-	private void bindReference(Holder.Reference<T> reference, ResourceLocation resourceLocation) {
-		var value = this.get(resourceLocation);
+	private void bindReference(Holder.Reference<T> reference, Identifier Identifier) {
+		var value = this.get(Identifier);
 
 		if (value == null) {
-			DataPackAnvilApi.LOGGER.debug("Could not bind reference for {} in manager {}", resourceLocation, key);
+			DataPackAnvilApi.LOGGER.debug("Could not bind reference for {} in manager {}", Identifier, key);
 			return;
 		}
 		reference.bindValue(value);
 		if (!reference.isBound()) {
-			DataPackAnvilApi.LOGGER.warn("Failed to bind reference {} for manager {}", resourceLocation, key);
+			DataPackAnvilApi.LOGGER.warn("Failed to bind reference {} for manager {}", Identifier, key);
 		}
 	}
 
 	@Nonnull
-	private ResourceKey<T> createKey(ResourceLocation l) {
+	private ResourceKey<T> createKey(Identifier l) {
 		return IDataManager.createKey(this.key, l);
 	}
 
@@ -205,18 +205,18 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 	}
 
 	@Override
-	protected @NotNull Map<ResourceLocation, List<JsonElement>> prepare(ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
-		var map = new HashMap<ResourceLocation, List<JsonElement>>();
+	protected @NotNull Map<Identifier, List<JsonElement>> prepare(ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
+		var map = new HashMap<Identifier, List<JsonElement>>();
 		var i = this.folder.length() + 1;
 
 		for (var entry : resourceManager.listResourceStacks(this.folder, file -> file.getPath().endsWith(".json")).entrySet()) {
-			var resourceLocation = entry.getKey();
-			var path = resourceLocation.getPath();
-			var resourceId = ResourceLocation.fromNamespaceAndPath(resourceLocation.getNamespace(), path.substring(i, path.length() - 5));
+			var Identifier = entry.getKey();
+			var path = Identifier.getPath();
+			var resourceId = Identifier.fromNamespaceAndPath(Identifier.getNamespace(), path.substring(i, path.length() - 5));
 			var list = new ArrayList<JsonElement>();
 
 			for (var resource : entry.getValue()) {
-				JsonElement element = getElement(resourceLocation, resourceId, resource);
+				JsonElement element = getElement(Identifier, resourceId, resource);
 
 				if (element == null) {
 					continue;
@@ -229,25 +229,25 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 		return map;
 	}
 
-	private static JsonElement getElement(ResourceLocation resourcelocation, ResourceLocation resourceId, Resource resource) {
+	private static JsonElement getElement(Identifier Identifier, Identifier resourceId, Resource resource) {
 		try (var inputstream = resource.open();
 			 var reader = new BufferedReader(new InputStreamReader(inputstream, StandardCharsets.UTF_8))) {
 			return GsonHelper.fromJson(GSON, reader, JsonElement.class);
 		} catch (IllegalArgumentException | IOException | JsonParseException e) {
-			DataPackAnvilApi.LOGGER.error("Couldn't parse data file {} from {}", resourceId, resourcelocation, e);
+			DataPackAnvilApi.LOGGER.error("Couldn't parse data file {} from {}", resourceId, Identifier, e);
 		}
 		return null;
 	}
 
 	@Override
-	protected void apply(@NotNull Map<ResourceLocation, List<JsonElement>> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
+	protected void apply(@NotNull Map<Identifier, List<JsonElement>> objects, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profiler) {
 		RegistryListener.getInstance().listen(r -> {
 			try {
 				while (!preprocessorContext.rawData.isEmpty()) {
 					preprocessorContext.process(preprocessorContext.rawData.keySet().iterator().next());
 				}
 
-				Map<ResourceLocation, T> map = Maps.newHashMap();
+				Map<Identifier, T> map = Maps.newHashMap();
 				IJsonDataSerializer<T, ?> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
 
 				preprocessorContext.processedData.forEach((loc, jsonElements) -> {
@@ -269,11 +269,11 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 
 	private class PreprocessorContext implements DataPreprocessor.Context {
 
-		private final Map<ResourceLocation, List<JsonElement>> rawData;
-		private final Map<ResourceLocation, List<JsonElement>> processedData;
-		private final List<ResourceLocation> processingIds;
+		private final Map<Identifier, List<JsonElement>> rawData;
+		private final Map<Identifier, List<JsonElement>> processedData;
+		private final List<Identifier> processingIds;
 
-        private PreprocessorContext(Map<ResourceLocation, List<JsonElement>> rawData) {
+        private PreprocessorContext(Map<Identifier, List<JsonElement>> rawData) {
 			this.rawData = new HashMap<>(rawData);
 			this.processedData = Maps.newHashMap();
 			processingIds = Lists.newArrayList();
@@ -290,7 +290,7 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 		}
 
 		@Override
-		public List<JsonElement> getProcessed(ResourceLocation id) {
+		public List<JsonElement> getProcessed(Identifier id) {
 			if (processedData.containsKey(id)) {
 				return processedData.get(id);
 			} else if (processingIds.contains(id)) {
@@ -300,7 +300,7 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<ResourceL
 			return processedData.get(id);
 		}
 
-		void process(ResourceLocation id) {
+		void process(Identifier id) {
 			List<JsonElement> elements = rawData.remove(id);
 			processingIds.add(id);
 

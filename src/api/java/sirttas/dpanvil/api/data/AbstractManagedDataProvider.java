@@ -5,8 +5,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
@@ -24,14 +24,14 @@ public abstract class AbstractManagedDataProvider<T> implements DataProvider {
 	}
 	
 	protected CompletableFuture<?> save(CachedOutput cache, JsonElement element, ResourceKey<T> id) {
-		return save(cache, element, id.location());
+		return save(cache, element, id.identifier());
 	}
 
-	protected CompletableFuture<?> save(CachedOutput cache, JsonElement element, ResourceLocation id) {
+	protected CompletableFuture<?> save(CachedOutput cache, JsonElement element, Identifier id) {
 		return DataProvider.saveStable(cache, element, getPath(id));
 	}
 
-	private Path getPath(ResourceLocation id) {
+	private Path getPath(Identifier id) {
 		return this.packOutput.getOutputFolder().resolve("data/" + id.getNamespace() + "/" + manager.getFolder() + "/" + id.getPath() + ".json");
 	}
 }

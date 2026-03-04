@@ -2,6 +2,7 @@ package sirttas.dpanvil.api.event;
 
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.Event;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.data.IDataManager;
 
 public class DataManagerReloadEvent extends Event {
@@ -16,7 +17,7 @@ public class DataManagerReloadEvent extends Event {
 		return (IDataManager<T>) dataManager;
 	}
 
-	public <T> boolean isFor(ResourceKey<IDataManager<T>> key) {
+	public <T> boolean isFor(ResourceKey<@NotNull IDataManager<T>> key) {
 		return dataManager.getKey().equals(key);
 	}
 }

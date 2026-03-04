@@ -3,6 +3,7 @@ package sirttas.dpanvil.api.data.remap;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.AbstractManagedDataBuilderProvider;
 import sirttas.dpanvil.api.data.IDataManager;
@@ -15,10 +16,10 @@ public abstract class AbstractRemapKeysProvider extends AbstractManagedDataBuild
         super(packOutput, registries, DataPackAnvilApi.REMAP_KEYS_MANAGER, RemapKeys.Builder.ENCODER);
     }
 
-    protected RemapKeys.Builder remap(ResourceKey<? extends IDataManager<?>> key) {
+    protected RemapKeys.Builder remap(ResourceKey<? extends @NotNull IDataManager<?>> key) {
         var builder = RemapKeys.builder();
 
-        add(key.location(), builder);
+        add(key.identifier(), builder);
         return builder;
     }
 }

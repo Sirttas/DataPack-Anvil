@@ -14,13 +14,13 @@ import javax.annotation.Nonnull;
 public class DataPackAnvilService implements IDataPackAnvilService {
     @Nonnull
     @Override
-    public <T> IDataManager.Builder<T> createDataManagerBuilder(@Nonnull Class<T> type, @Nonnull ResourceKey<IDataManager<T>> key) {
+    public <T> IDataManager.Builder<T> createDataManagerBuilder(@Nonnull Class<T> type, @Nonnull ResourceKey<@NotNull IDataManager<T>> key) {
         return new DataManagerBuilder<>(type, key);
     }
 
     @NotNull
     @Override
-    public <E> Codec<Holder<E>> holderCodec(ResourceKey<? extends IDataManager<E>> managerKey, Codec<E> elementCodec, boolean allowInline) {
+    public <E> Codec<Holder<E>> holderCodec(ResourceKey<? extends @NotNull IDataManager<E>> managerKey, Codec<E> elementCodec, boolean allowInline) {
         return new DataFileCodec<>(managerKey, elementCodec, allowInline);
     }
 }

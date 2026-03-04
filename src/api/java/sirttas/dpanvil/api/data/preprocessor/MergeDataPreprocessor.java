@@ -10,7 +10,7 @@ import java.util.List;
 
 public class MergeDataPreprocessor implements DataPreprocessor {
 
-    private static final String REPLACE_TAG_NAME = DPAnvilNames.ResourceLocations.REPLACE.toString();
+    private static final String REPLACE_TAG_NAME = DPAnvilNames.Identifiers.REPLACE.toString();
 
     private final JsonMerger jsonMerger;
 

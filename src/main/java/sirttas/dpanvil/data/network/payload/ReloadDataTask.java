@@ -10,7 +10,7 @@ import sirttas.dpanvil.api.DPAnvilNames;
 import java.util.function.Consumer;
 
 public record ReloadDataTask(ServerConfigurationPacketListener listener) implements ICustomConfigurationTask {
-    public static final Type TYPE = new Type(DPAnvilNames.ResourceLocations.create("reload_data_task"));
+    public static final Type TYPE = new Type(DPAnvilNames.Identifiers.create("reload_data_task"));
 
     @Override
     public void run(Consumer<CustomPacketPayload> sender) {

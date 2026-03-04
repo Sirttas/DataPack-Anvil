@@ -1,6 +1,6 @@
 package sirttas.dpanvil.api;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class DPAnvilNames {
 
@@ -21,20 +21,20 @@ public class DPAnvilNames {
 
     private DPAnvilNames() {}
 
-	public static class ResourceLocations {
-		public static final ResourceLocation NONE = create("none");
-		public static final ResourceLocation DATA_MANAGER_ROOT = create("data_managers");
-		public static final ResourceLocation PARENT = create("parent");
-		public static final ResourceLocation REPLACE = create( "replace");
-		public static final ResourceLocation NEOFORGE_CONDITIONS = create("neoforge:conditions");
+	public static class Identifiers {
+		public static final Identifier NONE = create("none");
+		public static final Identifier DATA_MANAGER_ROOT = create("data_managers");
+		public static final Identifier PARENT = create("parent");
+		public static final Identifier REPLACE = create( "replace");
+		public static final Identifier NEOFORGE_CONDITIONS = create("neoforge:conditions");
 
-		private ResourceLocations() {}
+		private Identifiers() {}
 
-		public static ResourceLocation create(String name) {
+		public static Identifier create(String name) {
 			if (name.contains(":")) {
-				return ResourceLocation.parse(name);
+				return Identifier.parse(name);
 			}
-			return ResourceLocation.fromNamespaceAndPath(DataPackAnvilApi.MODID, name);
+			return Identifier.fromNamespaceAndPath(DataPackAnvilApi.MODID, name);
 		}
 	}
 

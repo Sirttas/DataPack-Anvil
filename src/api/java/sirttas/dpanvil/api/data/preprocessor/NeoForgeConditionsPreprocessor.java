@@ -12,7 +12,7 @@ import java.util.function.Function;
 
 public class NeoForgeConditionsPreprocessor implements DataPreprocessor {
 
-    private static final String CONDITIONS_TAG_NAME = DPAnvilNames.ResourceLocations.NEOFORGE_CONDITIONS.toString();
+    private static final String CONDITIONS_TAG_NAME = DPAnvilNames.Identifiers.NEOFORGE_CONDITIONS.toString();
 
     public static <O> RecordCodecBuilder<O, List<ICondition>> fieldOf(Function<O, List<ICondition>> getter) {
         return ICondition.LIST_CODEC.optionalFieldOf(CONDITIONS_TAG_NAME, List.of()).forGetter(getter);

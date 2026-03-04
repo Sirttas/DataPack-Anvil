@@ -6,8 +6,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.resource.ContextAwareReloadListener;
 import org.jetbrains.annotations.NotNull;
@@ -29,8 +27,8 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public class DataManagerWrapper extends ContextAwareReloadListener implements PreparableReloadListener {
 
-	private final Map<ResourceKey<IDataManager<?>>, IDataManager<?>> managers = Maps.newHashMap();
-	private final Map<ResourceKey<IDataManager<?>>, IJsonDataSerializer<?, ?>> serializers = Maps.newHashMap();
+	private final Map<ResourceKey<@NotNull IDataManager<?>>, IDataManager<?>> managers = Maps.newHashMap();
+	private final Map<ResourceKey<@NotNull IDataManager<?>>, IJsonDataSerializer<?, ?>> serializers = Maps.newHashMap();
 
 	public static <T> void logManagerException(ResourceKey<? super IDataManager<T>> key, Throwable e) {
 		if (e != null) {
@@ -49,12 +47,12 @@ public class DataManagerWrapper extends ContextAwareReloadListener implements Pr
 				.orElse(null);
 	}
 
-	public <T> ResourceKey<IDataManager<T>> getKey(IDataManager<T> manager) {
+	public <T> ResourceKey<@NotNull IDataManager<T>> getKey(IDataManager<T> manager) {
 		return managers.entrySet().stream()
 				.filter(e -> e.getValue().equals(manager))
-				.map(e -> this.<ResourceKey<IDataManager<T>>>cast(e.getKey()))
+				.map(e -> this.<ResourceKey<@NotNull IDataManager<T>>>cast(e.getKey()))
 				.findAny()
-				.orElseGet(() -> IDataManager.createManagerKey(DPAnvilNames.ResourceLocations.NONE));
+				.orElseGet(() -> IDataManager.createManagerKey(DPAnvilNames.Identifiers.NONE));
 	}
 
 	private <T> T cast(Object key) {
@@ -68,7 +66,7 @@ public class DataManagerWrapper extends ContextAwareReloadListener implements Pr
 	public <T> void putManagerFromIMC(Supplier<?> supplier) {
 		DataManagerIMC<T> message = (DataManagerIMC<T>) supplier.get();
 		IDataManager<T> manager = message.getManager();
-		ResourceKey<IDataManager<?>> key = this.cast(message.getKey());
+		ResourceKey<@NotNull IDataManager<?>> key = this.cast(message.getKey());
 
 		serializers.put(key, buildSerializer(message));
 		managers.put(key, manager);
@@ -106,11 +104,11 @@ public class DataManagerWrapper extends ContextAwareReloadListener implements Pr
 	}
 
 
-	public Collection<ResourceKey<IDataManager<?>>> ids() {
+	public Collection<ResourceKey<@NotNull IDataManager<?>>> ids() {
 		return managers.keySet();
 	}
 
-	public Map<ResourceKey<IDataManager<?>>, IDataManager<?>> getDataManagers() {
+	public Map<ResourceKey<@NotNull IDataManager<?>>, IDataManager<?>> getDataManagers() {
 		return managers;
 	}
 
@@ -124,12 +122,12 @@ public class DataManagerWrapper extends ContextAwareReloadListener implements Pr
 	}
 
 	@Override
-	public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier stage, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller preparationsProfiler, @NotNull ProfilerFiller reloadProfiler, @NotNull Executor backgroundExecutor, @NotNull Executor gameExecutor) {
+    public @NotNull CompletableFuture<Void> reload(@NotNull SharedState sharedState, @NotNull Executor backgroundExecutor, @NotNull PreparationBarrier stage, @NotNull Executor gameExecutor) {
 		if (managers.isEmpty()) {
 			return CompletableFuture.allOf();
 		}
 		return CompletableFuture.runAsync(() -> CompletableFuture.allOf(managers.entrySet().stream()
-						.map(entry -> entry.getValue().reload(stage, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor)
+						.map(entry -> entry.getValue().reload(sharedState, backgroundExecutor, stage, gameExecutor)
 								.handle(handleManagerException(entry.getKey())))
 						.toArray(CompletableFuture[]::new)), backgroundExecutor)
 				.thenCompose(stage::wait)
@@ -157,7 +155,7 @@ public class DataManagerWrapper extends ContextAwareReloadListener implements Pr
 		});
 	}
 	
-	private BiFunction<Void, Throwable, Void> handleManagerException(ResourceKey<IDataManager<?>> key) {
+	private BiFunction<Void, Throwable, Void> handleManagerException(ResourceKey<@NotNull IDataManager<?>> key) {
 		return (r, e) -> {
 			logManagerException(key, e);
 			return r;

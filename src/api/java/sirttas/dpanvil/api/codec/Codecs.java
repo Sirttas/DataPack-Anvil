@@ -5,22 +5,22 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-@SuppressWarnings({"deprecation"})
 public class Codecs {
 
 	public static final Codec<Pattern> PATTERN = Codec.STRING.xmap(Pattern::compile, Pattern::pattern);
@@ -52,15 +52,15 @@ public class Codecs {
 			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left))
 			.xmap(e -> e.map(Function.identity(), Function.identity()), Either::left);
 	
-	public static final Codec<Multimap<Holder<Attribute>, AttributeModifier>> ATTRIBUTE_MULTIMAP = CodecHelper.multiMapCodec(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), AttributeModifier.CODEC);
+	public static final Codec<Multimap<Holder<@NotNull Attribute>, AttributeModifier>> ATTRIBUTE_MULTIMAP = CodecHelper.multiMapCodec(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), AttributeModifier.CODEC);
 
 	public static final Codec<AABB> AABB = Codec.DOUBLE.listOf().comapFlatMap(
 			list -> Util.fixedSize(list, 6).map(doubles -> new AABB(doubles.getFirst(), doubles.get(1), doubles.get(2), doubles.get(3), doubles.get(4), doubles.get(5))),
 			aabb -> List.of(aabb.minX, aabb.minY, aabb.minZ, aabb.maxX, aabb.maxY, aabb.maxZ)
 	);
 
-	public static <T> Codec<ResourceKey<T>> keyCodec(ResourceKey<Registry<T>> registryKey) {
-		return ResourceLocation.CODEC.xmap(l -> ResourceKey.create(registryKey, l), ResourceKey::location);
+	public static <T> Codec<ResourceKey<@NotNull T>> keyCodec(ResourceKey<@NotNull Registry<@NotNull T>> registryKey) {
+		return Identifier.CODEC.xmap(l -> ResourceKey.create(registryKey, l), ResourceKey::identifier);
 	}
 
 	private Codecs() {}

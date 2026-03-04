@@ -5,18 +5,19 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import net.neoforged.neoforge.common.util.Lazy;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
 public class LazyCodec<T> implements Codec<T> {
 
-    private final Lazy<Codec<T>> codec;
+    private final Lazy<@NotNull Codec<T>> codec;
 
-    private LazyCodec(Lazy<Codec<T>> codec) {
+    private LazyCodec(Lazy<@NotNull Codec<T>> codec) {
         this.codec = codec;
     }
 
-    public static <T> LazyCodec<T> of(Lazy<Codec<T>> codec) {
+    public static <T> LazyCodec<T> of(Lazy<@NotNull Codec<T>> codec) {
         return new LazyCodec<>(codec);
     }
 
@@ -36,6 +37,6 @@ public class LazyCodec<T> implements Codec<T> {
 
     @Override
     public String toString() {
-        return "LazyCodec[" + codec.get() + "]";
+        return "LazyCodec";
     }
 }

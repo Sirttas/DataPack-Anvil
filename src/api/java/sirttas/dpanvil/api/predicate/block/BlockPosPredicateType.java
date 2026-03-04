@@ -25,7 +25,7 @@ import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 
 public record BlockPosPredicateType<T extends IBlockPosPredicate>(MapCodec<T> codec) {
 
-	public static final ResourceKey<Registry<BlockPosPredicateType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(DPAnvilNames.ResourceLocations.create("block_pos_predicate"));
+	public static final ResourceKey<Registry<BlockPosPredicateType<?>>> REGISTRY_KEY = ResourceKey.createRegistryKey(DPAnvilNames.Identifiers.create("block_pos_predicate"));
 	private static final DeferredRegister<BlockPosPredicateType<?>> DEFERRED_REGISTRY = DeferredRegister.create(REGISTRY_KEY, DataPackAnvilApi.MODID);
 
 	public static final Registry<BlockPosPredicateType<?>> REGISTRY = DEFERRED_REGISTRY.makeRegistry(Consumers.nop());

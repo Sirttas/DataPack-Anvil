@@ -12,10 +12,10 @@ import sirttas.dpanvil.api.codec.CodecHelper;
 import javax.annotation.Nonnull;
 
 @Deprecated
-public class CodecRecipeSerializer<T extends Recipe<?>> implements RecipeSerializer<T> {
+public class CodecRecipeSerializer<T extends Recipe<?>> implements RecipeSerializer<@NotNull T> {
 
 	private final MapCodec<T> codec;
-	private final StreamCodec<RegistryFriendlyByteBuf, T> streamCodec;
+	private final StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull T> streamCodec;
 
 	public CodecRecipeSerializer(MapCodec<T> codec) {
 		this.codec = codec;
@@ -28,7 +28,7 @@ public class CodecRecipeSerializer<T extends Recipe<?>> implements RecipeSeriali
 	}
 
 	@Override
-	public @NotNull StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
+	public @NotNull StreamCodec<@NotNull RegistryFriendlyByteBuf, @NotNull T> streamCodec() {
 		return streamCodec;
 	}
 

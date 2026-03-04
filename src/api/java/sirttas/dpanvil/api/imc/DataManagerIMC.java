@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.fml.InterModComms;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 
@@ -26,7 +27,7 @@ public class DataManagerIMC<T> {
 		this.manager = manager;
 	}
 
-	public ResourceKey<IDataManager<T>> getKey() {
+	public ResourceKey<@NotNull IDataManager<T>> getKey() {
 		return manager.getKey();
 	}
 

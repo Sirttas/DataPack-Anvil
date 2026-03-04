@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.OrBlockPredicate;
@@ -37,10 +37,10 @@ public class BlockPredicateJsonMerger implements JsonMerger {
         AND(AndBlockPredicate.NAME),
         OR(OrBlockPredicate.NAME);
 
-        private final ResourceLocation name;
+        private final Identifier name;
 
         Type(String name) {
-            this.name = DPAnvilNames.ResourceLocations.create(name);
+            this.name = DPAnvilNames.Identifiers.create(name);
         }
     }
 }

@@ -1,7 +1,7 @@
 package sirttas.dpanvil.data.manager;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.data.preprocessor.DataPreprocessor;
 import sirttas.dpanvil.api.data.preprocessor.NeoForgeConditionsPreprocessor;
@@ -20,21 +20,21 @@ public class DataManagerBuilder<T> implements IDataManager.Builder<T> {
 	private final List<DataPreprocessor> preprocessors;
 
 	private String folder;
-	private Function<ResourceLocation, T> defaultValueFactory = id -> null;
-	private BiConsumer<T, ResourceLocation> idSetter = (t, id) -> {};
+	private Function<Identifier, T> defaultValueFactory = id -> null;
+	private BiConsumer<T, Identifier> idSetter = (t, id) -> {};
 
 	public DataManagerBuilder(Class<T> type, @Nonnull ResourceKey<IDataManager<T>> key) {
 		this.type = type;
 		this.key = key;
 		this.preprocessors = new ArrayList<>();
 
-		var location = key.location();
+		var location = key.identifier();
 
 		this.folder = location.getNamespace() + "/" + location.getPath();
 	}
 
 	@Override
-	public IDataManager.Builder<T> withDefault(Function<ResourceLocation, T> factory) {
+	public IDataManager.Builder<T> withDefault(Function<Identifier, T> factory) {
 		this.defaultValueFactory = factory;
 		return this;
 	}
@@ -59,7 +59,7 @@ public class DataManagerBuilder<T> implements IDataManager.Builder<T> {
 	}
 
 	@Override
-	public IDataManager.Builder<T> idSetter(BiConsumer<T, ResourceLocation> idSetter) {
+	public IDataManager.Builder<T> idSetter(BiConsumer<T, Identifier> idSetter) {
 		this.idSetter = idSetter;
 		return this;
 	}
