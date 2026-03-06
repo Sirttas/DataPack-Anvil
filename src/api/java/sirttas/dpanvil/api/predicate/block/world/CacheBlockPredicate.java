@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.attribute.EnvironmentAttributeReader;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -103,13 +104,13 @@ public record CacheBlockPredicate(
 
         @Nonnull
         @Override
-        public LevelTickAccess<Block> getBlockTicks() {
+        public LevelTickAccess<@NotNull Block> getBlockTicks() {
             return level.getBlockTicks();
         }
 
         @Nonnull
         @Override
-        public LevelTickAccess<Fluid> getFluidTicks() {
+        public LevelTickAccess<@NotNull Fluid> getFluidTicks() {
             return level.getFluidTicks();
         }
 
@@ -144,8 +145,8 @@ public record CacheBlockPredicate(
         }
 
         @Override
-        public void playSound(@Nullable Player player, @Nonnull BlockPos pos, @Nonnull SoundEvent sound, @Nonnull SoundSource category, float volume, float pitch) {
-            level.playSound(player, pos, sound, category, volume, pitch);
+        public void playSound(@Nullable Entity entity, @NotNull BlockPos blockPos, @NotNull SoundEvent soundEvent, @NotNull SoundSource soundSource, float v, float v1) {
+            level.playSound(entity, blockPos, soundEvent, soundSource, v, v1);
         }
 
         @Override
@@ -154,12 +155,12 @@ public record CacheBlockPredicate(
         }
 
         @Override
-        public void levelEvent(@Nullable Player player, int type, @Nonnull BlockPos pos, int data) {
-            level.levelEvent(player, type, pos, data);
+        public void levelEvent(@Nullable Entity entity, int i, @NotNull BlockPos blockPos, int i1) {
+            level.levelEvent(entity, i, blockPos, i1);
         }
 
         @Override
-        public void gameEvent(@NotNull Holder<GameEvent> holder, @NotNull Vec3 vec3, @NotNull GameEvent.Context context) {
+        public void gameEvent(@NotNull Holder<@NotNull GameEvent> holder, @NotNull Vec3 vec3, @NotNull GameEvent.Context context) {
             level.gameEvent(holder, vec3, context);
         }
 
@@ -173,6 +174,11 @@ public record CacheBlockPredicate(
         @Override
         public FeatureFlagSet enabledFeatures() {
             return level.enabledFeatures();
+        }
+
+        @Override
+        public @NotNull EnvironmentAttributeReader environmentAttributes() {
+            return level.environmentAttributes();
         }
 
         @Override
@@ -218,7 +224,7 @@ public record CacheBlockPredicate(
 
         @Nonnull
         @Override
-        public <T extends Entity> List<T> getEntities(@Nonnull EntityTypeTest<Entity, T> entityTypeTest, @Nonnull AABB area, @Nonnull Predicate<? super T> predicate) {
+        public <T extends Entity> List<T> getEntities(@Nonnull EntityTypeTest<@NotNull Entity, @NotNull T> entityTypeTest, @Nonnull AABB area, @Nonnull Predicate<? super T> predicate) {
             return level.getEntities(entityTypeTest, area, predicate);
         }
 
@@ -252,7 +258,7 @@ public record CacheBlockPredicate(
 
         @Nonnull
         @Override
-        public Holder<Biome> getUncachedNoiseBiome(int pX, int pY, int pZ) {
+        public Holder<@NotNull Biome> getUncachedNoiseBiome(int pX, int pY, int pZ) {
             return level.getUncachedNoiseBiome(pX, pY, pZ);
         }
 

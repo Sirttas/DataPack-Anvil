@@ -7,7 +7,7 @@ import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 
-@EventBusSubscriber(modid = DataPackAnvilApi.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = DataPackAnvilApi.MODID)
 public class PayloadHandler {
 
 	private static final String PROTOCOL_VERSION = "1";

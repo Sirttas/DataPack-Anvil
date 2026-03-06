@@ -1,18 +1,14 @@
 package sirttas.dpanvil;
 
-import net.minecraft.server.MinecraftServer;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.remap.RemapKeys;
-import sirttas.dpanvil.api.event.DataPackReloadCompleteEvent;
 import sirttas.dpanvil.api.imc.DataManagerIMC;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.data.DataManagerWrapper;
@@ -28,16 +24,11 @@ public class DataPackAnvil {
 		BlockPosPredicateType.register(modBus);
 
 		modBus.addListener(this::processIMC);
-		NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::serverStarted);
 		NeoForge.EVENT_BUS.addListener(this::syncDataManagers);
 		NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
 
 		// Preload the service
 		DataPackAnvilApi.service();
-	}
-
-	private void serverStarted(ServerStartedEvent event) {
-		onReloadCompleted(event.getServer());
 	}
 
 	private void processIMC(InterModProcessEvent event) {
@@ -51,12 +42,8 @@ public class DataPackAnvil {
 		}
 
 		DPAnvilPacketDistributor.sendToAllRemotePlayers(new ReloadDataPayload(DataPackAnvil.WRAPPER.ids()));
-		onReloadCompleted(event.getPlayerList().getServer());
 	}
-	
-	private static void onReloadCompleted(MinecraftServer server) {
-		NeoForge.EVENT_BUS.post(new DataPackReloadCompleteEvent(server.getRecipeManager(), DataPackAnvil.WRAPPER.getDataManagers(), server.registryAccess()));
-	}
+
 
 	private void addReloadListeners(AddServerReloadListenersEvent event) {
 		if (!WRAPPER.getDataManagers().isEmpty()) {

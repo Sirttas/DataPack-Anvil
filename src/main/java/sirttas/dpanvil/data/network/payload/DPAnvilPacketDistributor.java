@@ -2,13 +2,13 @@ package sirttas.dpanvil.data.network.payload;
 
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
-import net.neoforged.neoforge.common.util.LogicalSidedProvider;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,14 +26,14 @@ public class DPAnvilPacketDistributor {
 	}
 
 	public static void sendToAllRemotePlayers(CustomPacketPayload payload, CustomPacketPayload... payloads) {
-		((MinecraftServer) LogicalSidedProvider.WORKQUEUE.get(LogicalSide.SERVER)).getPlayerList().getPlayers().forEach(player -> sendToRemotePlayer(player, payload, payloads));
+        ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers().forEach(player -> sendToRemotePlayer(player, payload, payloads));
 	}
 	
 	private static boolean isRemotePlayer(Player player) {
-		var server = player.getServer();
+		var server = player.level() instanceof ServerLevel level ? level.getServer() : null;
 		
 		if (server != null) {
-			return !server.isSingleplayerOwner(player.getGameProfile());
+			return !server.isSingleplayerOwner(new NameAndId(player.getGameProfile()));
 		}
 		return true;
 	}

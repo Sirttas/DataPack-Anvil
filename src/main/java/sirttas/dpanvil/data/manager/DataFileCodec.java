@@ -9,22 +9,23 @@ import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.data.IDataManager;
 
-public class DataFileCodec<E> implements Codec<Holder<E>> {
-    private final ResourceKey<IDataManager<E>> managerKey;
+public class DataFileCodec<E> implements Codec<Holder<@NotNull E>> {
+    private final ResourceKey<@NotNull IDataManager<E>> managerKey;
     private final Codec<E> elementCodec;
     private final boolean allowInline;
 
     @SuppressWarnings("unchecked")
-    public DataFileCodec(ResourceKey<? extends IDataManager<E>> managerKey, Codec<E> elementCodec, boolean allowInline) {
-        this.managerKey = (ResourceKey<IDataManager<E>>) managerKey;
+    public DataFileCodec(ResourceKey<? extends @NotNull IDataManager<E>> managerKey, Codec<E> elementCodec, boolean allowInline) {
+        this.managerKey = (ResourceKey<@NotNull IDataManager<E>>) managerKey;
         this.elementCodec = elementCodec;
         this.allowInline = allowInline;
     }
 
-    public <T> DataResult<T> encode(Holder<E> holder, DynamicOps<T> ops, T prefix) {
+    public <T> DataResult<T> encode(Holder<@NotNull E> holder, DynamicOps<T> ops, T prefix) {
         return holder.unwrap().map(
                 k -> Identifier.CODEC.encode(k.identifier(), ops, prefix),
                 e -> this.elementCodec.encode(e, ops, prefix)
@@ -32,7 +33,7 @@ public class DataFileCodec<E> implements Codec<Holder<E>> {
     }
 
     @Override
-    public <T> DataResult<Pair<Holder<E>, T>> decode(DynamicOps<T> ops, T input) {
+    public <T> DataResult<Pair<Holder<@NotNull E>, T>> decode(DynamicOps<T> ops, T input) {
         var manager = DataPackAnvil.WRAPPER.getManager(this.managerKey);
 
         if (manager == null) {
@@ -55,7 +56,7 @@ public class DataFileCodec<E> implements Codec<Holder<E>> {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> DataResult<Pair<Holder<E>, T>> decodeFromElementCodec(IDataManager<E> manager, DynamicOps<T> ops, T input) {
+    private <T> DataResult<Pair<Holder<@NotNull E>, T>> decodeFromElementCodec(IDataManager<E> manager, DynamicOps<T> ops, T input) {
         if (manager instanceof DataManager<E> dataManager && input instanceof JsonElement element) {
             input = (T) dataManager.preprocess(element);
         }

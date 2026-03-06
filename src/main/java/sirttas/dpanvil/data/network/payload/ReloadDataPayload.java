@@ -1,17 +1,16 @@
 package sirttas.dpanvil.data.network.payload;
 
-import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Util;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.DataPackAnvil;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
-import sirttas.dpanvil.data.DataHandler;
 import sirttas.dpanvil.data.DataManagerWrapper;
 import sirttas.dpanvil.data.serializer.IJsonDataSerializer;
 import sirttas.dpanvil.registry.RegistryListener;
@@ -27,10 +26,10 @@ public record ReloadDataPayload(
 		List<SubPayload<?, ?>> messages
 ) implements CustomPacketPayload {
 
-	public static final CustomPacketPayload.Type<ReloadDataPayload> TYPE = PayloadHelper.createType("reload_data");
-	public static final StreamCodec<FriendlyByteBuf, ReloadDataPayload> STREAM_CODEC = StreamCodec.of((b, p) -> p.write(b), ReloadDataPayload::new);
+	public static final CustomPacketPayload.Type<@NotNull ReloadDataPayload> TYPE = PayloadHelper.createType("reload_data");
+	public static final StreamCodec<@NotNull FriendlyByteBuf, @NotNull ReloadDataPayload> STREAM_CODEC = StreamCodec.of((b, p) -> p.write(b), ReloadDataPayload::new);
 
-	public ReloadDataPayload(Collection<ResourceKey<IDataManager<?>>> managers) {
+	public ReloadDataPayload(Collection<ResourceKey<@NotNull IDataManager<?>>> managers) {
 		this(managers.stream()
 				.<SubPayload<?, ?>>map(m -> SubPayload.create(m, (k, s) -> Collections.emptyMap()))
 				.toList());
@@ -59,17 +58,16 @@ public record ReloadDataPayload(
 	public void handle(IPayloadContext ctx) {
 		ctx.enqueueWork(() -> RegistryListener.getInstance().listen(r -> {
 			messages.forEach(SubPayload::handle);
-			DataHandler.onDPAnvilUpdate();
 		}));
 	}
 
 	@Override
-	public @NotNull Type<ReloadDataPayload> type() {
+	public @NotNull Type<@NotNull ReloadDataPayload> type() {
 		return TYPE;
 	}
 
 	private record SubPayload<T, I>(
-			ResourceKey<IDataManager<T>> key,
+			ResourceKey<@NotNull IDataManager<T>> key,
 			IDataManager<T> manager,
 			IJsonDataSerializer<T, I> serializer,
 			Map<Identifier, T> data,
@@ -93,8 +91,8 @@ public record ReloadDataPayload(
 		}
 
 		@SuppressWarnings("unchecked")
-		public static <T, I> SubPayload<T, I> create(ResourceKey<? super IDataManager<T>> key, BiFunction<ResourceKey<IDataManager<T>>, IJsonDataSerializer<T, I>, Map<Identifier, I>> dataBuilder) {
-			ResourceKey<IDataManager<T>> k = (ResourceKey<IDataManager<T>>) key;
+		public static <T, I> SubPayload<T, I> create(ResourceKey<? super IDataManager<T>> key, BiFunction<ResourceKey<@NotNull IDataManager<T>>, IJsonDataSerializer<T, I>, Map<Identifier, I>> dataBuilder) {
+			ResourceKey<@NotNull IDataManager<T>> k = (ResourceKey<@NotNull IDataManager<T>>) key;
 			IDataManager<T> manager = DataPackAnvil.WRAPPER.getManager(key);
 			IJsonDataSerializer<T, I> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
 			Map<Identifier, T> data = Map.copyOf(manager.getData());

@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class DataManager<T> extends SimplePreparableReloadListener<Map<Identifier, List<JsonElement>>> implements IDataManager<T> {
+public class DataManager<T> extends SimplePreparableReloadListener<@NotNull Map<Identifier, List<JsonElement>>> implements IDataManager<T> {
 
 	private static final Gson GSON = new GsonBuilder().create();
 
@@ -53,13 +53,13 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<Identifie
 	private final Map<Identifier, Holder.Reference<T>> references;
 	private final String folder;
 	private final BiConsumer<T, Identifier> idSetter;
-	private final ResourceKey<IDataManager<T>> key;
+	private final ResourceKey<@NotNull IDataManager<T>> key;
 	private final List<DataPreprocessor> preprocessors;
 	private Map<Identifier, T> data;
 	private Map<Identifier, T> remappedData;
 	private PreprocessorContext preprocessorContext;
 
-	public DataManager(ResourceKey<IDataManager<T>> key, Class<T> contentType, String folder, Function<Identifier, T> defaultValueFactory, BiConsumer<T, Identifier> idSetter, List<DataPreprocessor> preprocessors) {
+	public DataManager(ResourceKey<@NotNull IDataManager<T>> key, Class<T> contentType, String folder, Function<Identifier, T> defaultValueFactory, BiConsumer<T, Identifier> idSetter, List<DataPreprocessor> preprocessors) {
 		this.key = key;
 		this.contentType = contentType;
 		this.defaultValueFactory = defaultValueFactory;
@@ -210,13 +210,13 @@ public class DataManager<T> extends SimplePreparableReloadListener<Map<Identifie
 		var i = this.folder.length() + 1;
 
 		for (var entry : resourceManager.listResourceStacks(this.folder, file -> file.getPath().endsWith(".json")).entrySet()) {
-			var Identifier = entry.getKey();
-			var path = Identifier.getPath();
-			var resourceId = Identifier.fromNamespaceAndPath(Identifier.getNamespace(), path.substring(i, path.length() - 5));
+			var identifier = entry.getKey();
+			var path = identifier.getPath();
+			var resourceId = Identifier.fromNamespaceAndPath(identifier.getNamespace(), path.substring(i, path.length() - 5));
 			var list = new ArrayList<JsonElement>();
 
 			for (var resource : entry.getValue()) {
-				JsonElement element = getElement(Identifier, resourceId, resource);
+				JsonElement element = getElement(identifier, resourceId, resource);
 
 				if (element == null) {
 					continue;
