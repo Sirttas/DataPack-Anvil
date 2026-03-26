@@ -181,11 +181,6 @@ public record CacheBlockPredicate(
             return level.environmentAttributes();
         }
 
-        @Override
-        public float getShade(@Nonnull Direction direction, boolean pShade) {
-            return level.getShade(direction, pShade);
-        }
-
         @Nonnull
         @Override
         public LevelLightEngine getLightEngine() {
