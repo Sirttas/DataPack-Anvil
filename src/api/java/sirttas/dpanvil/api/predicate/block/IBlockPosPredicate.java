@@ -10,7 +10,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import sirttas.dpanvil.api.codec.LazyCodec;
 import sirttas.dpanvil.api.predicate.block.logical.AndBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.AnyBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.logical.NoneBlockPredicate;
@@ -29,7 +28,7 @@ import java.util.List;
 
 public interface IBlockPosPredicate {
 
-	Codec<IBlockPosPredicate> CODEC = LazyCodec.of(() -> BlockPosPredicateType.REGISTRY.byNameCodec().dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec));
+	Codec<IBlockPosPredicate> CODEC = Codec.lazyInitialized(() -> BlockPosPredicateType.REGISTRY.byNameCodec().dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec));
 
 	boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction);
 
