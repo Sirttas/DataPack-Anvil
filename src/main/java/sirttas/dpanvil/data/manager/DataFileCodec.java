@@ -19,7 +19,7 @@ public class DataFileCodec<E> implements Codec<Holder<@NotNull E>> {
     private final boolean allowInline;
 
     @SuppressWarnings("unchecked")
-    public DataFileCodec(ResourceKey<? extends @NotNull IDataManager<E>> managerKey, Codec<E> elementCodec, boolean allowInline) {
+    public DataFileCodec(ResourceKey<? super @NotNull IDataManager<E>> managerKey, Codec<E> elementCodec, boolean allowInline) {
         this.managerKey = (ResourceKey<@NotNull IDataManager<E>>) managerKey;
         this.elementCodec = elementCodec;
         this.allowInline = allowInline;

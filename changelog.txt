@@ -1,4 +1,5 @@
-- port to 26.1
+- port to 26.1.1
+- add the ability to create a stream codec from a data manager
 
 
 6.1.3
