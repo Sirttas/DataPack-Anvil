@@ -4,13 +4,12 @@ import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.IDataPackAnvilService;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.data.manager.DataFileCodec;
-import sirttas.dpanvil.data.manager.DataManager;
+import sirttas.dpanvil.data.manager.DataFileStreamCodec;
 import sirttas.dpanvil.data.manager.DataManagerBuilder;
 
 import javax.annotation.Nonnull;
@@ -31,11 +30,6 @@ public class DataPackAnvilService implements IDataPackAnvilService {
     @NotNull
     @Override
     public <T> StreamCodec<@NotNull ByteBuf, @NotNull Holder<@NotNull T>> streamCodec(ResourceKey<? super @NotNull IDataManager<T>> managerKey) {
-        DataManager<T> manager = DataPackAnvil.WRAPPER.getManager(managerKey);
-
-        if (manager == null) {
-            throw new IllegalStateException("Could not find manager with key " + managerKey);
-        }
-        return Identifier.STREAM_CODEC.map(manager::getOrCreateHolder, h -> h.getKey().identifier());
+        return new DataFileStreamCodec<>(managerKey);
     }
 }
