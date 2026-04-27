@@ -56,9 +56,7 @@ public record ReloadDataPayload(
 	}
 
 	public void handle(IPayloadContext ctx) {
-		ctx.enqueueWork(() -> RegistryListener.getInstance().listen(r -> {
-			messages.forEach(SubPayload::handle);
-		}));
+		ctx.enqueueWork(() -> RegistryListener.getInstance().listen(_ -> messages.forEach(SubPayload::handle)));
 	}
 
 	@Override
