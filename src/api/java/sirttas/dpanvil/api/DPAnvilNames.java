@@ -11,13 +11,9 @@ public class DPAnvilNames {
 	public static final String TAG = "tag";
 	public static final String VALUE = "value";
 	public static final String VALUES = "values";
-	public static final String ID = "id";
 	public static final String NAME = "name";
-	public static final String AMOUNT = "amount";
 	public static final String MODIFIER = "modifier";
     public static final String OFFSET = "offset";
-	public static final String OPERATION = "operation";
-	public static final String GOM_LOADER_TYPE = "gom_loader_type";
 
     private DPAnvilNames() {}
 

@@ -12,10 +12,9 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +25,7 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 
 	private final BiFunction<B, DynamicOps<JsonElement>, JsonElement> builder;
 	private final Map<Identifier, B> data;
+	@Nullable
 	private HolderLookup.Provider resolvedRegistries;
 
 	protected AbstractManagedDataBuilderProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries, IDataManager<T> manager, Encoder<B> encoder) {
@@ -38,9 +38,8 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 		this.data = new HashMap<>();
 	}
 
-	@Nonnull
 	@Override
-	public CompletableFuture<?> run(@Nonnull CachedOutput cache) {
+	public CompletableFuture<?> run(CachedOutput cache) {
 		return registries.thenCompose(r -> {
 			resolvedRegistries = r;
 
@@ -59,7 +58,7 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 
 	protected abstract void collectBuilders(HolderLookup.Provider registries);
 
-	protected B add(ResourceKey<@NotNull T> key, B element) {
+	protected B add(ResourceKey<T> key, B element) {
 		return add(key.identifier(), element);
 	}
 
@@ -72,7 +71,7 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 		});
 	}
 
-	protected CompletableFuture<?> save(CachedOutput cache, DynamicOps<JsonElement> ops, B element, ResourceKey<@NotNull T> key) {
+	protected CompletableFuture<?> save(CachedOutput cache, DynamicOps<JsonElement> ops, B element, ResourceKey<T> key) {
 		return save(cache, ops, element, key.identifier());
 	}
 
@@ -84,12 +83,14 @@ public abstract class AbstractManagedDataBuilderProvider<T, B> extends AbstractM
 		}
 	}
 
-	@Nonnull
-	protected <U> HolderLookup.RegistryLookup<@NotNull U> getRegistry(ResourceKey<? extends @NotNull Registry<@NotNull U>> registry) {
+	protected <U> HolderLookup.RegistryLookup<U> getRegistry(ResourceKey<? extends Registry<U>> registry) {
+		if (resolvedRegistries == null) {
+			throw new IllegalStateException("No registries resolved yet");
+		}
 		return resolvedRegistries.lookupOrThrow(registry);
 	}
 
-	public <U> HolderSet.Named<@NotNull U> createHolderSet(TagKey<@NotNull U> tag) {
+	public <U> HolderSet.Named<U> createHolderSet(TagKey<U> tag) {
 		return getRegistry(tag.registry()).getOrThrow(tag);
 	}
 }

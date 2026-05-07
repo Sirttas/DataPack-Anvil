@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceKey;
 import net.neoforged.fml.util.ObfuscationReflectionHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.data.IDataManager;
 import sirttas.dpanvil.api.data.preprocessor.MergeDataPreprocessor;
 import sirttas.dpanvil.api.data.remap.RemapKeys;
@@ -22,13 +22,14 @@ public class DataPackAnvilApi {
 	public static final String MODID = "dpanvil";
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
 
-	public static final ResourceKey<@NotNull IDataManager<RemapKeys>> REMAP_KEYS_MANAGER_KEY = IDataManager.createManagerKey(DPAnvilNames.Identifiers.create(RemapKeys.NAME));
+	public static final ResourceKey<IDataManager<RemapKeys>> REMAP_KEYS_MANAGER_KEY = IDataManager.createManagerKey(DPAnvilNames.Identifiers.create(RemapKeys.NAME));
 	public static final IDataManager<RemapKeys> REMAP_KEYS_MANAGER = IDataManager.builder(RemapKeys.class, REMAP_KEYS_MANAGER_KEY)
 			.preprocessor(new MergeDataPreprocessor())
 			.defaultPreprocessors()
 			.withDefault(RemapKeys.EMPTY)
 			.build();
 
+	@Nullable
 	private static IDataPackAnvilService service;
 
 	private DataPackAnvilApi() {}
@@ -51,14 +52,14 @@ public class DataPackAnvilApi {
 		return service;
 	}
 
-    public static <T> ResourceKey<T> createResourceKey(ResourceKey<@NotNull IDataManager<T>> dataManagerId, Identifier id) {
+    public static <T> ResourceKey<T> createResourceKey(ResourceKey<IDataManager<T>> dataManagerId, Identifier id) {
         return createResourceKey(dataManagerId.identifier(), id);
     }
 
 	@SuppressWarnings("unchecked")
-	public static <T> ResourceKey<@NotNull T> createResourceKey(Identifier dataManagerId, Identifier id) {
+	public static <T> ResourceKey<T> createResourceKey(Identifier dataManagerId, Identifier id) {
 		try {
-			return (ResourceKey<@NotNull T>) CREATE_RESOURCE_KEY.invoke(null, dataManagerId, id);
+			return (ResourceKey<T>) CREATE_RESOURCE_KEY.invoke(null, dataManagerId, id);
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new IllegalStateException("Reflection error", e);
 		}

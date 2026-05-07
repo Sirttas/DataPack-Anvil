@@ -22,8 +22,9 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.RegistryOps;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.DataPackAnvilApi;
+
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,12 +38,12 @@ public class CodecHelper {
 
 	private CodecHelper() {}
 
-	public static synchronized <T> RegistryOps<@NotNull T> getRegistryOps(DynamicOps<T> ops) {
+	@SuppressWarnings("unchecked")
+    public static synchronized <T> RegistryOps<T> getRegistryOps(DynamicOps<T> ops) {
 		return (RegistryOps<T>) REGISTRY_OPS.computeIfAbsent(ops, o -> RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY).createSerializationContext(o));
 	}
 
-
-	public static <K, V> Codec<Multimap<K, V>> multiMapCodec(Codec<K> keyCodec, Codec<V> valueCodec) {
+	public static <K, V> Codec<@Nullable Multimap<K, V>> multiMapCodec(Codec<K> keyCodec, Codec<V> valueCodec) {
 		return Codec.unboundedMap(keyCodec, valueCodec.listOf()).xmap(map -> {
 			if (map != null) {
 				Multimap<K, V> multiMap = HashMultimap.create();
@@ -75,7 +76,7 @@ public class CodecHelper {
 
 			@Override
 			public String toString() {
-				return encoder.toString() + "FieldEncoderMapped [" + fieldEncoder.toString() + ']';
+				return encoder + "FieldEncoderMapped [" + fieldEncoder + ']';
 			}
 		};
 	}
@@ -92,7 +93,7 @@ public class CodecHelper {
 
 			@Override
 			public String toString() {
-				return decoder.toString() + "FieldDecoderMapped [" + fieldDecoder.toString() + ']';
+				return decoder + "FieldDecoderMapped [" + fieldDecoder + ']';
 			}
 		};
 	}
