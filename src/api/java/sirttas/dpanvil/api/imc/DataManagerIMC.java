@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.fml.InterModComms;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.data.IDataManager;
 
@@ -18,16 +18,16 @@ public class DataManagerIMC<T> {
 	public static final String METHOD = "data_manager";
 
 	private final IDataManager<T> manager;
-	private Codec<T> codec;
-	private Function<JsonElement, T> readJson;
-	private Function<FriendlyByteBuf, T> readPacket;
-	private BiConsumer<FriendlyByteBuf, T> writePacket;
+	@Nullable private Codec<T> codec;
+	@Nullable private Function<JsonElement, T> readJson;
+	@Nullable private Function<FriendlyByteBuf, T> readPacket;
+	@Nullable private BiConsumer<FriendlyByteBuf, T> writePacket;
 
 	public DataManagerIMC(IDataManager<T> manager) {
 		this.manager = manager;
 	}
 
-	public ResourceKey<@NotNull IDataManager<T>> getKey() {
+	public ResourceKey<IDataManager<T>> getKey() {
 		return manager.getKey();
 	}
 
@@ -35,18 +35,22 @@ public class DataManagerIMC<T> {
 		return manager;
 	}
 
+	@Nullable
 	public Codec<T> getCodec() {
 		return codec;
 	}
 
+	@Nullable
 	public Function<JsonElement, T> getReadJson() {
 		return readJson;
 	}
 
+	@Nullable
 	public Function<FriendlyByteBuf, T> getReadPacket() {
 		return readPacket;
 	}
 
+	@Nullable
 	public BiConsumer<FriendlyByteBuf, T> getWritePacket() {
 		return writePacket;
 	}
@@ -66,10 +70,7 @@ public class DataManagerIMC<T> {
 		this.writePacket = writePacket;
 		return this;
 	}
-	
-	public DataManagerIMC<T> withSerializer(Function<FriendlyByteBuf, T> readPacket, BiConsumer<FriendlyByteBuf, T> writePacket) {
-		return withSerializer(null, readPacket, writePacket);
-	}
+
 
 	public static <T> void enqueue(Supplier<DataManagerIMC<T>> supplier) {
 		InterModComms.sendTo(DataPackAnvilApi.MODID, METHOD, supplier);

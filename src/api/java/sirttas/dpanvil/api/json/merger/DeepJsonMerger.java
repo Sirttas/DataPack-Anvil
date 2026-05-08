@@ -13,11 +13,7 @@ public class DeepJsonMerger implements JsonMerger {
 
     @Override
     public JsonElement merge(JsonElement jsonElement1, JsonElement jsonElement2) {
-        if (jsonElement1 == null) {
-            return jsonElement2;
-        } else if (jsonElement2 == null) {
-            return jsonElement1;
-        } else if (jsonElement1.equals(jsonElement2)) {
+        if (jsonElement1.equals(jsonElement2)) {
             return jsonElement1;
         }
 

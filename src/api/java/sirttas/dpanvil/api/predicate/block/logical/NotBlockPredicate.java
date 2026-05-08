@@ -6,13 +6,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelReader;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateTooltipHelper;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public record NotBlockPredicate(
@@ -25,7 +24,7 @@ public record NotBlockPredicate(
 	).apply(builder, NotBlockPredicate::new));
 
 	@Override
-	public boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
+	public boolean test(LevelReader level, BlockPos pos, @Nullable Direction direction) {
 		return !predicate.test(level, pos, direction);
 	}
 
@@ -43,19 +42,16 @@ public record NotBlockPredicate(
 	public IBlockPosPredicate simplify() {
 		IBlockPosPredicate simplified = this.predicate.simplify();
 
-		if (simplified instanceof NotBlockPredicate notBlockPredicate) {
-			return notBlockPredicate.predicate;
-		} else if (simplified instanceof AnyBlockPredicate) {
-			return IBlockPosPredicate.none();
-		} else if (simplified instanceof NoneBlockPredicate) {
-			return IBlockPosPredicate.any();
-		}
-		return IBlockPosPredicate.super.simplify();
-	}
+        return switch (simplified) {
+            case NotBlockPredicate(IBlockPosPredicate child) -> child;
+            case AnyBlockPredicate _ -> IBlockPosPredicate.none();
+            case NoneBlockPredicate _ -> IBlockPosPredicate.any();
+            default -> IBlockPosPredicate.super.simplify();
+        };
+    }
 
 	@Override
-	@Nonnull
-	public List<Component> getTooltip() {
+    public List<Component> getTooltip() {
 		return BlockPosPredicateTooltipHelper.not(predicate, IBlockPosPredicate::getTooltip);
 	}
 }

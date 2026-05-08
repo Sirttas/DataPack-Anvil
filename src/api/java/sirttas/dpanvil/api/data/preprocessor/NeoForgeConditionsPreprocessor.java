@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.neoforged.neoforge.common.conditions.ICondition;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.codec.CodecHelper;
 
@@ -25,7 +26,7 @@ public class NeoForgeConditionsPreprocessor implements DataPreprocessor {
                 .toList();
     }
 
-    private boolean testNeoforgeConditions(Context context, JsonElement jsonElement) {
+    private boolean testNeoforgeConditions(Context context, @Nullable JsonElement jsonElement) {
         if (jsonElement == null) {
             return false;
         } else if (!jsonElement.isJsonObject()) {

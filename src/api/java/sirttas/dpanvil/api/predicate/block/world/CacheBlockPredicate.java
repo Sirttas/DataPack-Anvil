@@ -40,13 +40,11 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.LevelTickAccess;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +60,7 @@ public record CacheBlockPredicate(
     ).apply(builder, CacheBlockPredicate::new));
 
     @Override
-    public boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
+    public boolean test(LevelReader level, BlockPos pos, @Nullable Direction direction) {
         return predicate.test(switch (level) {
             case CacheLevel cacheLevel -> cacheLevel;
             case ServerLevelAccessor serverLevelAccessor -> new CacheLevel(serverLevelAccessor);
@@ -76,7 +74,6 @@ public record CacheBlockPredicate(
     }
 
     @Override
-    @Nonnull
     public List<Component> getTooltip() {
         return predicate.getTooltip();
     }
@@ -91,7 +88,6 @@ public record CacheBlockPredicate(
             this.blockEntityCache = new HashMap<>();
         }
 
-        @Nonnull
         @Override
         public ServerLevel getLevel() {
             return level;
@@ -102,27 +98,23 @@ public record CacheBlockPredicate(
             return level.nextSubTickCount();
         }
 
-        @Nonnull
         @Override
-        public LevelTickAccess<@NotNull Block> getBlockTicks() {
+        public LevelTickAccess<Block> getBlockTicks() {
             return level.getBlockTicks();
         }
 
-        @Nonnull
         @Override
-        public LevelTickAccess<@NotNull Fluid> getFluidTicks() {
+        public LevelTickAccess<Fluid> getFluidTicks() {
             return level.getFluidTicks();
         }
 
-        @Nonnull
         @Override
         public LevelData getLevelData() {
             return level.getLevelData();
         }
 
-        @Nonnull
         @Override
-        public DifficultyInstance getCurrentDifficultyAt(@Nonnull BlockPos pos) {
+        public DifficultyInstance getCurrentDifficultyAt(BlockPos pos) {
             return level.getCurrentDifficultyAt(pos);
         }
 
@@ -132,62 +124,56 @@ public record CacheBlockPredicate(
             return level.getServer();
         }
 
-        @Nonnull
         @Override
         public ChunkSource getChunkSource() {
             return level.getChunkSource();
         }
 
-        @Nonnull
         @Override
         public RandomSource getRandom() {
             return level.getRandom();
         }
 
         @Override
-        public void playSound(@Nullable Entity entity, @NotNull BlockPos blockPos, @NotNull SoundEvent soundEvent, @NotNull SoundSource soundSource, float v, float v1) {
+        public void playSound(@Nullable Entity entity, BlockPos blockPos, SoundEvent soundEvent, SoundSource soundSource, float v, float v1) {
             level.playSound(entity, blockPos, soundEvent, soundSource, v, v1);
         }
 
         @Override
-        public void addParticle(@Nonnull ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+        public void addParticle(ParticleOptions particleData, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
             level.addParticle(particleData, x, y, z, xSpeed, ySpeed, zSpeed);
         }
 
         @Override
-        public void levelEvent(@Nullable Entity entity, int i, @NotNull BlockPos blockPos, int i1) {
+        public void levelEvent(@Nullable Entity entity, int i, BlockPos blockPos, int i1) {
             level.levelEvent(entity, i, blockPos, i1);
         }
 
         @Override
-        public void gameEvent(@NotNull Holder<@NotNull GameEvent> holder, @NotNull Vec3 vec3, @NotNull GameEvent.Context context) {
+        public void gameEvent(Holder<GameEvent> holder, Vec3 vec3, GameEvent.Context context) {
             level.gameEvent(holder, vec3, context);
         }
 
-        @Nonnull
         @Override
         public RegistryAccess registryAccess() {
             return level.registryAccess();
         }
 
-        @Nonnull
         @Override
         public FeatureFlagSet enabledFeatures() {
             return level.enabledFeatures();
         }
 
         @Override
-        public @NotNull EnvironmentAttributeReader environmentAttributes() {
+        public EnvironmentAttributeReader environmentAttributes() {
             return level.environmentAttributes();
         }
 
-        @Nonnull
         @Override
         public LevelLightEngine getLightEngine() {
             return level.getLightEngine();
         }
 
-        @Nonnull
         @Override
         public WorldBorder getWorldBorder() {
             return level.getWorldBorder();
@@ -195,35 +181,30 @@ public record CacheBlockPredicate(
 
         @Nullable
         @Override
-        public synchronized BlockEntity getBlockEntity(@Nonnull BlockPos pos) {
+        public synchronized BlockEntity getBlockEntity(BlockPos pos) {
             return blockEntityCache.computeIfAbsent(pos, level::getBlockEntity);
         }
 
-        @Nonnull
         @Override
-        public BlockState getBlockState(@Nonnull BlockPos pos) {
+        public BlockState getBlockState(BlockPos pos) {
             return level.getBlockState(pos);
         }
 
-        @Nonnull
         @Override
-        public FluidState getFluidState(@Nonnull BlockPos pos) {
+        public FluidState getFluidState(BlockPos pos) {
             return level.getFluidState(pos);
         }
 
-        @Nonnull
         @Override
-        public List<Entity> getEntities(@Nullable Entity entity, @Nonnull AABB area, @Nonnull Predicate<? super Entity> predicate) {
+        public List<Entity> getEntities(@Nullable Entity entity, AABB area, Predicate<? super Entity> predicate) {
             return level.getEntities(entity, area, predicate);
         }
 
-        @Nonnull
         @Override
-        public <T extends Entity> List<T> getEntities(@Nonnull EntityTypeTest<@NotNull Entity, @NotNull T> entityTypeTest, @Nonnull AABB area, @Nonnull Predicate<? super T> predicate) {
+        public <T extends Entity> List<T> getEntities(EntityTypeTest<Entity, T> entityTypeTest, AABB area, Predicate<? super T> predicate) {
             return level.getEntities(entityTypeTest, area, predicate);
         }
 
-        @Nonnull
         @Override
         public List<? extends Player> players() {
             return level.players();
@@ -231,12 +212,12 @@ public record CacheBlockPredicate(
 
         @Nullable
         @Override
-        public ChunkAccess getChunk(int i, int i1, @NotNull ChunkStatus chunkStatus, boolean b) {
+        public ChunkAccess getChunk(int i, int i1, ChunkStatus chunkStatus, boolean b) {
             return level.getChunk(i, i1, chunkStatus, b);
         }
 
         @Override
-        public int getHeight(@Nonnull Heightmap.Types heightmapType, int pX, int pZ) {
+        public int getHeight(Heightmap.Types heightmapType, int pX, int pZ) {
             return level.getHeight(heightmapType, pX, pZ);
         }
 
@@ -245,15 +226,13 @@ public record CacheBlockPredicate(
             return level.getSkyDarken();
         }
 
-        @Nonnull
         @Override
         public BiomeManager getBiomeManager() {
             return level.getBiomeManager();
         }
 
-        @Nonnull
         @Override
-        public Holder<@NotNull Biome> getUncachedNoiseBiome(int pX, int pY, int pZ) {
+        public Holder<Biome> getUncachedNoiseBiome(int pX, int pY, int pZ) {
             return level.getUncachedNoiseBiome(pX, pY, pZ);
         }
 
@@ -267,34 +246,33 @@ public record CacheBlockPredicate(
             return level.getSeaLevel();
         }
 
-        @Nonnull
         @Override
         public DimensionType dimensionType() {
             return level.dimensionType();
         }
 
         @Override
-        public boolean isStateAtPosition(@Nonnull BlockPos pos, @Nonnull Predicate<BlockState> state) {
+        public boolean isStateAtPosition(BlockPos pos, Predicate<BlockState> state) {
             return level.isStateAtPosition(pos, state);
         }
 
         @Override
-        public boolean isFluidAtPosition(@Nonnull BlockPos pos, @Nonnull Predicate<FluidState> predicate) {
+        public boolean isFluidAtPosition(BlockPos pos, Predicate<FluidState> predicate) {
             return level.isFluidAtPosition(pos, predicate);
         }
 
         @Override
-        public boolean setBlock(@Nonnull BlockPos pos, @Nonnull BlockState state, int pFlags, int pRecursionLeft) {
+        public boolean setBlock(BlockPos pos, BlockState state, int pFlags, int pRecursionLeft) {
             return level.setBlock(pos, state, pFlags, pRecursionLeft);
         }
 
         @Override
-        public boolean removeBlock(@Nonnull BlockPos pos, boolean pIsMoving) {
+        public boolean removeBlock(BlockPos pos, boolean pIsMoving) {
             return level.removeBlock(pos, pIsMoving);
         }
 
         @Override
-        public boolean destroyBlock(@Nonnull BlockPos pos, boolean pDropBlock, @Nullable Entity pEntity, int pRecursionLeft) {
+        public boolean destroyBlock(BlockPos pos, boolean pDropBlock, @Nullable Entity pEntity, int pRecursionLeft) {
             return level.destroyBlock(pos, pDropBlock, pEntity, pRecursionLeft);
         }
     }

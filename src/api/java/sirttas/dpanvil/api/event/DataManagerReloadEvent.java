@@ -5,6 +5,7 @@ import net.neoforged.bus.api.Event;
 import org.jetbrains.annotations.NotNull;
 import sirttas.dpanvil.api.data.IDataManager;
 
+@Deprecated
 public class DataManagerReloadEvent extends Event {
 
 	private final IDataManager<?> dataManager;
@@ -13,7 +14,8 @@ public class DataManagerReloadEvent extends Event {
 		this.dataManager = dataManager;
 	}
 
-	public <T> IDataManager<T> getDataManager() {
+	@SuppressWarnings("unchecked")
+    public <T> IDataManager<T> getDataManager() {
 		return (IDataManager<T>) dataManager;
 	}
 

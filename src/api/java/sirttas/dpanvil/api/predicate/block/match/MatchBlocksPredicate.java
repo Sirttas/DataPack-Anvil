@@ -13,7 +13,6 @@ import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public record MatchBlocksPredicate(
@@ -56,7 +55,6 @@ public record MatchBlocksPredicate(
 	}
 
 	@Override
-	@Nonnull
 	public List<Component> getTooltip() {
 		return BlockPosPredicateTooltipHelper.or(blocks, b -> List.of(b.getName()));
 	}

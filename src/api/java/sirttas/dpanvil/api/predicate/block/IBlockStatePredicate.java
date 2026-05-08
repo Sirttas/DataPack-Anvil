@@ -4,9 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
 public interface IBlockStatePredicate extends IBlockPosPredicate {
@@ -18,7 +17,7 @@ public interface IBlockStatePredicate extends IBlockPosPredicate {
 	}
 
 	@Override
-	default boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
+	default boolean test(LevelReader level, BlockPos pos, @Nullable Direction direction) {
 		return test(level.getBlockState(pos));
 	}
 }

@@ -8,7 +8,6 @@ import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public record MatchBlockStatePredicate(
@@ -31,8 +30,7 @@ public record MatchBlockStatePredicate(
 	}
 
 	@Override
-	@Nonnull
-	public List<Component> getTooltip() {
+    public List<Component> getTooltip() {
 		return List.of(state.getBlock().getName());
 	}
 }

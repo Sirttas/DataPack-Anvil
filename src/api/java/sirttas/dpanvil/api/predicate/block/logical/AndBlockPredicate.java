@@ -5,12 +5,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelReader;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateTooltipHelper;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,7 +28,7 @@ public final class AndBlockPredicate extends AbstractListBlockPredicate {
 	}
 
 	@Override
-	public boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
+	public boolean test(LevelReader level, BlockPos pos, @Nullable Direction direction) {
 		return predicates.stream().allMatch(predicate -> predicate.test(level, pos, direction));
 	}
 
@@ -60,8 +59,7 @@ public final class AndBlockPredicate extends AbstractListBlockPredicate {
 	}
 
 	@Override
-	@Nonnull
-	public List<Component> getTooltip() {
+    public List<Component> getTooltip() {
 		return BlockPosPredicateTooltipHelper.and(predicates, IBlockPosPredicate::getTooltip);
 	}
 }

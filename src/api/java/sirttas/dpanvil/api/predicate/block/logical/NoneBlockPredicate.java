@@ -5,11 +5,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.LevelReader;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public final class NoneBlockPredicate implements IBlockPosPredicate {
@@ -22,7 +21,7 @@ public final class NoneBlockPredicate implements IBlockPosPredicate {
 	}
 
 	@Override
-	public boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction) {
+	public boolean test(LevelReader level, BlockPos pos, @Nullable Direction direction) {
 		return false;
 	}
 
@@ -46,8 +45,7 @@ public final class NoneBlockPredicate implements IBlockPosPredicate {
 	}
 
 	@Override
-	@Nonnull
-	public List<Component> getTooltip() {
+    public List<Component> getTooltip() {
 		return List.of(Component.translatable("tooltip.dpanvil.predicate.none"));
 	}
 }

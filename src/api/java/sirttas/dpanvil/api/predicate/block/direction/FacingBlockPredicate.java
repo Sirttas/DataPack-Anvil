@@ -5,7 +5,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.LevelReader;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockPosPredicate;
@@ -39,7 +38,7 @@ public enum FacingBlockPredicate implements IBlockPosPredicate {
     }
 
     @Override
-    public boolean test(@NonNull LevelReader level, @NonNull BlockPos pos, @Nullable Direction direction) {
+    public boolean test(LevelReader level, BlockPos pos, @Nullable Direction direction) {
         return direction == this.direction;
     }
 

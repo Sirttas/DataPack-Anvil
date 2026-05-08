@@ -22,7 +22,6 @@ import sirttas.dpanvil.api.predicate.block.match.MatchBlocksPredicate;
 import sirttas.dpanvil.api.predicate.block.world.CacheBlockPredicate;
 import sirttas.dpanvil.api.predicate.block.world.OffsetBlockPredicate;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -30,7 +29,7 @@ public interface IBlockPosPredicate {
 
 	Codec<IBlockPosPredicate> CODEC = Codec.lazyInitialized(() -> BlockPosPredicateType.REGISTRY.byNameCodec().dispatch(IBlockPosPredicate::getType, BlockPosPredicateType::codec));
 
-	boolean test(@Nonnull LevelReader level, @Nonnull BlockPos pos, @Nullable Direction direction);
+	boolean test(LevelReader level, BlockPos pos, @Nullable Direction direction);
 
 	BlockPosPredicateType<? extends IBlockPosPredicate> getType();
 
@@ -99,7 +98,6 @@ public interface IBlockPosPredicate {
 		return this;
 	}
 
-	@Nonnull
 	default List<Component> getTooltip() {
 		return List.of();
 	}

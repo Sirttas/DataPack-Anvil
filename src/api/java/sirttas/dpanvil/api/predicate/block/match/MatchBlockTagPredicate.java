@@ -12,7 +12,6 @@ import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.predicate.block.BlockPosPredicateType;
 import sirttas.dpanvil.api.predicate.block.IBlockStatePredicate;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public record MatchBlockTagPredicate(
@@ -39,8 +38,7 @@ public record MatchBlockTagPredicate(
 	}
 
 	@Override
-	@Nonnull
-	public List<Component> getTooltip() {
+    public List<Component> getTooltip() {
 		return List.of(Component.translatable("tooltip.dpanvil.predicate.tag", Component.literal(tag.location().toString())));
 	}
 }

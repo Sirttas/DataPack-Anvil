@@ -3,6 +3,7 @@ package sirttas.dpanvil.api.data.preprocessor;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 import sirttas.dpanvil.api.DPAnvilNames;
 import sirttas.dpanvil.api.DataPackAnvilApi;
 import sirttas.dpanvil.api.json.merger.DeepJsonMerger;
@@ -25,7 +26,7 @@ public class InheritanceDataPreprocessor implements DataPreprocessor {
         this.jsonMerger = jsonMerger;
     }
 
-    public static <O> RecordCodecBuilder<O, Identifier> fieldOf(Function<O, Identifier> getter) {
+    public static <O> RecordCodecBuilder<O, @Nullable Identifier> fieldOf(Function<O, Identifier> getter) {
         return Identifier.CODEC.optionalFieldOf(PARENT_TAG_NAME, null).forGetter(getter);
     }
 
