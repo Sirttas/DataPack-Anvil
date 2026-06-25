@@ -1,7 +1,9 @@
 package sirttas.dpanvil.data.network.payload;
 
+import io.netty.buffer.Unpooled;
 import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
@@ -24,11 +26,11 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 public record ReloadDataPayload(
-		List<SubPayload<?, ?>> messages
-) implements CustomPacketPayload {
+		List<SubPayload<?, ?>> messages) implements CustomPacketPayload {
 
 	public static final CustomPacketPayload.Type<ReloadDataPayload> TYPE = PayloadHelper.createType("reload_data");
-	public static final StreamCodec<FriendlyByteBuf, ReloadDataPayload> STREAM_CODEC = StreamCodec.of((b, p) -> p.write(b), ReloadDataPayload::new);
+	public static final StreamCodec<FriendlyByteBuf, ReloadDataPayload> STREAM_CODEC = StreamCodec
+			.of((b, p) -> p.write(b), ReloadDataPayload::new);
 
 	public ReloadDataPayload(Collection<ResourceKey<IDataManager<?>>> managers) {
 		this(managers.stream()
@@ -73,8 +75,7 @@ public record ReloadDataPayload(
 			IDataManager<T> manager,
 			IJsonDataSerializer<T, I> serializer,
 			Map<ResourceLocation, T> data,
-			Map<ResourceLocation, I> intermediateData
-	) {
+			Map<ResourceLocation, I> intermediateData) {
 
 		public static <T, I> SubPayload<T, I> load(FriendlyByteBuf buf) {
 			return create(IDataManager.createManagerKey(buf.readResourceLocation()), (k, s) -> {
@@ -93,7 +94,8 @@ public record ReloadDataPayload(
 		}
 
 		@SuppressWarnings("unchecked")
-		public static <T, I> SubPayload<T, I> create(ResourceKey<? super IDataManager<T>> key, BiFunction<ResourceKey<IDataManager<T>>, IJsonDataSerializer<T, I>, Map<ResourceLocation, I>> dataBuilder) {
+		public static <T, I> SubPayload<T, I> create(ResourceKey<? super IDataManager<T>> key,
+				BiFunction<ResourceKey<IDataManager<T>>, IJsonDataSerializer<T, I>, Map<ResourceLocation, I>> dataBuilder) {
 			ResourceKey<IDataManager<T>> k = (ResourceKey<IDataManager<T>>) key;
 			IDataManager<T> manager = DataPackAnvil.WRAPPER.getManager(key);
 			IJsonDataSerializer<T, I> serializer = DataPackAnvil.WRAPPER.getSerializer(key);
@@ -105,16 +107,36 @@ public record ReloadDataPayload(
 
 		public void write(FriendlyByteBuf buf) {
 			buf.writeResourceLocation(key.location());
-			buf.writeInt(data.size());
-			data.forEach((loc, prop) -> encodeSingleData(buf, loc, prop));
+			var survivors = new java.util.ArrayList<FriendlyByteBuf>(data.size());
+
+			data.forEach((loc, prop) -> {
+				FriendlyByteBuf encoded = encodeSingleData(buf, loc, prop);
+				if (encoded != null) {
+					survivors.add(encoded);
+				}
+			});
+
+			buf.writeInt(survivors.size());
+			for (FriendlyByteBuf survivor : survivors) {
+				buf.writeBytes(survivor);
+				survivor.release();
+			}
 		}
 
-		private void encodeSingleData(FriendlyByteBuf buf, ResourceLocation loc, T prop) {
+		private FriendlyByteBuf encodeSingleData(FriendlyByteBuf buf, ResourceLocation loc, T prop) {
+			FriendlyByteBuf scratch = buf instanceof RegistryFriendlyByteBuf rbuf
+					? new RegistryFriendlyByteBuf(Unpooled.buffer(), rbuf.registryAccess())
+					: new FriendlyByteBuf(Unpooled.buffer());
+
 			try {
-				buf.writeResourceLocation(loc);
-				serializer.write(prop, buf);
+				scratch.writeResourceLocation(loc);
+				serializer.write(prop, scratch);
+				return scratch;
 			} catch (Exception e) {
-				throw new IllegalStateException("Error while encoding network packet for DataManger " + key + ", " + loc + " has invalid data", e);
+				scratch.release();
+				DataPackAnvilApi.LOGGER.warn("Skipping {} in DataManager {} during network sync, failed to encode: {}",
+						loc, key, e.getMessage());
+				return null;
 			}
 		}
 

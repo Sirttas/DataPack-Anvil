@@ -6,12 +6,12 @@ import com.mojang.serialization.JsonOps;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import sirttas.dpanvil.api.codec.CodecHelper;
 import sirttas.dpanvil.registry.RegistryListener;
 
 public record CodecJsonDataSerializer<T>(
-		Codec<T> codec
-) implements IJsonDataSerializer<T, Tag> {
+		Codec<T> codec) implements IJsonDataSerializer<T, Tag> {
 
 	@Override
 	public T read(JsonElement json) {
@@ -30,6 +30,10 @@ public record CodecJsonDataSerializer<T>(
 
 	@Override
 	public void write(T data, FriendlyByteBuf buf) {
-		CodecHelper.encode(codec, RegistryListener.getInstance().getRegistryOps(NbtOps.INSTANCE), data, buf);
+		var ops = buf instanceof RegistryFriendlyByteBuf rbuf
+				? rbuf.registryAccess().createSerializationContext(NbtOps.INSTANCE)
+				: RegistryListener.getInstance().getRegistryOps(NbtOps.INSTANCE);
+
+		CodecHelper.encode(codec, ops, data, buf);
 	}
 }
